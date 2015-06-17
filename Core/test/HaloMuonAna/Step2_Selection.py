@@ -248,11 +248,9 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         referenceMean= self.hist[hreferencename].GetMean()
         meanReferenceNoise = hChMean.GetBinContent(8*14 + 3 +1) #noise is not estimated well. do iterative procedure from ralf? or random trigger?
 #        referenceMean -= meanReferenceNoise
-                else:
-
 
         if referenceMean != 0:
-            print "Warning reference channel empty. Not dividing."
+            print "Warning reference channel empty. Not dividing"
         for isec in xrange(0,16):
             for imod in xrange(0,14):
                 hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
