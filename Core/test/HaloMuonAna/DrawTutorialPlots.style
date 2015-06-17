@@ -1,0 +1,27 @@
+#
+# use the "hsample" variable to set draw properties per sample that is plotted
+# this will be propagated to all canvases
+# access the histograms with "h"
+# all default ROOT functions can be used here
+#
+# use the "cname" variable to set draw properties of the histograms per canvas e.g. plot ranges
+# access the histograms with "h"
+# access the canvas with "c"
+# all default ROOT functions can be used here
+#
+
+
+
+
+if hsample == "data_MinimumBias":
+    h.SetMarkerStyle(20)
+    h.SetMarkerColor(2)
+    h.SetMarkerSize(0.5)
+    
+
+if cname == "hasector_RMS":
+    h.GetYaxis().SetRangeUser(0.,0.9)
+    h.GetYaxis().SetTitle("(N_{event}")
+    h.GetYaxis().SetTitleOffset(2.0)
+    h.GetXaxis().SetTitle("RMS")
+    c.cd(1).SetLogy()
