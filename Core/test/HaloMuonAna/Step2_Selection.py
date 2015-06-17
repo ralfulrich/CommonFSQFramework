@@ -14,8 +14,11 @@ from math import sqrt
 from array import *
 
 from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
 import numpy as np
+
+import matplotlib
+matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
+import matplotlib.pyplot as plt
 
 maxFileNo = -1
 outfolder = "/afs/cern.ch/user/c/cbaus/pp13TeV2015/HaloMuons/CMSSW_7_4_4_patch4/src/CommonFSQFramework/Core/test/HaloMuonAna/output/"
@@ -127,30 +130,37 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             #  print 'sec', sec, 'mod', mod, 'e_ch=', channel_energy, "e_sec", sector_energy[sec]
             #  print "all sector energies:  ", sector_energy
 
-        listSectorsAboveNoise = []
+        listSectorsAboveNoise2Sigma = []
+        for i in xrange(0,16):
+            if sector_energy[i] > self.sector_mean[i] + 2*self.sector_RMS[i]:
+                listSectorsAboveNoise2Sigma.append(i)
+
+        listSectorsAboveNoise3Sigma = []
         for i in xrange(0,16):
             if sector_energy[i] > self.sector_mean[i] + 3*self.sector_RMS[i]:
-                listSectorsAboveNoise.append(i)
+                listSectorsAboveNoise3Sigma.append(i)
                 self.hist["SecAboveNoiseCount"].Fill(i)
                 # print i,  sector_energy[i]
 
 
         #selection on sectors (bad channels alread excluded)
-        countSectorsAboveNoise = len(listSectorsAboveNoise)
-        if countSectorsAboveNoise != 1: #only 1 sector above noise the others empty
+        countSectorsAboveNoise3Sigma = len(listSectorsAboveNoise3Sigma)
+        countSectorsAboveNoise2Sigma = len(listSectorsAboveNoise2Sigma)
+        if countSectorsAboveNoise3Sigma != 1 or countSectorsAboveNoise2Sigma != 1: #only 1 sector above 3 Sigma and all others below 2 Sigma
             return
+        #print "Sectors above noise", listSectorsAboveNoise
             #if listSectorsAboveNoise[0] != 8:
             #   return
 
-        #what is this in the follwoing lines? please comment code properly
-        isec_pn = ((listSectorsAboveNoise[0] + 1) + 16)%16
-        isec_mn = ((listSectorsAboveNoise[0] - 1) + 16)%16
+        #what is this in the following lines? please comment code properly
+        isec_pn = ((listSectorsAboveNoise3Sigma[0] + 1) + 16)%16
+        isec_mn = ((listSectorsAboveNoise3Sigma[0] - 1) + 16)%16
 
-        isec_pns = ((listSectorsAboveNoise[0] + 1) + 8)%16
-        isec_mns = ((listSectorsAboveNoise[0] - 1) + 8)%16
+        isec_pns = ((listSectorsAboveNoise3Sigma[0] + 1) + 8)%16
+        isec_mns = ((listSectorsAboveNoise3Sigma[0] - 1) + 8)%16
 
-        cond1 = listSectorsAboveNoise[0] or isec_pn or isec_mn
-        cond2= ((listSectorsAboveNoise[0]+8)%16 or isec_pns or isec_mns)
+        cond1 = listSectorsAboveNoise3Sigma[0] or isec_pn or isec_mn
+        cond2= ((listSectorsAboveNoise3Sigma[0]+8)%16 or isec_pns or isec_mns)
 
         for isec in xrange(0,16):
             for imod in xrange(0,14):
@@ -169,21 +179,22 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 continue
 
 
-            if sec == listSectorsAboveNoise[0]:
+            if sec == listSectorsAboveNoise3Sigma[0]:
               # channel_energy[sec][mod] += self.fChain.CastorRecHitEnergy.at(i)
-               if channel_energy[sec][mod]> self.ch_mean[sec][mod] + 3*self.ch_RMS[sec][mod]:
+               if channel_energy[sec][mod]> self.ch_mean[sec][mod] + 2*self.ch_RMS[sec][mod]:
                   listChannelsAboveNoise.append(i)
               # hchannel = 'Channelenergy_mod_{mod}_sec_{sec}'.format(mod=str(mod), sec=str(sec))
               # self.hist[hchannel].Fill(channel_energy[sec][mod])
 
 
         countChannelsAboveNoise = len(listChannelsAboveNoise)
+        #print "Channels above noise:", listChannelsAboveNoise
 
-        if countChannelsAboveNoise >3 :
+        if countChannelsAboveNoise > 4:
             hasMuonTrigger= self.fChain.trgmuon
             Front_Module = False
             Mid_Module= False
-            Back_Module =False
+            Rear_Module =False
 
             for i in listChannelsAboveNoise:
                sec = self.fChain.CastorRecHitSector.at(i)-1
@@ -195,7 +206,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                    Mid_Module= True
 
                if mod in [10,11,12,13,14]:
-                   Back_Module= True
+                   Rear_Module= True
 
             #found an interesting event. now fill histograms for channels above noise
             for i in listChannelsAboveNoise:
@@ -203,27 +214,29 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 mod = self.fChain.CastorRecHitModule.at(i)-1
                 hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(mod), sec=str(sec))
                 hwithouttrigger = 'MuonSignalSecCh_withtoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(mod), sec=str(sec))
-                if True or Front_Module + Mid_Module + Back_Module >= 2: #maybe change to 3
-                    if True or hasMuonTrigger:
-                        print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Back_Module
-                        trgEvtFileName  = "run_" + str(self.fChain.run) + "_event_" + str(self.fChain.event) + ".pdf"
-                        x = channel_energy
-                        fig = plt.figure()
-                        ax = fig.add_subplot(111, projection='3d')
-                        for isec in np.arange(16):
-                            xs = np.arange(14)
-                            ys = channel_energy[isec]
+                if Front_Module + Mid_Module + Rear_Module >= 2: #maybe change to 3
+                    print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
+                    trgEvtFileName  = "Muon_run_" + str(self.fChain.run) + "_event_" + str(self.fChain.event) + ".pdf"
+                    fig = plt.figure()
+                    ax = fig.add_subplot(111, projection='3d')
+                    channel_energy_wo_bad_ch = np.asarray(channel_energy)
+                    for imod,isec in badChannelsModSec:
+                        channel_energy_wo_bad_ch[isec][imod] = 0
+                    for isec in np.arange(16):
+                        xs = np.arange(14)
+                        ys = channel_energy_wo_bad_ch[isec]
 
-                            # You can provide either a single color or an array. To demonstrate this,
-                            # the first bar of each set will be colored cyan.
-                            #cs = [c] * len(xs)
-                            #cs[0] = 'c'
-                            ax.bar(xs, ys, zs=isec, zdir='y', color="r", alpha=0.8)
-                        ax.set_xlabel('Module')
-                        ax.set_ylabel('Sector')
-                        ax.set_zlabel('Channel Energy')
-                        fig.savefig(join(outfolder,trgEvtFileName))
-
+                        # You can provide either a single color or an array. To demonstrate this,
+                        # the first bar of each set will be colored cyan.
+                        #cs = [c] * len(xs)
+                        #cs[0] = 'c'
+                        ax.bar(xs, ys, zs=isec, zdir='y', color="r", alpha=0.8)
+                    ax.set_xlabel('Module')
+                    ax.set_ylabel('Sector')
+                    ax.set_zlabel('Channel Energy')
+                    ax.set_title('Sec: ' + str(sec) + "   Trigger: " + ("Yes" if hasMuonTrigger else "no") + "   Mod[F/M/R]: " + str(Front_Module) + "/" + str(Mid_Module) + "/" + str(Rear_Module))
+                    fig.savefig(join(outfolder,trgEvtFileName)) #happens multiple times
+                    if hasMuonTrigger:
                         self.hist[hname].Fill(channel_energy[sec][mod])
                         self.hist["2DMuonCountMap"].Fill(mod,sec)
                     else:
@@ -303,7 +316,7 @@ if __name__ == "__main__":
            slaveParameters=slaveParams,
            sampleList=sampleList,
            maxFilesMC = maxFilesMC,
-           maxFilesData = 4,
-           nWorkers=4,
+           maxFilesData = None,
+           nWorkers=8,
            outFile = outFileName,
                            verbosity=2)
