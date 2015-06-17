@@ -256,7 +256,7 @@ if __name__ == "__main__":
     #sampleList = []
     #sampleList.append("QCD_Pt-15to3000_TuneZ2star_Flat_HFshowerLibrary_7TeV_pythia6")
     #maxFilesMC = 1
-    #maxFilesData = 1
+    maxFilesData = 1
    # maxFilesData = 10
    # nWorkers = 8
 
