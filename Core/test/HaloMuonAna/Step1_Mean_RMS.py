@@ -70,8 +70,6 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
             # how I get Channel information
             sec = self.fChain.CastorRecHitSector.at(i)-1
             mod = self.fChain.CastorRecHitModule.at(i)-1
-            if sec in [isec for imod,isec in badChannelsModSec]:
-                continue
             channel_energy = self.fChain.CastorRecHitEnergy.at(i)
             hname = 'SectorsNoise_sec_{sec}'.format(sec=str(sec))
             self.hist[hname].Fill(channel_energy)
@@ -79,8 +77,9 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
 
             self.ch_mean[i] += channel_energy
             self.ch_RMS[i] += channel_energy**2
-            self.sect_mean[sec] += channel_energy
-            self.sect_RMS[sec] += channel_energy**2
+            if [mod,sec] not in badChannelsModSec:
+                self.sect_mean[sec] += channel_energy
+                self.sect_RMS[sec] += channel_energy**2
 
 
         return 1
@@ -141,7 +140,7 @@ if __name__ == "__main__":
     #maxFilesMC = 1
     #maxFilesData = 1
    # maxFilesData = 1
-    nWorkers = 1
+    nWorkers = 8
 
 
     slaveParams = {}
