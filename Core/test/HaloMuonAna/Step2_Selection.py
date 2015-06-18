@@ -199,13 +199,13 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             for i in listChannelsAboveNoise:
                sec = self.fChain.CastorRecHitSector.at(i)-1
                mod = self.fChain.CastorRecHitModule.at(i)-1
-               if mod in [1,2,3,4]:
+               if mod in [0,1,2,3,4]:
                    Front_Module =True
 
                if mod in [5,6,7,8,9]:
                    Mid_Module= True
 
-               if mod in [10,11,12,13,14]:
+               if mod in [10,11,12,13]:
                    Rear_Module= True
 
             #found an interesting event. now fill histograms for channels above noise
@@ -230,7 +230,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                         # the first bar of each set will be colored cyan.
                         #cs = [c] * len(xs)
                         #cs[0] = 'c'
-                        ax.bar(xs, ys, zs=isec, zdir='y', color="r", alpha=0.8)
+                        ax.bar(xs, ys, zs=isec, zdir='y', color="g" if sec == isec else "r", alpha=0.8)
                     ax.set_xlabel('Module')
                     ax.set_ylabel('Sector')
                     ax.set_zlabel('Channel Energy')
