@@ -26,29 +26,34 @@ outfolder = "/afs/cern.ch/user/c/cbaus/pp13TeV2015/HaloMuons/CMSSW_7_4_4_patch4/
 class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofReader):
     def init( self, maxEvents = None):
         global maxFileNo
+        firstRun = (maxFileNo == -1)
 
         self.maxEvents = maxEvents
         self.hist = {}
 
-        #Sector RMS and Mean
-        inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
+        #Getting sector RMS and Mean
+        if firstRun:
+            inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
+        else:
+            inputFile = join(outfolder,"plotsMuonselectioncuts_{n:04d}.root".format(n=maxFileNo))
         hSectorMean = inputFile.Get("data_MinimumBias/hSector_Mean")
         hSectorRMS = inputFile.Get("data_MinimumBias/hSector_RMS")
 
-        #Channel RMS and Mean
+        #Getting channel RMS and Mean
         hChMean = inputFile.Get("data_MinimumBias/hist_ch_Mean")
         hChRMS =  inputFile.Get("data_MinimumBias/hist_ch_RMS")
 
         self.hist["2DMuonCountMap"] =  ROOT.TH2D("2DMuonCountMap","2DMuonCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
         self.hist["2DMuonNoTriggerCountMap"] =  ROOT.TH2D("2DMuonNoTriggerCountMap","2DMuonNoTriggerCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
         self.hist["SecAboveNoiseCount"] =  ROOT.TH1D("SecAboveNoiseCount","SecAboveNoiseCount", 16, -0.5, 15.5)
+        self.hist["RunsWithGoodMuons"] =  ROOT.TH1D("SecAboveNoiseCount","SecAboveNoiseCount", 10000, 247000-0.5, 248000-0.5)
+        self.hist["Runs"] =  ROOT.TH1D("SecAboveNoiseCount","SecAboveNoiseCount", 10000, 247000-0.5, 248000-0.5)
+
         histcalibrationname = '2DMuonSignalMap'
-        if maxFileNo != -1: #if -1 -> does not exist
-            inFileName = join(outfolder,"plotsMuonselectioncuts_{n:04d}.root".format(n=maxFileNo))
-            inputFile2 = ROOT.TFile(inFileName)
-            self.hist[histcalibrationname] = inputFile2.Get("data_MinimumBias/2DMuonSignalMap")
+        if not firstRun:
+            self.hist[histcalibrationname] = inputFile.Get("data_MinimumBias/2DMuonSignalMap")
             print "Extracted histogram from file. Checking entries:",  self.hist[histcalibrationname].GetEntries()
-        else: #first time running analyser
+        else: #first time running analyser the calibration constants are all set to 1
             self.hist[histcalibrationname] =  ROOT.TH2D(histcalibrationname,histcalibrationname, 14, -0.5, 13.5, 16, -0.5, 15.5)
             for binx in xrange(0,16):
                 for biny in xrange(0,14):
@@ -108,6 +113,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
     def analyze(self):
         weight = 1
         num = 0
+        goodMuonEvent = False
         # genTracks
         #num = self.fChain.genTracks.size()
         #print num
@@ -208,41 +214,42 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                if mod in [10,11,12,13]:
                    Rear_Module= True
 
-            #found an interesting event. now fill histograms for channels above noise
-            for i in listChannelsAboveNoise:
+            if Front_Module + Mid_Module + Rear_Module >= 2: #maybe change to 3
+                if hasMuonTrigger:
+                    goodMuonEvent = True
+
+        #found an interesting event. now fill histograms for channels above noise
+        if goodMuonEvent:
+            print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
+            for i in xrange(0,224):
                 sec = self.fChain.CastorRecHitSector.at(i)-1
                 mod = self.fChain.CastorRecHitModule.at(i)-1
                 hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(mod), sec=str(sec))
-                hwithouttrigger = 'MuonSignalSecCh_withtoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(mod), sec=str(sec))
-                if Front_Module + Mid_Module + Rear_Module >= 2: #maybe change to 3
-                    print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
-                    trgEvtFileName  = "Muon_run_" + str(self.fChain.run) + "_event_" + str(self.fChain.event) + ".pdf"
-                    fig = plt.figure()
-                    ax = fig.add_subplot(111, projection='3d')
-                    channel_energy_wo_bad_ch = np.asarray(channel_energy)
-                    for imod,isec in badChannelsModSec:
-                        channel_energy_wo_bad_ch[isec][imod] = 0
-                    for isec in np.arange(16):
-                        xs = np.arange(14)
-                        ys = channel_energy_wo_bad_ch[isec]
+                self.hist[hname].Fill(channel_energy[sec][mod])
+                self.hist["2DMuonCountMap"].Fill(mod,sec)
 
-                        # You can provide either a single color or an array. To demonstrate this,
-                        # the first bar of each set will be colored cyan.
-                        #cs = [c] * len(xs)
-                        #cs[0] = 'c'
-                        ax.bar(xs, ys, zs=isec, zdir='y', color="g" if sec == isec else "r", alpha=0.8)
-                    ax.set_xlabel('Module')
-                    ax.set_ylabel('Sector')
-                    ax.set_zlabel('Channel Energy')
-                    ax.set_title('Sec: ' + str(sec) + "   Trigger: " + ("Yes" if hasMuonTrigger else "no") + "   Mod[F/M/R]: " + str(Front_Module) + "/" + str(Mid_Module) + "/" + str(Rear_Module))
-                    fig.savefig(join(outfolder,trgEvtFileName)) #happens multiple times
-                    if hasMuonTrigger:
-                        self.hist[hname].Fill(channel_energy[sec][mod])
-                        self.hist["2DMuonCountMap"].Fill(mod,sec)
-                    else:
-                        self.hist[hwithouttrigger].Fill(channel_energy[sec][mod])
-                        self.hist["2DMuonNoTriggerCountMap"].Fill(mod,sec)
+        #plot all the good muons
+        if goodMuonEvent:
+            trgEvtFileName  = "Muon_run_" + str(self.fChain.run) + "_event_" + str(self.fChain.event) + ".pdf"
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            channel_energy_wo_bad_ch = np.asarray(channel_energy)
+            for imod,isec in badChannelsModSec:
+                channel_energy_wo_bad_ch[isec][imod] = 0
+            for isec in np.arange(16):
+                xs = np.arange(14)
+                ys = channel_energy_wo_bad_ch[isec]
+                ax.bar(xs, ys, zs=isec, zdir='y', color="g" if sec == isec else "r", alpha=0.8)
+            ax.set_xlabel('Module')
+            ax.set_ylabel('Sector')
+            ax.set_zlabel('Channel Energy')
+            ax.set_title('Sec: ' + str(sec) + "   Trigger: " + ("Yes" if hasMuonTrigger else "no") + "   Mod[F/M/R]: " + str(Front_Module) + "/" + str(Mid_Module) + "/" + str(Rear_Module))
+            fig.savefig(join(outfolder,trgEvtFileName)) #happens multiple times
 
+
+                # hwithouttrigger = 'MuonSignalSecCh_withtoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(mod), sec=str(sec))
+                #     self.hist[hwithouttrigger].Fill(channel_energy[sec][mod])
+                #     self.hist["2DMuonNoTriggerCountMap"].Fill(mod,sec)
 
         return 1
 
@@ -312,6 +319,7 @@ if __name__ == "__main__":
         print "Found prevous output file(s). Setting new output file name to:", outFileName
 
     # use printTTree.py <sampleName> to see what trees are avaliable inside the skim file
+
     Step2_Selection.runAll(treeName="CastorTree",
            slaveParameters=slaveParams,
            sampleList=sampleList,
