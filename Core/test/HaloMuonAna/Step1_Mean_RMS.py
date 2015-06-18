@@ -21,8 +21,8 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
 
 
         self.hist = {}
-        self.sect_mean = []
-        self.sect_RMS = []
+        self.sec_mean = []
+        self.sec_RMS = []
         self.ch_mean = []
         self.ch_RMS = []
         self.nEvents = float(0) #float for division
@@ -34,13 +34,11 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
         self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
 
         for isec in xrange(0,16):
-            self.sect_mean.append(0)
-            self.sect_RMS.append(0)
+            self.sec_mean.append(0)
+            self.sec_RMS.append(0)
             for imod in xrange(0,14):
                 hname ='SectorsNoise_sec_{sec}'.format(sec=str(isec))
                 self.hist[hname] = ROOT. TH1D( hname, hname, 200, 1,0)
-
-
                 self.ch_mean.append(0)
                 self.ch_RMS.append(0)
 
@@ -59,7 +57,8 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
         weight = 1
         num = 0
         self.nEvents += 1.
-        print "analyze(): Event:", self.nEvents
+        if self:nEvents%1000 == 0:
+            print "analyze(): Event:", self.nEvents
         # genTracks
         #num = self.fChain.genTracks.size()
         #print num
@@ -78,8 +77,8 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
             self.ch_mean[i] += channel_energy
             self.ch_RMS[i] += channel_energy**2
             if [mod,sec] not in badChannelsModSec:
-                self.sect_mean[sec] += channel_energy
-                self.sect_RMS[sec] += channel_energy**2
+                self.sec_mean[sec] += channel_energy
+                self.sec_RMS[sec] += channel_energy**2
 
 
         return 1
@@ -96,11 +95,11 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
 
         for i in xrange(0,16):
             if self.nEvents > 0:
-                print "Bin ", i, ": ", self.sect_mean[i], self.sect_mean[i] / self.nEvents
-                self.sect_mean[i] /= float(self.nEvents)
-                self.sect_RMS[i] = sqrt(self.sect_RMS[i]/float(self.nEvents) - self.sect_mean[i]**2)
-                self.hist['hSector_Mean'].Fill(i, self.sect_mean[i] )
-                self.hist['hSector_RMS'].Fill(i, self.sect_RMS[i] )
+                print "Bin ", i, ": ", self.sec_mean[i], self.sec_mean[i] / self.nEvents
+                self.sec_mean[i] /= float(self.nEvents)
+                self.sec_RMS[i] = sqrt(self.sec_RMS[i]/float(self.nEvents) - self.sec_mean[i]**2)
+                self.hist['hSector_Mean'].Fill(i, self.sec_mean[i] )
+                self.hist['hSector_RMS'].Fill(i, self.sec_RMS[i] )
 
 
         for i in xrange(0,224):
