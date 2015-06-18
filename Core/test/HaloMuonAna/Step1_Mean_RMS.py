@@ -58,16 +58,15 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
             # how I get Channel information
             sec = self.fChain.CastorRecHitSector.at(i)-1
             mod = self.fChain.CastorRecHitModule.at(i)-1
-            ch_energy = self.fChain.CastorRecHitEnergy.at(i)
+            ich_energy = self.fChain.CastorRecHitEnergy.at(i)
             hname = 'SectorsNoise_sec_{sec}'.format(sec=str(sec))
-            self.hist[hname].Fill(ch_energy)
+            self.hist[hname].Fill(ich_energy)
 
-
-            self.new_ch_mean[i] += ch_energy
-            self.new_ch_RMS[i] += ch_energy**2
+            self.new_ch_mean[sec][mod] += ich_energy
+            self.new_ch_RMS[sec][mod] += ich_energy**2
             if [mod,sec] not in badChannelsModSec:
-                self.new_sec_mean[sec] += ch_energy
-                self.new_sec_RMS[sec] += ch_energy**2
+                self.new_sec_mean[sec] += ich_energy
+                self.new_sec_RMS[sec] += ich_energy**2
 
 
         return 1
@@ -81,8 +80,8 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
             self.hist[h].Scale(normFactor)
 
         #TProfile will only be filled in finalise. and when jobs are merged, the averge is taken
-        self.hist['hist_sector_Mean'] = ROOT.TProfile('hist_sector_Mean','hist_sector_Mean',16,-0.5,15.5)
-        self.hist['hist_sector_RMS'] = ROOT.TProfile('hist_sector_RMS','hist_sector_RMS',16,-0.5,15.5)
+        self.hist['hist_sec_Mean'] = ROOT.TProfile('hist_sec_Mean','hist_sec_Mean',16,-0.5,15.5)
+        self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,-0.5,15.5)
         self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,-0.5,223.5)
         self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
 
@@ -95,16 +94,18 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
                 print "Bin ", i, ": ", self.new_sec_mean[i], self.new_sec_mean[i] / self.nEvents
                 self.new_sec_mean[i] /= float(self.nEvents)
                 self.new_sec_RMS[i] = sqrt(self.new_sec_RMS[i]/float(self.nEvents) - self.new_sec_mean[i]**2)
-                self.hist['hist_sector_Mean'].Fill(i, self.new_sec_mean[i] )
-                self.hist['hist_sector_RMS'].Fill(i, self.new_sec_RMS[i] )
+                self.hist['hist_sec_Mean'].Fill(i, self.new_sec_mean[i] )
+                self.hist['hist_sec_RMS'].Fill(i, self.new_sec_RMS[i] )
 
 
-        for i in xrange(0,224):
-            if self.nEvents>0:
-               self.new_ch_mean[i] /= float(self.nEvents)
-               self.new_ch_RMS[i] = sqrt(self.new_ch_RMS[i]/float(self.nEvents) - self.new_ch_mean[i]**2)
-               self.hist['hist_ch_Mean'].Fill(i, self.new_ch_mean[i] )
-               self.hist['hist_ch_RMS'].Fill(i, self.new_ch_RMS[i] )
+        for imod in xrange(0,16):
+            for imod in xrange(0,14):
+                if self.nEventsRandom>0:
+                    i = isec * 14 + imod
+                    self.new_ch_mean[isec][imod] /= float(self.nEventsRandom)
+                    self.new_ch_RMS[isec][imod] = sqrt(self.new_ch_RMS[isec][imod]/float(self.nEventsRandom) - self.new_ch_mean[isec][imod]**2)
+                    self.hist['hist_ch_Mean'].Fill(i, self.new_ch_mean[isec][imod] )
+                    self.hist['hist_ch_RMS'].Fill(i, self.new_ch_RMS[isec][imod] )
 
 
 

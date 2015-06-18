@@ -20,13 +20,12 @@ import matplotlib
 matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
 import matplotlib.pyplot as plt
 
-maxFileNo = -1
 outfolder = "/afs/cern.ch/user/c/cbaus/pp13TeV2015/HaloMuons/CMSSW_7_4_4_patch4/src/CommonFSQFramework/Core/test/HaloMuonAna/output/"
 
 class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofReader):
     def init( self, maxEvents = None):
-        global maxFileNo
-        firstRun = (maxFileNo == -1)
+#        self.maxFileNo = slaveParameters["maxFileNo"]
+        firstRun = (self.maxFileNo == -1)
 
         self.maxEvents = maxEvents
         self.hist = {}
@@ -36,7 +35,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         if firstRun:
             inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
         else:
-            inputFile = join(outfolder,"plotsMuonselectioncuts_{n:04d}.root".format(n=maxFileNo))
+            inputFile = ROOT.TFile(join(outfolder,"plotsMuonselectioncuts_{n:04d}.root".format(n=self.maxFileNo)))
         hist_sec_Mean = inputFile.Get("data_MinimumBias/hSector_Mean")
         hist_sec_RMS = inputFile.Get("data_MinimumBias/hSector_RMS") #needs to be changed when step 1 is reran
 
@@ -59,7 +58,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             for imod in xrange(0,14):
                 for isec in xrange(0,16):
                     self.hist[histcalibrationname].SetBinContent(self.hist[histcalibrationname].FindBin(imod,isec), 1.) #all factors set to 1
-            print "Created new 2d calibration map. Checking entries:",  self.hist[histcalibrationname].GetEntries()
+            print "Created new 2d calibration map. Checking entries:",  self.hist[histcalibrationname].GetEntries(), ". maxFileNo =", self.maxFileNo, firstRun
         histCalibration= self.hist[histcalibrationname]
 
         #make new histograms
@@ -100,8 +99,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         self.new_sec_RMS = [0] * 16
 
         #TProfile for storing means and RMS. and when jobs are merged, the averge is taken
-        self.hist['hist_sector_Mean'] = ROOT.TProfile('hist_sector_Mean','hist_sector_Mean',16,-0.5,15.5)
-        self.hist['hist_sector_RMS'] = ROOT.TProfile('hist_sector_RMS','hist_sector_RMS',16,-0.5,15.5)
+        self.hist['hist_sec_Mean'] = ROOT.TProfile('hSector_Mean','hist_sec_Mean',16,-0.5,15.5)
+        self.hist['hist_sec_RMS'] = ROOT.TProfile('hSector_RMS','hist_sec_RMS',16,-0.5,15.5) #change later to hist_sec_mean
         self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,-0.5,223.5)
         self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
 
@@ -155,7 +154,11 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         listSectorsAboveNoise = []
         for i in xrange(0,16):
-            sigma = (sec_energy[i] - self.sec_mean[i]) / self.sec_RMS[i]
+            if self.sec_RMS[i]:
+                sigma = (sec_energy[i] - self.sec_mean[i]) / self.sec_RMS[i]
+            else:
+                print "Warning: RMS of sec", i, "is zero. Assume triggered"
+                sigma = np.sign(sec_energy[i] - self.sec_mean[i]) * 1e9
             listSectorsAboveNoise.append([i,sigma])
         def filterListSigma(l,sigma_th):
             return [[ii,isigma] for ii, isigma in l if isigma > sigma_th]
@@ -244,7 +247,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         #plot all the good muons
         if goodMuonEvent:
-            new_dir = join(outfolder,"{n:04d}/".format(n=maxFileNo+1))
+            new_dir = join(outfolder,"{n:04d}/".format(n=self.maxFileNo+1))
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
 
@@ -306,13 +309,14 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
 
 
+        assert self.nEventsRandom > 0
+
         for i in xrange(0,16):
-            if self.nEventsRandom > 0:
                 print "Bin ", i, ": ", self.new_sec_mean[i], self.new_sec_mean[i] / self.nEventsRandom
                 self.new_sec_mean[i] /= float(self.nEventsRandom)
                 self.new_sec_RMS[i] = sqrt(self.new_sec_RMS[i]/float(self.nEventsRandom) - self.new_sec_mean[i]**2)
-                self.hist['hist_sector_Mean'].Fill(i, self.new_sec_mean[i] )
-                self.hist['hist_sector_RMS'].Fill(i, self.new_sec_RMS[i] )
+                self.hist['hist_sec_Mean'].Fill(i, self.new_sec_mean[i] )
+                self.hist['hist_sec_RMS'].Fill(i, self.new_sec_RMS[i] )
 
         for imod in xrange(0,16):
             for imod in xrange(0,14):
@@ -337,9 +341,9 @@ if __name__ == "__main__":
 
 
     slaveParams = {}
-    slaveParams["maxEta"] = 2.
 
     #check which output files already exist
+    maxFileNo = -1
     filenames = [ f for f in listdir(outfolder) if isfile(join(outfolder,f)) ]
     for ifilename in filenames:
         if not "plotsMuonselectioncuts" in ifilename:
@@ -357,6 +361,7 @@ if __name__ == "__main__":
 
     # use printTTree.py <sampleName> to see what trees are avaliable inside the skim file
 
+    slaveParams["maxFileNo"] = maxFileNo
     Step2_Selection.runAll(treeName="CastorTree",
                            slaveParameters=slaveParams,
                            sampleList=sampleList,
