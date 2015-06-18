@@ -61,14 +61,14 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             print "Created new 2d calibration map. Checking entries:",  self.hist[histcalibrationname].GetEntries()
         histCalibration= self.hist[histcalibrationname]
 
-        #get sector energies from input file
+        #make new histograms
         for isec in xrange(0,16):
             for imod in xrange(0,14):
                 hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 hwithouttrigger = 'MuonSignalSecCh_withtoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 #hempty = 'CastorEmptysectors_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 self.hist[hname] = ROOT.TH1D( hname, hname, 100, 1, 0)
-                self.hist[ hwithouttrigger] = ROOT.TH1D( hwithouttrigger, hwithouttrigger, 100, 1,0)
+                self.hist[hwithouttrigger] = ROOT.TH1D( hwithouttrigger, hwithouttrigger, 100, 1,0)
                 #self.hist[hempty] = ROOT. TH1D( hempty, hempty, 100, 1,0)
 
         for h in self.hist:
@@ -79,8 +79,6 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #get channel energies from input file
         self.ch_mean = [[0 for _ in range(14)] for _ in range(16)]
         self.ch_RMS = [[0 for _ in range(14)] for _ in range(16)]
-        self.new_ch_mean = [[0 for _ in range(14)] for _ in range(16)]
-        self.new_ch_RMS = [[0 for _ in range(14)] for _ in range(16)]
         for i in xrange(0, 224):
             #how I get Channel information
             sec = i/14
@@ -98,8 +96,6 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #get mean and rms from sector histogram
         self.sec_mean = [0] * 16
         self.sec_RMS = [0] * 16
-        self.new_sec_mean = [0] * 16
-        self.new_sec_RMS = [0] * 16
         for i in xrange(0,16):
             self.sec_mean[i] = hSectorMean.GetBinContent(i+1) #+1 because of underflow
             self.sec_RMS[i] = hSectorRMS.GetBinContent(i+1) #+1 because of underflow
@@ -107,6 +103,13 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             calibration =  histCalibration.GetBinContent(binnumber)
             self.sec_mean[i] = calibration* self.sec_mean[i]
             self.sec_RMS[i] = calibration* self.sec_RMS[i]
+
+        #these ones are needed to update mean and RMS for the new calibration constants
+        self.new_ch_mean = [[0 for _ in range(14)] for _ in range(16)]
+        self.new_ch_RMS = [[0 for _ in range(14)] for _ in range(16)]
+        self.new_sec_mean = [0] * 16
+        self.new_sec_RMS = [0] * 16
+
 #do same for rms
         #print "Sector means are: ", self.sec_mean
        # print "Sector RMS are: ", self.sec_RMS
@@ -136,6 +139,14 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             ch_energy[sec][mod] += calibration*self.fChain.CastorRecHitEnergy.at(i)
             if [mod,sec] not in badChannelsModSec:
                 sec_energy[sec] += calibration*self.fChain.CastorRecHitEnergy.at(i)
+
+            if self.fChain.trgrandom:
+                self.new_ch_mean[i] += ch_energy
+                self.new_ch_RMS[i] += ch_energy**2
+                if [mod,sec] not in badChannelsModSec:
+                    self.new_sec_mean[sec] += ch_energy
+                    self.new_sec_RMS[sec] += ch_energy**2
+
 
             #  print 'sec', sec, 'mod', mod, 'e_ch=', ch_energy, "e_sec", sec_energy[sec]
             #  print "all sector energies:  ", sec_energy
@@ -282,6 +293,28 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                     noiseSubtractedMean /= referenceMean
                 histcalibration.SetBinContent(binnumber, noiseSubtractedMean)
                 print "checking means for muons", imod, isec, mean, self.hist[hname].GetEntries()
+
+
+        #TProfile for storing means and RMS. and when jobs are merged, the averge is taken
+        self.hist['hist_sector_Mean'] = ROOT.TProfile('hist_sector_Mean','hist_sector_Mean',16,-0.5,15.5)
+        self.hist['hist_sector_RMS'] = ROOT.TProfile('hist_sector_RMS','hist_sector_RMS',16,-0.5,15.5)
+        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,-0.5,223.5)
+        self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
+
+        for i in xrange(0,16):
+            if self.nEvents > 0:
+                print "Bin ", i, ": ", self.new_sec_mean[i], self.new_sec_mean[i] / self.nEvents
+                self.new_sec_mean[i] /= float(self.nEvents)
+                self.new_sec_RMS[i] = sqrt(self.new_sec_RMS[i]/float(self.nEvents) - self.new_sec_mean[i]**2)
+                self.hist['hist_sector_Mean'].Fill(i, self.new_sec_mean[i] )
+                self.hist['hist_sector_RMS'].Fill(i, self.new_sec_RMS[i] )
+
+        for i in xrange(0,224):
+            if self.nEvents>0:
+               self.new_ch_mean[i] /= float(self.nEvents)
+               self.new_ch_RMS[i] = sqrt(self.new_ch_RMS[i]/float(self.nEvents) - self.new_ch_mean[i]**2)
+               self.hist['hist_ch_Mean'].Fill(i, self.new_ch_mean[i] )
+               self.hist['hist_ch_RMS'].Fill(i, self.new_ch_RMS[i] )
 
 if __name__ == "__main__":
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)

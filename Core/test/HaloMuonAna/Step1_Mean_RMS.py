@@ -19,28 +19,17 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
 
         self.maxEvents = maxEvents
 
-
         self.hist = {}
-        self.sec_mean = []
-        self.sec_RMS = []
-        self.ch_mean = []
-        self.ch_RMS = []
         self.nEvents = float(0) #float for division
 
-        #TProfile will only be filled in finalise. and when jobs are merged, the averge is taken
-        self.hist['hSector_Mean'] = ROOT.TProfile('hSector_Mean','hSector_Mean',16,-0.5,15.5)
-        self.hist['hSector_RMS'] = ROOT.TProfile('hSector_RMS','hSector_RMS',16,-0.5,15.5)
-        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,-0.5,223.5)
-        self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
-
         for isec in xrange(0,16):
-            self.sec_mean.append(0)
-            self.sec_RMS.append(0)
-            for imod in xrange(0,14):
-                hname ='SectorsNoise_sec_{sec}'.format(sec=str(isec))
-                self.hist[hname] = ROOT. TH1D( hname, hname, 200, 1,0)
-                self.ch_mean.append(0)
-                self.ch_RMS.append(0)
+            hname ='SectorsNoise_sec_{sec}'.format(sec=str(isec))
+            self.hist[hname] = ROOT. TH1D( hname, hname, 200, 1,0)
+
+        self.new_ch_mean = [[0 for _ in range(14)] for _ in range(16)]
+        self.new_ch_RMS = [[0 for _ in range(14)] for _ in range(16)]
+        self.new_sec_mean = [0] * 16
+        self.new_sec_RMS = [0] * 16
 
         for h in self.hist:
             self.hist[h].Sumw2()
@@ -69,16 +58,16 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
             # how I get Channel information
             sec = self.fChain.CastorRecHitSector.at(i)-1
             mod = self.fChain.CastorRecHitModule.at(i)-1
-            channel_energy = self.fChain.CastorRecHitEnergy.at(i)
+            ch_energy = self.fChain.CastorRecHitEnergy.at(i)
             hname = 'SectorsNoise_sec_{sec}'.format(sec=str(sec))
-            self.hist[hname].Fill(channel_energy)
+            self.hist[hname].Fill(ch_energy)
 
 
-            self.ch_mean[i] += channel_energy
-            self.ch_RMS[i] += channel_energy**2
+            self.new_ch_mean[i] += ch_energy
+            self.new_ch_RMS[i] += ch_energy**2
             if [mod,sec] not in badChannelsModSec:
-                self.sec_mean[sec] += channel_energy
-                self.sec_RMS[sec] += channel_energy**2
+                self.new_sec_mean[sec] += ch_energy
+                self.new_sec_RMS[sec] += ch_energy**2
 
 
         return 1
@@ -91,25 +80,31 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
         for h in self.hist:
             self.hist[h].Scale(normFactor)
 
-#        self.hist['hSector_Mean_RMS'].Fill( sector_mean, sector_rms )
+        #TProfile will only be filled in finalise. and when jobs are merged, the averge is taken
+        self.hist['hist_sector_Mean'] = ROOT.TProfile('hist_sector_Mean','hist_sector_Mean',16,-0.5,15.5)
+        self.hist['hist_sector_RMS'] = ROOT.TProfile('hist_sector_RMS','hist_sector_RMS',16,-0.5,15.5)
+        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,-0.5,223.5)
+        self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
+
+
+        if self.nEvents <= 0:
+            print "Error: Worker did not process any events"
 
         for i in xrange(0,16):
             if self.nEvents > 0:
-                print "Bin ", i, ": ", self.sec_mean[i], self.sec_mean[i] / self.nEvents
-                self.sec_mean[i] /= float(self.nEvents)
-                self.sec_RMS[i] = sqrt(self.sec_RMS[i]/float(self.nEvents) - self.sec_mean[i]**2)
-                self.hist['hSector_Mean'].Fill(i, self.sec_mean[i] )
-                self.hist['hSector_RMS'].Fill(i, self.sec_RMS[i] )
+                print "Bin ", i, ": ", self.new_sec_mean[i], self.new_sec_mean[i] / self.nEvents
+                self.new_sec_mean[i] /= float(self.nEvents)
+                self.new_sec_RMS[i] = sqrt(self.new_sec_RMS[i]/float(self.nEvents) - self.new_sec_mean[i]**2)
+                self.hist['hist_sector_Mean'].Fill(i, self.new_sec_mean[i] )
+                self.hist['hist_sector_RMS'].Fill(i, self.new_sec_RMS[i] )
 
 
         for i in xrange(0,224):
             if self.nEvents>0:
-               self.ch_mean[i] /= float(self.nEvents)
-               self.ch_RMS[i] = sqrt(self.ch_RMS[i]/float(self.nEvents) - self.ch_mean[i]**2)
-               self.hist['hist_ch_Mean'].Fill(i, self.ch_mean[i] )
-               self.hist['hist_ch_RMS'].Fill(i, self.ch_RMS[i] )
-            else:
-                print "Worker did not process any events"
+               self.new_ch_mean[i] /= float(self.nEvents)
+               self.new_ch_RMS[i] = sqrt(self.new_ch_RMS[i]/float(self.nEvents) - self.new_ch_mean[i]**2)
+               self.hist['hist_ch_Mean'].Fill(i, self.new_ch_mean[i] )
+               self.hist['hist_ch_RMS'].Fill(i, self.new_ch_RMS[i] )
 
 
 
