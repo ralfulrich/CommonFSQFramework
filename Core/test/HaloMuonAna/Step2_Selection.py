@@ -60,6 +60,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                     self.hist[histcalibrationname].SetBinContent(self.hist[histcalibrationname].FindBin(imod,isec), 1.) #all factors set to 1
             print "Created new 2d calibration map. Checking entries:",  self.hist[histcalibrationname].GetEntries(), ". maxFileNo =", self.maxFileNo, firstRun
         histCalibration= self.hist[histcalibrationname]
+        histCalibration.SetBit(ROOT.TH1.kIsAverage)
 
         #make new histograms
         for isec in xrange(0,16):
@@ -127,8 +128,10 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         if self.fChain.CastorRecHitEnergy.size() != 224:
             return 0
 
-        if self.fChain.trgrandom:
+        isRandom = False
+        if self.fChain.trgrandom and not self.fChain.trgzeroBias:
             self.nEventsRandom += 1
+            isRandom = 1
 
 
         for i in xrange(0, 224):
@@ -141,7 +144,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             if [mod,sec] not in badChannelsModSec:
                 sec_energy[sec] += ich_energy
 
-            if self.fChain.trgrandom:
+            if isRandom:
                 self.new_ch_mean[sec][mod] += ich_energy
                 self.new_ch_RMS[sec][mod] += ich_energy**2
                 if [mod,sec] not in badChannelsModSec:
@@ -239,8 +242,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 self.hist[hname].Fill(ch_energy[sec][mod])
             self.hist["GoodMuonCountPerSec"].Fill(muonSec[0])
             for ich in listChannelsAboveNoise:
-                sec = self.fChain.CastorRecHitSector.at(i)-1
-                mod = self.fChain.CastorRecHitModule.at(i)-1
+                sec = self.fChain.CastorRecHitSector.at(ich)-1
+                mod = self.fChain.CastorRecHitModule.at(ich)-1
                 self.hist["2DMuonCountMap"].Fill(mod,sec)
         else:
             self.hist["RunsAllTrigger"].Fill(self.fChain.run)
@@ -276,10 +279,10 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
     def finalize(self):
         print "Finalize:"
-        normFactor = self.getNormalizationFactor()
-        print "  applying norm", normFactor
-        for h in self.hist:
-            self.hist[h].Scale(normFactor)
+        # normFactor = self.getNormalizationFactor()
+        # print "  applying norm", normFactor
+        # for h in self.hist:
+        #     self.hist[h].Scale(normFactor)
 
         inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
         hist_ch_Mean = inputFile.Get("data_MinimumBias/hist_ch_Mean")
@@ -318,7 +321,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 self.hist['hist_sec_Mean'].Fill(i, self.new_sec_mean[i] )
                 self.hist['hist_sec_RMS'].Fill(i, self.new_sec_RMS[i] )
 
-        for imod in xrange(0,16):
+        for isec in xrange(0,16):
             for imod in xrange(0,14):
                 if self.nEventsRandom>0:
                     i = isec * 14 + imod
@@ -367,6 +370,6 @@ if __name__ == "__main__":
                            sampleList=sampleList,
                            maxFilesMC = None,
                            maxFilesData = None,
-                           nWorkers=1,
+                           nWorkers=8,
                            outFile = outFileName,
                            verbosity=2)
