@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 outfolder = os.environ["HaloMuonOutput"]
 
 class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofReader):
-    def init( self, maxEvents =None):
+    def init( self, maxEvents = None):
 #        self.maxFileNo = slaveParameters["maxFileNo"]
         firstRun = (self.maxFileNo == -1)
 
@@ -44,6 +44,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         hist_ch_RMS =  inputFile.Get("data_MinimumBias/hist_ch_RMS")
 
         self.hist["2DMuonCountMap"] =  ROOT.TH2D("2DMuonCountMap","2DMuonCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
+        self.hist["2DMuonCountMap_allch"] =  ROOT.TH2D("2DMuonCountMap_allch","2DMuonCountMap_allch", 14, -0.5, 13.5, 16, -0.5, 15.5)
         self.hist["2DMuonNoTriggerCountMap"] =  ROOT.TH2D("2DMuonNoTriggerCountMap","2DMuonNoTriggerCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
         self.hist["GoodMuonCountPerSec"] =  ROOT.TH1D("GoodMuonCountPerSec","GoodMuonCountPerSec", 16, -0.5, 15.5)
         self.hist["RunsWithGoodMuons"] =  ROOT.TH1D("RunsWithGoodMuons","RunsWithGoodMuons", 10000, 247000-0.5, 257000-0.5)
@@ -68,6 +69,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 hwithouttrigger = 'MuonSignalSecCh_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
+
                 hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec)) 
                 #hempty = 'CastorEmptysectors_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 self.hist[hname] = ROOT.TH1D( hname, hname, 100, 1, 0)
@@ -194,15 +196,16 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         isec_pns = ((muonSec[0] + 1) + 8)%16
         isec_mns = ((muonSec[0]- 1) + 8)%16
-        
+        #print "neighbors plus and minus:" , isec_pn, isec_mn, "mirrored neighbors plus and minus:" , isec_pns, isec_mns
         cond1 =  muonSec[0] or isec_pn or isec_mn
         cond2= ((muonSec[0]+8)%16 or isec_pns or isec_mns)
-
         for isec in xrange(0,16):
+            cond1 =  isec == muonSec[0] or isec == isec_pn or isec == isec_mn
+            cond2 = (isec == (muonSec[0]+8)%16 or isec == isec_pns or isec == isec_mns)
             for imod in xrange(0,14):
                 hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 if not cond1 or not cond2:
-                    self.hist[hnoise_neighbor].Fill(ch_energy[imod][isec])
+                    self.hist[hnoise_neighbor].Fill(ch_energy[isec][imod])
 
 
         #selection on channels above noise
@@ -214,16 +217,15 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 #print "skipping channel", mod, sec
                 continue
 
-            if sec == muonSec[0]:
-                if ch_energy[sec][mod]> self.ch_mean[sec][mod] + 2*self.ch_RMS[sec][mod]:
+            if ch_energy[sec][mod]> self.ch_mean[sec][mod] + 2*self.ch_RMS[sec][mod]:
+                self.hist["2DMuonCountMap_allch"].Fill(mod,sec)
+                if sec == muonSec[0]:
                     listChannelsAboveNoise.append(i)
             # hchannel = 'Channelenergy_mod_{mod}_sec_{sec}'.format(mod=str(mod), sec=str(sec))
             # self.hist[hchannel].Fill(ch_energy[sec][mod])
-
-
         countChannelsAboveNoise = len(listChannelsAboveNoise)
         #print "Channels above noise:", listChannelsAboveNoise
-
+                    
         if countChannelsAboveNoise > 5:
             hasMuonTrigger= self.fChain.trgmuon
             Front_Module = False
@@ -394,7 +396,7 @@ if __name__ == "__main__":
                            slaveParameters = slaveParams,
                            sampleList = sampleList,
                            maxFilesMC = None,
-                           maxFilesData = 1,
-                           nWorkers = 1,
+                           maxFilesData = None,  
+                           nWorkers = 8,
                            outFile = outFileName,
                            verbosity = 2)
