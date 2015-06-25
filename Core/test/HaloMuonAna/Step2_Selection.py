@@ -391,6 +391,7 @@ if __name__ == "__main__":
         while not (case == "y" or case == "n"):
             case = raw_input(">> ").lower()
             if case == "y":
+                maxFileNo = -1
                 for ifilename in listOfOutputFiles:
                     if os.path.exists(ifilename):
                         print "Deleting file:", ifilename
