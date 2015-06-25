@@ -314,7 +314,7 @@ class ExampleProofReader( ROOT.TPySelector ):
 
     @classmethod
     def runAll(cls, treeName, outFile, sampleList = None, \
-               maxFilesMC=None, maxFilesData=None, \
+               maxFilesMC=None, maxFilesData=None, maxNevents = -1, \
                slaveParameters = None, nWorkers=None,
                usePickle=False, useProofOFile = False,
                verbosity=1):
@@ -334,7 +334,6 @@ class ExampleProofReader( ROOT.TPySelector ):
 
         slaveParameters["useProofOFile"] = useProofOFile
 
-
         if not useProofOFile:
             of = ROOT.TFile(outFile,"RECREATE")
             if not of:
@@ -344,7 +343,7 @@ class ExampleProofReader( ROOT.TPySelector ):
 
         slaveParameters["outFile"] = outFile
 
-
+        if maxNevents == None: maxNevents = -1 # extra security, run on all events
 
         skipped = []
 
@@ -412,7 +411,7 @@ class ExampleProofReader( ROOT.TPySelector ):
             for v in variablesToSetInProof:
                 # if you get better implemenation (GetParameter?) mail me
                 proof.Exec('gSystem->Setenv("'+v+'","'+variablesToSetInProof[v]+'");')
-            print dataset.Process( 'TPySelector',  cls.__name__)
+            print dataset.Process( 'TPySelector',  cls.__name__, maxNevents) # with parameter to limit on number of events
 
             try:
                 print "Logs saved to:"
@@ -431,8 +430,10 @@ class ExampleProofReader( ROOT.TPySelector ):
                                 else:
                                     print l,
                         elif verbosity == 1:
-                            if any("error" in l.lower() for l in f) or any("exception" in l.lower() for l in f) or any("warning" in l.lower() for l in f):
+                            hasErrorsInLog = False
+                            if any([("error" in l.lower()) or ("exception" in l.lower()) or ("warning" in l.lower()) for l in f]):
                                 print "Error/Warning found in log file. Printing first log of worker node:"
+                                f.seek(0)
                                 for l in f:
                                     if "error" in l.lower() or "exception" in l.lower():
                                         print bcolors.ERROR + l.rstrip('\n') + bcolors.ENDC
