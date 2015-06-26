@@ -70,7 +70,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 hwithouttrigger = 'MuonSignalSecCh_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
 
-                hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec)) 
+                hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 #hempty = 'CastorEmptysectors_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 self.hist[hname] = ROOT.TH1D( hname, hname, 100, 1, 0)
                 self.hist[hwithouttrigger] = ROOT.TH1D(hwithouttrigger, hwithouttrigger, 100, 1,0)
@@ -154,14 +154,14 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 sec_energy[sec] += ich_energy
                 if mod < 5: sec_front_energy[sec] += ich_energy
             if isRandom:
-                self.hist[hnoise_randomtrg].Fill(ch_energy[sec][mod])  
+                self.hist[hnoise_randomtrg].Fill(ch_energy[sec][mod])
                 self.new_ch_mean[sec][mod] += ich_energy
                 self.new_ch_RMS[sec][mod] += ich_energy**2
                 if [mod,sec] not in badChannelsModSec:
                     self.new_sec_mean[sec] += ich_energy
                     self.new_sec_RMS[sec] += ich_energy**2
 
-               
+
 
 
             #  print 'sec', sec, 'mod', mod, 'e_ch=', ch_energy, "e_sec", sec_energy[sec]
@@ -210,7 +210,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             # self.hist[hchannel].Fill(ch_energy[sec][mod])
         countChannelsAboveNoise = len(listChannelsAboveNoise)
         #print "Channels above noise:", listChannelsAboveNoise
-                    
+
         if countChannelsAboveNoise > 5:
             hasMuonTrigger= self.fChain.trgmuon
             Front_Module = False
@@ -258,8 +258,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(muonSec[0]))
                 self.hist[hname].Fill(ch_energy[muonSec[0]][imod])
 
-           
-              
+
+
 
             self.hist["GoodMuonCountPerSec"].Fill(muonSec[0])
             for ich in listChannelsAboveNoise:
@@ -271,7 +271,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         #plot all the good muons
         if goodMuonEvent:
-            new_dir = join(outfolder,"{n:04d}/".format(n=self.maxFileNo+1))
+            new_dir = join(outfolder,"goodMuonEvents_{n:04d}/".format(n=self.maxFileNo+1))
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
 
@@ -290,7 +290,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             ax.set_zlabel('Channel Energy')
             ax.set_title('Sec: {sec} ({sig:.1f}sigma)   Trigger: {trg}   Mod[F/M/R]: {f}/{m}/{r} \n Run: {run}   Event: {evt}'.format(sec=muonSec[0], sig=muonSec[1], trg="Yes" if hasMuonTrigger else "no", f=Front_Module, m=Mid_Module, r=Rear_Module, run=self.fChain.run, evt=self.fChain.event), multialignment='center')
             fig.savefig(join(join(outfolder,new_dir),trgEvtFileName))
-            
+
 
                 # hwithouttrigger = 'MuonSignalSecCh_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(mod), sec=str(sec))
                 #     self.hist[hwithouttrigger].Fill(ch_energy[sec][mod])
@@ -310,11 +310,11 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         histcalibrationname = '2DMuonSignalMap'
         histcalibration = self.hist[histcalibrationname]
         hreferencename = 'MuonSignalSecCh_mod_3_sec_8' #reference channel is (counting from one) mod=4 sec=9
-    
+
         referenceMean= self.hist[hreferencename].GetMean()
         meanReferenceNoise = hist_ch_Mean.GetBinContent(8*14 + 3 +1)
 #        referenceMean -= meanReferenceNoise #switch on at some point or da a fit
-       
+
 
         if referenceMean != 0:
             print "Warning reference channel (Sec 3 Mod 8) empty. Not dividing"
@@ -340,7 +340,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         #From 16 channels in one module, only 10 are filled into histogram. Scale to get per channel noise...
         self.hist[hnoise_neighbor].Scale(1./10.) # hnoise_neighbor.Scale(1./10.)AttributeError: 'str' object has no attribute 'Scale'
- 
+
         assert self.nEventsRandom > 0
 
         for i in xrange(0,16):
@@ -377,12 +377,30 @@ if __name__ == "__main__":
     #check which output files already exist
     maxFileNo = -1
     filenames = [ f for f in listdir(outfolder) if isfile(join(outfolder,f)) ]
+    listOfOutputFiles = []
     for ifilename in filenames:
         if not "plotsMuonselectioncuts" in ifilename:
             continue
         else:
             print "Found previous output file with name: ", ifilename
             maxFileNo = max(maxFileNo,int(ifilename.split("_")[1].strip(".root")))
+            listOfOutputFiles.append(join(outfolder,ifilename))
+
+    #prompt for deletion of previous outputfiles
+    if maxFileNo != -1:
+        print "\nDo you want to delete previous output filenames and start from beginning? (y/n)"
+        case = ""
+        while not (case == "y" or case == "n"):
+            case = raw_input(">> ").lower()
+            if case == "y":
+                maxFileNo = -1
+                for ifilename in listOfOutputFiles:
+                    if os.path.exists(ifilename):
+                        print "Deleting file:", ifilename
+                        os.remove(ifilename)
+                break
+            if case == "n":
+                break
 
     #decide on output filename
     outFileName = join(outfolder,"plotsMuonselectioncuts_{n:04d}.root".format(n=maxFileNo+1))
