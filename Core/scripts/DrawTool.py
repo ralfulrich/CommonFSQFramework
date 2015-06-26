@@ -109,7 +109,7 @@ def getAllHistos():
     print "All histograms from ", GlobalIn, " loaded. In total: ", len(GlobalHistoList), " in the memory"
     # end getAllHistos function
 
-def draw(localHistoList=[],normMeth="",localSampleList=[]):
+def draw(localHistoList=[],normMeth="",localSampleList=[], drawLegend=True):
     
     global GlobalCanvasList
     global GlobalLegendList
@@ -217,8 +217,12 @@ def draw(localHistoList=[],normMeth="",localSampleList=[]):
                     # execute style options if there are
                     if os.path.isfile(GlobalScriptFile+".style"):
                         execfile(GlobalScriptFile+".style")
-                    
-                    if ihisto == 0: h.Draw()
+                        
+                    if ihisto == 0:
+                        if h.InheritsFrom("TH2"):
+                            h.Draw("colz text")
+                        else: h.Draw()
+                    # if ihisto == 0: h.Draw()
                     if ihisto != 0: h.Draw("same")
                     if hsample == GlobalPlotRatioToSample: hdata = h.Clone()
                     # add legend entry
@@ -247,7 +251,11 @@ def draw(localHistoList=[],normMeth="",localSampleList=[]):
                         execfile(GlobalScriptFile+".style")
                 
                     # draw the stuff
-                    if ihisto == 0: h.Draw()
+                    if ihisto == 0:
+                        if h.InheritsFrom("TH2"):
+                            h.Draw("colz text")
+                        else: h.Draw()
+                    # if ihisto == 0: h.Draw()
                     if ihisto != 0: h.Draw("same")
                     if hsample == GlobalPlotRatioToSample: hdata = h.Clone()
                     # add legend entry
@@ -255,7 +263,8 @@ def draw(localHistoList=[],normMeth="",localSampleList=[]):
                     ihisto+=1
 
         # draw legend
-        GlobalLegendList[icanvas].Draw()
+        if drawLegend:  
+            GlobalLegendList[icanvas].Draw()
 
         # ratio pad
         if GlobalPlotRatio and len(localSampleList) != 1 and wehaveratiosample:

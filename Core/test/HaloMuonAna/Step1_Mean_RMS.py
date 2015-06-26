@@ -21,15 +21,26 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
 
         self.hist = {}
         self.nEvents = float(0) #float for division
-
+        self.nEventsRandom = float(0)
+        
         for isec in xrange(0,16):
-            hname ='SectorsNoise_sec_{sec}'.format(sec=str(isec))
-            self.hist[hname] = ROOT. TH1D( hname, hname, 200, 1,0)
+            for imod in xrange(0,14):
+                hname ='ChannelNoise_sec_{sec}_mod_{mod}'.format(sec=str(isec),mod=str(imod))
+                self.hist[hname] = ROOT. TH1D( hname, hname, 500, -50,200)
 
+            hname = 'SectorNoise_sec_{sec}'.format(sec=str(isec))
+            self.hist[hname] = ROOT.TH1D( hname, hname, 500, -50, 200)
+            
         self.new_ch_mean = [[0 for _ in range(14)] for _ in range(16)]
         self.new_ch_RMS = [[0 for _ in range(14)] for _ in range(16)]
         self.new_sec_mean = [0] * 16
         self.new_sec_RMS = [0] * 16
+
+        #TProfile will only be filled in finalise. and when jobs are merged, the averge is taken
+        self.hist['hist_sec_Mean'] = ROOT.TProfile('hist_sec_Mean','hist_sec_Mean',16,-0.5,15.5)
+        self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,-0.5,15.5)
+        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,-0.5,223.5)
+        self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
 
         for h in self.hist:
             self.hist[h].Sumw2()
@@ -38,67 +49,73 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
 
     #called for every event
     def analyze(self): # for each event
+        self.nEvents += 1.
+        if self.nEvents%1000 == 0:
+            print "analyze(): Event:", self.nEvents
 
-#        Trigger= self.fChain.trgHalomuon
-#        if Trigger!=1 :
-#            return 0
+        if self.fChain.trgl1L1GTAlgo[1] or self.fChain.trgl1L1GTAlgo[2]:
+            return 0
+        if not self.fChain.trgRandom:
+            return 0
+
+
+        Runs = self.fChain.run
+        self.nEventsRandom += 1
 
         weight = 1
         num = 0
-        self.nEvents += 1.
-        if self:nEvents%1000 == 0:
-            print "analyze(): Event:", self.nEvents
         # genTracks
         #num = self.fChain.genTracks.size()
         #print num
         #print self.maxEta # see slaveParams below
         #self.hist["numGenTracks"].Fill(num, weight)
-
+        sec_sum = [0] * 16
         for i in xrange(0, self.fChain.CastorRecHitEnergy.size()):
             # how I get Channel information
             sec = self.fChain.CastorRecHitSector.at(i)-1
             mod = self.fChain.CastorRecHitModule.at(i)-1
+            
             ich_energy = self.fChain.CastorRecHitEnergy.at(i)
-            hname = 'SectorsNoise_sec_{sec}'.format(sec=str(sec))
-            self.hist[hname].Fill(ich_energy)
 
             self.new_ch_mean[sec][mod] += ich_energy
             self.new_ch_RMS[sec][mod] += ich_energy**2
+
+            hname = 'ChannelNoise_sec_{sec}_mod_{mod}'.format(sec=str(sec),mod=str(mod))
+            self.hist[hname].Fill(ich_energy)
+
             if [mod,sec] not in badChannelsModSec:
+                sec_sum[sec] += ich_energy
+
                 self.new_sec_mean[sec] += ich_energy
                 self.new_sec_RMS[sec] += ich_energy**2
-
+             
+        for isec in xrange(0,16):
+            hname = 'SectorNoise_sec_{sec}'.format(sec=str(isec))
+            self.hist[hname].Fill(sec_sum[isec])
 
         return 1
 
     #called for each worker unit but after event loop
     def finalize(self):
         print "finalize(): called"
-        normFactor = self.getNormalizationFactor()
-        print "  applying norm", normFactor
-        for h in self.hist:
-            self.hist[h].Scale(normFactor)
+        # normFactor = self.getNormalizationFactor()
+        # print "  applying norm", normFactor
+        # for h in self.hist:
+        #     self.hist[h].Scale(normFactor)
 
-        #TProfile will only be filled in finalise. and when jobs are merged, the averge is taken
-        self.hist['hist_sec_Mean'] = ROOT.TProfile('hist_sec_Mean','hist_sec_Mean',16,-0.5,15.5)
-        self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,-0.5,15.5)
-        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,-0.5,223.5)
-        self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
-
-
-        if self.nEvents <= 0:
+        if self.nEventsRandom <= 0:
             print "Error: Worker did not process any events"
 
-        for i in xrange(0,16):
-            if self.nEvents > 0:
-                print "Bin ", i, ": ", self.new_sec_mean[i], self.new_sec_mean[i] / self.nEvents
-                self.new_sec_mean[i] /= float(self.nEvents)
-                self.new_sec_RMS[i] = sqrt(self.new_sec_RMS[i]/float(self.nEvents) - self.new_sec_mean[i]**2)
-                self.hist['hist_sec_Mean'].Fill(i, self.new_sec_mean[i] )
-                self.hist['hist_sec_RMS'].Fill(i, self.new_sec_RMS[i] )
+        for isec in xrange(0,16):
+            if self.nEventsRandom > 0:
+                print "Bin ", isec, ": ", self.new_sec_mean[isec], self.new_sec_mean[isec] / self.nEventsRandom
+                self.new_sec_mean[isec] /= float(self.nEventsRandom)
+                self.new_sec_RMS[isec] = sqrt(self.new_sec_RMS[isec]/float(self.nEventsRandom) - self.new_sec_mean[isec]**2)
+                self.hist['hist_sec_Mean'].Fill(isec, self.new_sec_mean[isec] )
+                self.hist['hist_sec_RMS'].Fill(isec, self.new_sec_RMS[isec] )
 
 
-        for imod in xrange(0,16):
+        for isec in xrange(0,16):
             for imod in xrange(0,14):
                 if self.nEventsRandom>0:
                     i = isec * 14 + imod
@@ -134,8 +151,8 @@ if __name__ == "__main__":
     #sampleList.append("QCD_Pt-15to3000_TuneZ2star_Flat_HFshowerLibrary_7TeV_pythia6")
     #maxFilesMC = 1
     #maxFilesData = 1
-   # maxFilesData = 1
-    nWorkers = 8
+    #maxFilesData = 1
+   # nWorkers = 1
 
 
     slaveParams = {}
@@ -143,7 +160,7 @@ if __name__ == "__main__":
 
 
     # use printTTree.py <sampleName> to see what trees are avaliable inside the skim file
-    Step1_Mean_RMS.runAll(treeName="CastorTree",
+    Step1_Mean_RMS.runAll(treeName="MuonCastorVTwo",
            slaveParameters=slaveParams,
            sampleList=sampleList,
            maxFilesMC = maxFilesMC,

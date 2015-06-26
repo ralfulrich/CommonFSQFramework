@@ -165,8 +165,11 @@ class ExampleProofReader( ROOT.TPySelector ):
     # protect from returning None or other nonsense by
     # putting analysis stuff in separate function
     def Process( self, entry ):
+        #if entry > 1000: 
+           # return 0
+
         if self.fChain.GetEntry( entry ) <= 0:
-           return 0
+            return 0
 
         try:
             self.analyze()
@@ -520,7 +523,7 @@ if __name__ == "__main__":
     slaveParams["LEIA2"] = False
     #'''
 
-    ExampleProofReader.runAll(treeName="exampleTree", maxFilesMC = 10, \
+    ExampleProofReader.runAll(treeName="exampleTree", maxFilesMC = 1, \
                               slaveParameters=slaveParams, \
                               outFile = "~/tmp/plots.root")
 
