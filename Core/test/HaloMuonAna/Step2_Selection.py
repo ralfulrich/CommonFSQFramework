@@ -36,8 +36,9 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
         else:
             inputFile = ROOT.TFile(join(outfolder,"plotsMuonselectioncuts_{n:04d}.root".format(n=self.maxFileNo)))
-        hist_sec_Mean = inputFile.Get("data_MinimumBias_Run2015A/hSector_Mean")
-        hist_sec_RMS = inputFile.Get("data_MinimumBias_Run2015A/hSector_RMS") #needs to be changed when step 1 is reran
+            # check naming if rerunning step1 again
+        hist_sec_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_Mean")
+        hist_sec_RMS = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_RMS")
 
         #Getting channel RMS and Mean
         hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
@@ -72,11 +73,11 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
                 hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 #hempty = 'CastorEmptysectors_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-                self.hist[hname] = ROOT.TH1D( hname, hname, 100, 1, 0)
-                self.hist[hwithouttrigger] = ROOT.TH1D(hwithouttrigger, hwithouttrigger, 100, 1,0)
-                self.hist[hnoise_neighbor] = ROOT.TH1D(hnoise_neighbor, hnoise_neighbor, 100, 1,0)
-                self.hist[hnoise_randomtrg] = ROOT.TH1D(hnoise_randomtrg, hnoise_randomtrg, 100, 1,0)
-                #self.hist[hempty] = ROOT. TH1D( hempty, hempty, 100, 1,0)
+                self.hist[hname] = ROOT.TH1D( hname, hname, 500, -100, 400)
+                self.hist[hwithouttrigger] = ROOT.TH1D(hwithouttrigger, hwithouttrigger, 500, -100, 400)
+                self.hist[hnoise_neighbor] = ROOT.TH1D(hnoise_neighbor, hnoise_neighbor, 500, -100, 400)
+                self.hist[hnoise_randomtrg] = ROOT.TH1D(hnoise_randomtrg, hnoise_randomtrg, 500, -100, 400)
+                #self.hist[hempty] = ROOT. TH1D( hempty, hempty, 500, -100, 400)
 
         #get channel energies from input file
         self.ch_mean = [[0 for _ in range(14)] for _ in range(16)]
@@ -137,7 +138,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         isRandom = False
         if self.fChain.trgRandom:
-            if not (self.fChain.trgl1L1GTAlgo[1] or self.fChain.trgl1L1GTAlgo[2]): #not bptx+ or bptx-
+            if not (self.fChain.trgl1L1GTTech[1] or self.fChain.trgl1L1GTTech[2]): #not bptx+ or bptx-
                 self.nEventsRandom += 1
                 isRandom = 1
 
@@ -182,17 +183,34 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #selection on sectors (bad channels already excluded)
         if not (len(filterListSigma(listSectorsAboveNoise,2)) == len(filterListSigma(listSectorsAboveNoise,3)) == 1): #only 1 sector above 3 Sigma and all others below 2 Sigma
             return 0
-        for i in xrange(0,16):
-            if self.sec_RMS[i]:
-                sigma = (sec_front_energy[i] - self.sec_mean[i]) / self.sec_RMS[i]
-                if sigma >= 5:
-                    return 0
+        # for i in xrange(0,16):
+        #     if self.sec_RMS[i]:
+        #         sigma = (sec_front_energy[i] - self.sec_mean[i]) / self.sec_RMS[i]
+        #         if sigma >= 5:
+        #             return 0
         muonSec = (filterListSigma(listSectorsAboveNoise,3))[0] #selected sector with muon. (secId,sigmaAboveNoise)
             #if listSectorsAboveNoise[0] != 8:
             #   return
 
 
+        #a selected sector have a signal above the noise threshold and remaining sectors are below a threshold.excluded the active sector + 2 neigbours + "the mirrored-sectors"
+        isec_pn = ((muonSec[0] + 1) + 16)%16
+        isec_mn = ((muonSec[0] - 1) + 16)%16
 
+        isec_pns = ((muonSec[0] + 1) + 8)%16
+        isec_mns = ((muonSec[0]- 1) + 8)%16
+        #print "neighbors plus and minus:" , isec_pn, isec_mn, "mirrored neighbors plus and minus:" , isec_pns, isec_mns
+        cond1 =  muonSec[0] or isec_pn or isec_mn
+        cond2= ((muonSec[0]+8)%16 or isec_pns or isec_mns)
+        for isec in xrange(0,16):
+            cond1 =  isec == muonSec[0] or isec == isec_pn or isec == isec_mn
+            cond2 = (isec == (muonSec[0]+8)%16 or isec == isec_pns or isec == isec_mns)
+            for imod in xrange(0,14):
+                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
+                if not cond1 or not cond2:
+                    self.hist[hnoise_neighbor].Fill(ch_energy[isec][imod])
+
+                    
         #selection on channels above noise
         listChannelsAboveNoise = []
         for i in xrange(0,224):
@@ -212,7 +230,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #print "Channels above noise:", listChannelsAboveNoise
 
         if countChannelsAboveNoise > 5:
-            hasMuonTrigger= self.fChain.trgmuon
+            hasMuonTrigger = (self.fChain.trgCastorHaloMuon or self.fChain.trgl1L1GTAlgo[102])
+
             Front_Module = False
             Mid_Module= False
             Rear_Module =False
@@ -233,22 +252,6 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 if hasMuonTrigger:
                     goodMuonEvent = True
         
-        #a selected sector have a signal above the noise threshold and remaining sectors are below a threshold.excluded the active sector + 2 neigbours + "the mirrored-sectors"
-        isec_pn = ((muonSec[0] + 1) + 16)%16
-        isec_mn = ((muonSec[0] - 1) + 16)%16
-
-        isec_pns = ((muonSec[0] + 1) + 8)%16
-        isec_mns = ((muonSec[0]- 1) + 8)%16
-        #print "neighbors plus and minus:" , isec_pn, isec_mn, "mirrored neighbors plus and minus:" , isec_pns, isec_mns
-        cond1 =  muonSec[0] or isec_pn or isec_mn
-        cond2= ((muonSec[0]+8)%16 or isec_pns or isec_mns)
-        for isec in xrange(0,16):
-            cond1 =  isec == muonSec[0] or isec == isec_pn or isec == isec_mn
-            cond2 = (isec == (muonSec[0]+8)%16 or isec == isec_pns or isec == isec_mns)
-            for imod in xrange(0,14):
-                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-                if not cond1 or not cond2:
-                    self.hist[hnoise_neighbor].Fill(ch_energy[isec][imod])
 
         #found an interesting event. now fill histograms for channels above noise
         if goodMuonEvent:
@@ -416,7 +419,7 @@ if __name__ == "__main__":
                            slaveParameters = slaveParams,
                            sampleList = sampleList,
                            maxFilesMC = None,
-                           maxFilesData = 1,  
-                           nWorkers = 1,
+                           maxFilesData = None,  
+                           nWorkers = None,
                            outFile = outFileName,
                            verbosity = 2)
