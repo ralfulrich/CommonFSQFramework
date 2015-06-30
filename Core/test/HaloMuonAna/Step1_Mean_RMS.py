@@ -53,7 +53,7 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
         if self.nEvents%1000 == 0:
             print "analyze(): Event:", self.nEvents
 
-        if self.fChain.trgl1L1GTAlgo[1] or self.fChain.trgl1L1GTAlgo[2]:
+        if self.fChain.trgl1L1GTTech[1] or self.fChain.trgl1L1GTTech[2]:
             return 0
         if not self.fChain.trgRandom:
             return 0
