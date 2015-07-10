@@ -24,6 +24,11 @@ outfolder = os.environ["HaloMuonOutput"]
 
 class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofReader):
     def init( self, maxEvents = None):
+        #####
+        self.flag_use_merjin_electronic_channel_noise = True
+        #####
+
+
 #        self.maxFileNo = slaveParameters["maxFileNo"]
         firstRun = (self.maxFileNo == -1)
 
@@ -36,6 +41,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #Getting sector RMS and Mean
         if firstRun:
             inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
+            inputFile_noise = ROOT.TFile(join(outfolder,"Histograms_StatFitInformationPedNoise.root"))
         else:
             inputFile = ROOT.TFile(join(outfolder,"plotsMuonselectioncuts_{n:04d}.root".format(n=self.maxFileNo)))
             # check naming if rerunning step1 again
@@ -46,6 +52,9 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
         hist_ch_RMS =  inputFile.Get("data_MinimumBias_Run2015A/hist_ch_RMS")
 
+        #Getting electronic noise from in the Merijns file
+        hist_ch_noise_RMS= inputFile_noise.Get("SumHistoNoiseFit")
+        #hist_sec_noise_RMS= inputFile_noise.Get("SumHistoNoiseFit")
         self.hist["2DMuonCountMap"] =  ROOT.TH2D("2DMuonCountMap","2DMuonCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
         self.hist["2DMuonCountMap_allch"] =  ROOT.TH2D("2DMuonCountMap_allch","2DMuonCountMap_allch", 14, -0.5, 13.5, 16, -0.5, 15.5)
 
@@ -113,7 +122,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 hwithouttrigger = 'MuonSignalSecCh_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 hdifferenmuonselect = 'MuonSignalSecCh_differentSelection_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-
+                hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 #hempty = 'CastorEmptysectors_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 self.hist[hname] = ROOT.TH1D( hname, hname, 50, -100, 400)
@@ -121,22 +130,37 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 self.hist[hdifferenmuonselect] = ROOT.TH1D(hdifferenmuonselect, hdifferenmuonselect, 50, -100, 400)
                 self.hist[hnoise_neighbor] = ROOT.TH1D(hnoise_neighbor, hnoise_neighbor, 50, -100, 400)
                 self.hist[hnoise_randomtrg] = ROOT.TH1D(hnoise_randomtrg, hnoise_randomtrg, 50, -100, 400)
+                self.hist[hnoise_electronic_RMS] = ROOT.TH1D(hnoise_electronic_RMS,hnoise_electronic_RMS, 224,-0.5,223.5)
                 #self.hist[hempty] = ROOT. TH1D( hempty, hempty, 500, -100, 400)
+        
+        
 
         #get channel energies from input file
         self.ch_mean = [[0 for _ in range(14)] for _ in range(16)]
         self.ch_RMS = [[0 for _ in range(14)] for _ in range(16)]
         for i in xrange(0, 224):
             #how I get Channel information
-            sec = i//14
-            mod = i%14
+            isec = i//14
+            imod = i%14
             #print sec, mod
             #i = sec*14+module   -> sec0 mod0 -> i=0   ; sec9 mod 4
-            self.ch_mean[sec][mod] = hist_ch_Mean.GetBinContent(i+1) #+1 because of underflow
-            self.ch_RMS[sec][mod] = hist_ch_RMS.GetBinContent(i+1) #+1 because of underflow
+            self.ch_mean[isec][imod] = hist_ch_Mean.GetBinContent(i+1) #+1 because of underflow
+            if self.flag_use_merjin_electronic_channel_noise:
+                self.ch_RMS[isec][imod] = hist_ch_noise_RMS.GetBinContent(i+1) #+1 because of underflow
+            else:
+                self.ch_RMS[isec][imod] = hist_ch_RMS.GetBinContent(i+1) #+1 because of underflow
 
             #print i, "sec,mod", sec, mod, hist_ch_RMS.GetBinContent(i+1)
+         
+        # #get RMS from Merijn
+        # self.ch_noise_RMS = [[1 for _ in range(14)] for _ in range(16)]
+        # for i in xrange(0, 224):
+        #     #how I get Channel information
+        #     isec = i//14
+        #     imod = i%14
+        #     self.ch_noise_RMS[isec][imod] = hist_ch_noise_RMS.GetBinContent(i+1) #+1 because of underflow
 
+            
         #get mean and rms from sector histogram
         self.sec_mean = [0] * 16
         self.sec_RMS = [0] * 16
@@ -155,7 +179,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,-0.5,15.5) #change later to hist_sec_mean
         self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,-0.5,223.5)
         self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
-
+        
 
         for h in self.hist:
             self.hist[h].Sumw2()
@@ -180,10 +204,12 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         for isec in range(16):
             for imod in range(14):
                 energy = energy_ch[isec][imod]
+                # print "RMS mod {mod} sec {sec}: {rms}".format(mod=str(imod),sec=str(isec),rms=self.ch_RMS[isec][imod])
                 if [imod,isec] in badChannelsModSec:
                     #print "skipping channel", imod, isec
                     continue
                 sigma = (energy - self.ch_mean[isec][imod]) / self.ch_RMS[isec][imod]
+
                 listSigmaChannel[isec][imod] = sigma
 
         return listSigmaChannel
@@ -236,10 +262,16 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #print self.maxEta # see slaveParams below
 
         self.hist["EventCount"].Fill(1)
-
+        
+        if self.flag_use_merjin_electronic_channel_noise:
+            for isec in range(16):
+                for imod in range(14):
+                    hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))   
+                    self.hist[hnoise_electronic_RMS].Fill(self.ch_RMS[isec][imod])
+        
         histcalibrationname = '2DMuonSignalMap'
         histCalibration= self.hist[histcalibrationname]
-
+        
         ch_energy = [[0 for _ in range(14)] for _ in range(16)]
         sec_energy =[0] * 16
         sec_front_energy = [0] * 16
@@ -388,8 +420,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         ################################
         # cut oon noise veto sector #
         ################################
-        if DeltaSigma < 1:
-            return 0
+       # if DeltaSigma < 1:
+        #    return 0
 
         for imod in range(14):
             sigma = listSigmaChannel[isec][imod]
@@ -702,7 +734,7 @@ if __name__ == "__main__":
                            slaveParameters = slaveParams,
                            sampleList = sampleList,
                            maxFilesMC = None,
-                           maxFilesData = None,  
+                           maxFilesData =None,  
                            nWorkers =8,
                            outFile = outFileName,
                            verbosity = 2)
