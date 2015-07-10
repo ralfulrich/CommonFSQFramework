@@ -1,1 +1,1 @@
-badChannelsModSec = [[9,1],[10,2],[11,11]]
+badChannelsModSec = [[9,1],[10,2],[11,11],[3,4],[7,2],[4,6]]
