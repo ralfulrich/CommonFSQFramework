@@ -275,9 +275,9 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         histcalibrationname = '2DMuonSignalMap'
         histCalibration= self.hist[histcalibrationname]
         
-        ch_energy = [[0 for _ in range(14)] for _ in range(16)]
-        sec_energy =[0] * 16
-        sec_front_energy = [0] * 16
+        ch_energy = [[0.0 for _ in range(14)] for _ in range(16)]
+        sec_energy =[0.0] * 16
+        sec_front_energy = [0.0] * 16
 
         if self.fChain.CastorRecHitEnergy.size() != 224:
             return 0
@@ -292,21 +292,26 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         if isRandom: self.hist["EventCount"].Fill(3)
 
-        sec_nbr = copy.copy(self.fChain.CastorRecHitSector)
-        mod_nbr = copy.copy(self.fChain.CastorRecHitModule)
-        rh_energy = copy.copy(self.fChain.CastorRecHitEnergy)
+       
+        
+
         for i in range(224):
-            isec = sec_nbr[i]-1
-            imod = mod_nbr[i]-1
+            isec = self.fChain.CastorRecHitSector.at(i)-1
+            imod = self.fChain.CastorRecHitModule.at(i)-1
+            rh_energy = self.fChain.CastorRecHitEnergy.at(i)
+
             binnumber = histCalibration.FindBin(imod,isec)
-            calibration =  histCalibration.GetBinContent(binnumber)
-            ich_energy = calibration * rh_energy[i]
+            calibration = histCalibration.GetBinContent(binnumber)
+            
+            ich_energy = calibration * rh_energy
             ch_energy[isec][imod] = ich_energy
-            hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{imod}_sec_{isec}'.format(imod=str(imod+1), isec=str(isec+1))
+
             if [isec+1, imod+1] not in badChannelsSecMod:
                 sec_energy[isec] += ich_energy
                 if imod < 5: sec_front_energy[isec] += ich_energy
+                
             if isRandom:
+                hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{imod}_sec_{isec}'.format(imod=str(imod+1), isec=str(isec+1))
                 self.hist[hnoise_randomtrg].Fill(ch_energy[isec][imod])
                 self.new_ch_mean[isec][imod] += ich_energy
                 self.new_ch_RMS[isec][imod] += ich_energy**2
@@ -340,10 +345,10 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         # listChannelsAbove2sigma = self.filterListChannel(listSigmaChannel,2)
 
         
-        SigmaHottestSector = -1000
-        SigmaSecHottestSector = -1000
-        HottestSector =-1
-        SecondHottestSector =-1
+        SigmaHottestSector = None
+        SigmaSecHottestSector = None
+        HottestSector = None
+        SecondHottestSector = None
         for isec in range(16):
             sigma = listSigmaSector[isec]
  
@@ -474,7 +479,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                     
         
         #Energy of muon
-        energy_secsum = [0] * 16
+        energy_secsum = [0.0] * 16
         for isec in xrange(16):
             for imod in range(14):
                 if [isec+1,imod+1] in badChannelsSecMod:
@@ -514,13 +519,12 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         if countChannelsAboveNoise > 6:
             goodMuonEventDifferentSelection = True
 
+        Front_Module = False
+        Mid_Module= False
+        Rear_Module =False
+
         if NchannelNoiseCut:
             self.hist["EventCount"].Fill(6)
-
-
-            Front_Module = False
-            Mid_Module= False
-            Rear_Module =False
 
             for imod in listAllChannelsAboveNoise[muonSec]:
                 # imod = self.fChain.CastorRecHitModule.at(i)-1
@@ -538,7 +542,6 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 if hasMuonTrigger:
                     goodMuonEvent = True
         
-
         #found an interesting event. now fill histograms for channels above noise
         if goodMuonEvent:
             self.hist["EventCount"].Fill(7)
@@ -582,8 +585,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ch_energy_wo_bad_ch = np.asarray(ch_energy)
-            for isec, imod in badChannelsSecMod:
-                ch_energy_wo_bad_ch[isec][imod] = 0
+            for [isec, imod] in badChannelsSecMod:
+                ch_energy_wo_bad_ch[isec-1][imod-1] = 0
             for isec in np.arange(16):
                 xs = np.arange(14)
                 ys = ch_energy_wo_bad_ch[isec]
@@ -593,11 +596,13 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             ax.set_zlabel('Channel Energy')
             ax.set_title('Sec: {sec} ({sig:.1f}sigma)   Trigger: {trg}   Mod[F/M/R]: {f}/{m}/{r} \n Run: {run}   Event: {evt}'.format(sec=muonSec, sig=listSigmaSector[muonSec], trg="Yes" if hasMuonTrigger else "no", f=Front_Module, m=Mid_Module, r=Rear_Module, run=self.fChain.run, evt=self.fChain.event), multialignment='center')
             fig.savefig(join(join(outfolder,new_dir),trgEvtFileName))
+            plt.close("all")
 
 
                 # hwithouttrigger = 'MuonSignalSecCh_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(mod), sec=str(sec))
                 #     self.hist[hwithouttrigger].Fill(ch_energy[sec][mod])
                 #     self.hist["2DMuonNoTriggerCountMap"].Fill(mod,sec)
+
 
         return 1
 
@@ -752,7 +757,7 @@ if __name__ == "__main__":
                            slaveParameters = slaveParams,
                            sampleList = sampleList,
                            maxFilesMC = None,
-                           maxFilesData =None,  
+                           maxFilesData =2,  
                            nWorkers =1,
                            outFile = outFileName,
                            verbosity = 2)
