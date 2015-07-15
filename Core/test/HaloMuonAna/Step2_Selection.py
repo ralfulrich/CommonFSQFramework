@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import CommonFSQFramework.Core.ExampleProofReader
-from BadChannels2015 import badChannelsModSec
+from BadChannels2015 import badChannelsSecMod
 
 import sys, os, time
 sys.path.append(os.path.dirname(__file__))
@@ -12,6 +12,7 @@ ROOT.gROOT.SetBatch(True)
 from ROOT import edm
 from math import sqrt
 from array import *
+import copy
 
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -54,60 +55,61 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         #Getting electronic noise from in the Merijns file
         hist_ch_noise_RMS= inputFile_noise.Get("SumHistoNoiseFit")
+
         #hist_sec_noise_RMS= inputFile_noise.Get("SumHistoNoiseFit")
-        self.hist["2DMuonCountMap"] =  ROOT.TH2D("2DMuonCountMap","2DMuonCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DMuonCountMap_allch"] =  ROOT.TH2D("2DMuonCountMap_allch","2DMuonCountMap_allch", 14, -0.5, 13.5, 16, -0.5, 15.5)
+        self.hist["2DMuonCountMap"] =  ROOT.TH2D("2DMuonCountMap","2DMuonCountMap", 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist["2DMuonCountMap_allch"] =  ROOT.TH2D("2DMuonCountMap_allch","2DMuonCountMap_allch", 14, 0.5, 14.5, 16, 0.5, 16.5)
 
-        self.hist["2DcountChannelAboveTwoSigma_AllEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigma_AllEvt","2DcountChannelAboveTwoSigma_AllEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelAboveTwoSigma_RndEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigma_RndEvt","2DcountChannelAboveTwoSigma_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_AllEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigmaFor3SigmaSectors_AllEvt","2DcountChannelAboveTwoSigmaFor3SigmaSectors_AllEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt","2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_AllEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigmaForMuonCandidateSector_AllEvt","2DcountChannelAboveTwoSigmaForMuonCandidateSector_AllEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_RndEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigmaForMuonCandidateSector_RndEvt","2DcountChannelAboveTwoSigmaForMuonCandidateSector_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
+        self.hist["2DcountChannelAboveTwoSigma_AllEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigma_AllEvt","2DcountChannelAboveTwoSigma_AllEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelAboveTwoSigma_RndEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigma_RndEvt","2DcountChannelAboveTwoSigma_RndEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_AllEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigmaFor3SigmaSectors_AllEvt","2DcountChannelAboveTwoSigmaFor3SigmaSectors_AllEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt","2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_AllEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigmaForMuonCandidateSector_AllEvt","2DcountChannelAboveTwoSigmaForMuonCandidateSector_AllEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_RndEvt"] =  ROOT.TH2D("2DcountChannelAboveTwoSigmaForMuonCandidateSector_RndEvt","2DcountChannelAboveTwoSigmaForMuonCandidateSector_RndEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
 
-        self.hist["2DcountChannelsAboveNoiseForAllSectors_AllEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForAllSectors_AllEvt","2DcountChannelsAboveNoiseForAllSectors_AllEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelsAboveNoiseForAllSectors_RndEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForAllSectors_RndEvt","2DcountChannelsAboveNoiseForAllSectors_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt","2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt","2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelsAboveNoiseForMuonCandidateSector_AllEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForMuonCandidateSector_AllEvt","2DcountChannelsAboveNoiseForMuonCandidateSector_AllEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DcountChannelsAboveNoiseForMuonCandidateSector_RndEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForMuonCandidateSector_RndEvt","2DcountChannelsAboveNoiseForMuonCandidateSector_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
+        self.hist["2DcountChannelsAboveNoiseForAllSectors_AllEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForAllSectors_AllEvt","2DcountChannelsAboveNoiseForAllSectors_AllEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelsAboveNoiseForAllSectors_RndEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForAllSectors_RndEvt","2DcountChannelsAboveNoiseForAllSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt","2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt","2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelsAboveNoiseForMuonCandidateSector_AllEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForMuonCandidateSector_AllEvt","2DcountChannelsAboveNoiseForMuonCandidateSector_AllEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DcountChannelsAboveNoiseForMuonCandidateSector_RndEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForMuonCandidateSector_RndEvt","2DcountChannelsAboveNoiseForMuonCandidateSector_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
 
-        self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_AllEvt"] = ROOT.TH2D("2DSecRMSHot_Vs_SecRMSSecondHot_AllEvt","2DSecRMSHot_Vs_SecRMSSecondHot_AllEvt",1000, -50, 450,1000, -50, 450)
-        self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt"] = ROOT.TH2D("2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt","2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt",1000, -50, 450,1000, -50, 450)
-        self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt","2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt",1000, 0, 50,1000, -50, 450)
-        self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt","2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt",1000, 0, 50,1000, -50, 450)
+        self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_AllEvt"] = ROOT.TH2D("2DSecRMSHot_Vs_SecRMSSecondHot_AllEvt","2DSecRMSHot_Vs_SecRMSSecondHot_AllEvt",88, -2, 20, 88, -2, 20)
+        self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt"] = ROOT.TH2D("2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt","2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt",88, -2, 20, 88, -2, 20)
+        self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt","2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt",88,-2,20, 88, -2, 20)
+        self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt","2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt",88, -2, 20, 88,-2, 20)
     
         self.hist["2DsectorChMeanForAllSectors"] = ROOT.TH2D("2DsectorChMeanForAllSectors","2DsectorChMeanForAllSectors", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChMeanForAllSectors_RndEvt"] = ROOT.TH2D("2DsectorChMeanForAllSectors_RndEvt","2DsectorChMeanForAllSectors_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChMeanFor3sigmaSectors"] = ROOT.TH2D("2DsectorChMeanFor3sigmaSectors","2DsectorChMeanFor3sigmaSectors", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChMeanFor3sigmaSectors_RndEvt"] = ROOT.TH2D("2DsectorChMeanFor3sigmaSectors_RndEvt","2DsectorChMeanFor3sigmaSectors_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChMeanForMuonCandidateSectors"] = ROOT.TH2D("2DsectorChMeanForMuonCandidateSectors","2DsectorChMeanForMuonCandidateSectors", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChMeanForMuonCandidateSectors_RndEvt"] = ROOT.TH2D("2DsectorChMeanForMuonCandidateSectors_RndEvt","2DsectorChMeanForMuonCandidateSectors_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
+        self.hist["2DsectorChMeanForAllSectors_RndEvt"] = ROOT.TH2D("2DsectorChMeanForAllSectors_RndEvt","2DsectorChMeanForAllSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DsectorChMeanFor3sigmaSectors"] = ROOT.TH2D("2DsectorChMeanFor3sigmaSectors","2DsectorChMeanFor3sigmaSectors", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DsectorChMeanFor3sigmaSectors_RndEvt"] = ROOT.TH2D("2DsectorChMeanFor3sigmaSectors_RndEvt","2DsectorChMeanFor3sigmaSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DsectorChMeanForMuonCandidateSectors"] = ROOT.TH2D("2DsectorChMeanForMuonCandidateSectors","2DsectorChMeanForMuonCandidateSectors", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DsectorChMeanForMuonCandidateSectors_RndEvt"] = ROOT.TH2D("2DsectorChMeanForMuonCandidateSectors_RndEvt","2DsectorChMeanForMuonCandidateSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
        
-        self.hist["2DsectorChRMSForAllSectors"] = ROOT.TH2D("2DsectorChRMSForAllSectors","2DsectorChRMSForAllSectors", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChRMSForAllSectors_RndEvt"] = ROOT.TH2D("2DsectorChRMSForAllSectors_RndEvt","2DsectorChRMSForAllSectors_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChRMSFor3sigmaSectors"] = ROOT.TH2D("2DsectorChRMSFor3sigmaSectors","2DsectorChRMSFor3sigmaSectors", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChRMSFor3sigmaSectors_RndEvt"] = ROOT.TH2D("2DsectorChRMSFor3sigmaSectors_RndEvt","2DsectorChRMSFor3sigmaSectors_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChRMSForMuonCandidateSectors"] = ROOT.TH2D("2DsectorChRMSForMuonCandidateSectors","2DsectorChRMSForMuonCandidateSectors", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["2DsectorChRMSForMuonCandidateSectors_RndEvt"] = ROOT.TH2D("2DsectorChRMSForMuonCandidateSectors_RndEvt","2DsectorChRMSForMuonCandidateSectors_RndEvt", 14, -0.5, 13.5, 16, -0.5, 15.5)
+        self.hist["2DsectorChRMSForAllSectors"] = ROOT.TH2D("2DsectorChRMSForAllSectors","2DsectorChRMSForAllSectors", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DsectorChRMSForAllSectors_RndEvt"] = ROOT.TH2D("2DsectorChRMSForAllSectors_RndEvt","2DsectorChRMSForAllSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DsectorChRMSFor3sigmaSectors"] = ROOT.TH2D("2DsectorChRMSFor3sigmaSectors","2DsectorChRMSFor3sigmaSectors", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DsectorChRMSFor3sigmaSectors_RndEvt"] = ROOT.TH2D("2DsectorChRMSFor3sigmaSectors_RndEvt","2DsectorChRMSFor3sigmaSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DsectorChRMSForMuonCandidateSectors"] = ROOT.TH2D("2DsectorChRMSForMuonCandidateSectors","2DsectorChRMSForMuonCandidateSectors", 14, -0.5, 13.5, 16, 0.5, 16.5)
+        self.hist["2DsectorChRMSForMuonCandidateSectors_RndEvt"] = ROOT.TH2D("2DsectorChRMSForMuonCandidateSectors_RndEvt","2DsectorChRMSForMuonCandidateSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
         self.hist["2DsectorChRMS_Vs_ChAboveNoise"] = ROOT.TH2D("2DsectorChRMS_Vs_ChAboveNoise","2DsectorChRMS_Vs_ChAboveNoise", 14, -0.5, 13.5, 14, -0.5, 13.5)
         self.hist["2DsectorChRMS_Vs_ChAboveNoise_RndEvt"] = ROOT.TH2D("2DsectorChRMS_Vs_ChAboveNoise_RndEvt","2DsectorChRMS_Vs_ChAboveNoise_RndEvt", 14, -0.5, 13.5, 14, -0.5, 13.5)
-        self.hist["2DcountSectorRMS_AllEvt"] =  ROOT.TH2D("2DcountSectorRMS_AllEvt","2DcountSectorRMS_AllEvt", 1000, -50, 450, 16, -0.5, 15.5)
-        self.hist["2DcountSectorRMS_RndEvt"] =  ROOT.TH2D("2DcountSectorRMS_RndEvt","2DcountSectorRMS_RndEvt", 1000, -50, 450, 16, -0.5, 15.5)
+        self.hist["2DcountSectorRMS_AllEvt"] =  ROOT.TH2D("2DcountSectorRMS_AllEvt","2DcountSectorRMS_AllEvt", 88, -2, 20, 16, 0.5, 16.5)
+        self.hist["2DcountSectorRMS_RndEvt"] =  ROOT.TH2D("2DcountSectorRMS_RndEvt","2DcountSectorRMS_RndEvt", 88, -2, 20, 16, 0.5, 16.5)
 
         self.hist["2DMuonNoTriggerCountMap"] =  ROOT.TH2D("2DMuonNoTriggerCountMap","2DMuonNoTriggerCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
-        self.hist["GoodMuonCountPerSec"] =  ROOT.TH1D("GoodMuonCountPerSec","GoodMuonCountPerSec", 16, -0.5, 15.5)
+        self.hist["GoodMuonCountPerSec"] =  ROOT.TH1D("GoodMuonCountPerSec","GoodMuonCountPerSec", 16, 0.5, 16.5)
         self.hist["RunsWithGoodMuons"] =  ROOT.TH1D("RunsWithGoodMuons","RunsWithGoodMuons", 10000, 247000-0.5, 257000-0.5)
         self.hist["RunsAllTrigger"] =  ROOT.TH1D("RunsAllTrigger","RunsAllTrigger", 10000, 247000-0.5, 257000-0.5)
-        self.hist["DeltaSigma_AllEvt"] = ROOT.TH1D("DeltaSigma_AllEvt","DeltaSigma_AllEvt",1000, 0, 50)
-        self.hist["DeltaSigma_RndEvt"] = ROOT.TH1D("DeltaSigma_RndEvt","DeltaSigma_RndEvt",1000, 0, 50)
+        self.hist["DeltaSigma_AllEvt"] = ROOT.TH1D("DeltaSigma_AllEvt","DeltaSigma_AllEvt",100, 0, 50)
+        self.hist["DeltaSigma_RndEvt"] = ROOT.TH1D("DeltaSigma_RndEvt","DeltaSigma_RndEvt",100, 0, 50)
        
         histcalibrationname = '2DMuonSignalMap'
         if not firstRun:
             self.hist[histcalibrationname] = inputFile.Get("data_MinimumBias_Run2015A/2DMuonSignalMap")
            # print "Extracted histogram from file. Checking entries:",  self.hist[histcalibrationname].GetEntries()
         else: #first time running analyser the calibration constants are all set to 1
-            self.hist[histcalibrationname] =  ROOT.TH2D(histcalibrationname,histcalibrationname, 14, -0.5, 13.5, 16, -0.5, 15.5)
+            self.hist[histcalibrationname] =  ROOT.TH2D(histcalibrationname,histcalibrationname, 14, 0.5, 14.5, 16, 0.5, 16.5)
             for imod in xrange(0,14):
                 for isec in xrange(0,16):
                     self.hist[histcalibrationname].SetBinContent(self.hist[histcalibrationname].FindBin(imod,isec), 1.) #all factors set to 1
@@ -118,12 +120,13 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #make new histograms
         for isec in xrange(0,16):
             for imod in xrange(0,14):
-                hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-                hwithouttrigger = 'MuonSignalSecCh_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-                hdifferenmuonselect = 'MuonSignalSecCh_differentSelection_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-                hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-                hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
+                hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                hwithouttrigger = 'MuonSignalSecCh_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                hdifferenmuonselect = 'MuonSignalSecCh_differentSelection_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+        
                 #hempty = 'CastorEmptysectors_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 self.hist[hname] = ROOT.TH1D( hname, hname, 50, -100, 400)
                 self.hist[hwithouttrigger] = ROOT.TH1D(hwithouttrigger, hwithouttrigger, 50, -100, 400)
@@ -131,6 +134,9 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 self.hist[hnoise_neighbor] = ROOT.TH1D(hnoise_neighbor, hnoise_neighbor, 50, -100, 400)
                 self.hist[hnoise_randomtrg] = ROOT.TH1D(hnoise_randomtrg, hnoise_randomtrg, 50, -100, 400)
                 self.hist[hnoise_electronic_RMS] = ROOT.TH1D(hnoise_electronic_RMS,hnoise_electronic_RMS, 224,-0.5,223.5)
+       
+            henergy= 'MuonSignalSec_energy_sec_{sec}'.format(sec=str(isec+1))               
+            self.hist[henergy] = ROOT.TH1D( henergy, henergy, 50, 0, 400)
                 #self.hist[hempty] = ROOT. TH1D( hempty, hempty, 500, -100, 400)
         
         
@@ -151,14 +157,6 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 self.ch_RMS[isec][imod] = hist_ch_RMS.GetBinContent(i+1) #+1 because of underflow
 
             #print i, "sec,mod", sec, mod, hist_ch_RMS.GetBinContent(i+1)
-         
-        # #get RMS from Merijn
-        # self.ch_noise_RMS = [[1 for _ in range(14)] for _ in range(16)]
-        # for i in xrange(0, 224):
-        #     #how I get Channel information
-        #     isec = i//14
-        #     imod = i%14
-        #     self.ch_noise_RMS[isec][imod] = hist_ch_noise_RMS.GetBinContent(i+1) #+1 because of underflow
 
             
         #get mean and rms from sector histogram
@@ -175,10 +173,10 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         self.new_sec_RMS = [0] * 16
 
         #TProfile for storing means and RMS. and when jobs are merged, the averge is taken
-        self.hist['hist_sec_Mean'] = ROOT.TProfile('hist_sec_Mean','hist_sec_Mean',16,-0.5,15.5)
-        self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,-0.5,15.5) #change later to hist_sec_mean
-        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,-0.5,223.5)
-        self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,-0.5,223.5)
+        self.hist['hist_sec_Mean'] = ROOT.TProfile('hist_sec_Mean','hist_sec_Mean',16,0.5,16.5)
+        self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,0.5,16.5) #change later to hist_sec_mean
+        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,0.5,224.5)
+        self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,0.5,224.5)
         
 
         for h in self.hist:
@@ -205,7 +203,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             for imod in range(14):
                 energy = energy_ch[isec][imod]
                 # print "RMS mod {mod} sec {sec}: {rms}".format(mod=str(imod),sec=str(isec),rms=self.ch_RMS[isec][imod])
-                if [imod,isec] in badChannelsModSec:
+                if [isec+1,imod+1] in badChannelsSecMod:
                     #print "skipping channel", imod, isec
                     continue
                 sigma = (energy - self.ch_mean[isec][imod]) / self.ch_RMS[isec][imod]
@@ -238,7 +236,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         esecsum = [0] * 16
         for isec in range(0,16):
             for imod in range(0,14):
-                if [imod,isec] in badChannelsModSec:
+                if [isec+1, imod+1] in badChannelsSecMod:
                     #print "skipping channel", imod, isec
                     continue
                 esecsum[isec] += ch_energy[isec][imod]
@@ -246,7 +244,12 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 zrms[isec] += ch_energy[isec][imod] * imod*imod
             zmean[isec] /= esecsum[isec]
             zrms[isec] /= esecsum[isec]
-            zrms[isec] = np.sqrt(zrms[isec]-(zmean[isec]*zmean[isec]))
+
+            tmpvalue = zrms[isec]-(zmean[isec]*zmean[isec])
+            if tmpvalue <= 0:
+                zrms[isec] = -100
+            else:
+                zrms[isec] = sqrt(tmpvalue)
 
         return zmean, zrms
 
@@ -263,11 +266,11 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         self.hist["EventCount"].Fill(1)
         
-        if self.flag_use_merjin_electronic_channel_noise:
-            for isec in range(16):
-                for imod in range(14):
-                    hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))   
-                    self.hist[hnoise_electronic_RMS].Fill(self.ch_RMS[isec][imod])
+        # if self.flag_use_merjin_electronic_channel_noise:
+        for isec in range(16):
+            for imod in range(14):
+                hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))   
+                self.hist[hnoise_electronic_RMS].Fill(self.ch_RMS[isec][imod])
         
         histcalibrationname = '2DMuonSignalMap'
         histCalibration= self.hist[histcalibrationname]
@@ -289,22 +292,25 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         if isRandom: self.hist["EventCount"].Fill(3)
 
-        for i in xrange(0, 224):
-            isec = self.fChain.CastorRecHitSector.at(i)-1
-            imod = self.fChain.CastorRecHitModule.at(i)-1
+        sec_nbr = copy.copy(self.fChain.CastorRecHitSector)
+        mod_nbr = copy.copy(self.fChain.CastorRecHitModule)
+        rh_energy = copy.copy(self.fChain.CastorRecHitEnergy)
+        for i in range(224):
+            isec = sec_nbr[i]-1
+            imod = mod_nbr[i]-1
             binnumber = histCalibration.FindBin(imod,isec)
             calibration =  histCalibration.GetBinContent(binnumber)
-            ich_energy = calibration * self.fChain.CastorRecHitEnergy.at(i)
+            ich_energy = calibration * rh_energy[i]
             ch_energy[isec][imod] = ich_energy
-            hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{imod}_sec_{isec}'.format(imod=str(imod), isec=str(isec))
-            if [imod,isec] not in badChannelsModSec:
+            hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{imod}_sec_{isec}'.format(imod=str(imod+1), isec=str(isec+1))
+            if [isec+1, imod+1] not in badChannelsSecMod:
                 sec_energy[isec] += ich_energy
                 if imod < 5: sec_front_energy[isec] += ich_energy
             if isRandom:
                 self.hist[hnoise_randomtrg].Fill(ch_energy[isec][imod])
                 self.new_ch_mean[isec][imod] += ich_energy
                 self.new_ch_RMS[isec][imod] += ich_energy**2
-                if [imod,isec] not in badChannelsModSec:
+                if [isec+1, imod+1] not in badChannelsSecMod:
                     self.new_sec_mean[isec] += ich_energy
                     self.new_sec_RMS[isec] += ich_energy**2
 
@@ -324,7 +330,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             #  print "all sector energies:  ", sec_energy
 
 
-        zmean, zrms = self.getlistSectorMeanRMSInZ(ch_energy)
+        # zmean, zrms = self.getlistSectorMeanRMSInZ(ch_energy)
 
         listSigmaSector = self.getListSigmaSector(sec_energy)
         listSigmaChannel = self.getListSigmaChannel(ch_energy)
@@ -341,14 +347,17 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         for isec in range(16):
             sigma = listSigmaSector[isec]
  
-            self.hist["2DcountSectorRMS_AllEvt"].Fill(sigma,isec)
+            self.hist["2DcountSectorRMS_AllEvt"].Fill(sigma,isec+1)
             if isRandom:
-                self.hist["2DcountSectorRMS_RndEvt"].Fill(sigma,isec)
+                self.hist["2DcountSectorRMS_RndEvt"].Fill(sigma,isec+1)
 
             if sigma > SigmaHottestSector:
                 SigmaSecHottestSector = SigmaHottestSector
+                SecondHottestSector = HottestSector
+
                 SigmaHottestSector = sigma
                 HottestSector = isec
+
             elif sigma > SigmaSecHottestSector:
                 SigmaSecHottestSector = sigma
                 SecondHottestSector = isec
@@ -364,29 +373,29 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         # selection of all channels above noise
         listAllChannelsAboveNoise = [[] for _ in range(16)]
 
+        
         for isec in range(16):
             for imod in range(14):
                 sigma = listSigmaChannel[isec][imod]
-                if [imod,isec] in badChannelsModSec:
+                if [isec+1,imod+1] in badChannelsSecMod:
                     #print "skipping channel", mod, sec
                     continue
                 if sigma > 2:
                     listAllChannelsAboveNoise[isec].append(imod)
-                    self.hist["2DcountChannelAboveTwoSigma_AllEvt"].Fill(imod,isec)
+                    self.hist["2DcountChannelAboveTwoSigma_AllEvt"].Fill(imod+1,isec+1)
                     if isRandom:
-                        self.hist["2DcountChannelAboveTwoSigma_RndEvt"].Fill(imod,isec)
+                        self.hist["2DcountChannelAboveTwoSigma_RndEvt"].Fill(imod+1,isec+1)
 
         for isec in xrange(0,16):
-            self.hist["2DcountChannelsAboveNoiseForAllSectors_AllEvt"].Fill(len(listAllChannelsAboveNoise[isec]),isec)
-            self.hist["2DsectorChMeanForAllSectors"].Fill(zmean[isec],isec)
-            self.hist["2DsectorChRMSForAllSectors"].Fill(zrms[isec],isec)
-
-            self.hist["2DsectorChRMS_Vs_ChAboveNoise"].Fill(len(listAllChannelsAboveNoise[isec]),zrms[isec])
+            self.hist["2DcountChannelsAboveNoiseForAllSectors_AllEvt"].Fill(len(listAllChannelsAboveNoise[isec]),isec+1)
+            # self.hist["2DsectorChMeanForAllSectors"].Fill(zmean[isec],isec+1)
+            # self.hist["2DsectorChRMSForAllSectors"].Fill(zrms[isec],isec+1)
+            # self.hist["2DsectorChRMS_Vs_ChAboveNoise"].Fill(len(listAllChannelsAboveNoise[isec]),zrms[isec])
             if isRandom:
-                self.hist["2DcountChannelsAboveNoiseForAllSectors_RndEvt"].Fill(len(listAllChannelsAboveNoise[isec]),isec)
-                self.hist["2DsectorChMeanForAllSectors_RndEvt"].Fill(zmean[isec],isec)
-                self.hist["2DsectorChRMSForAllSectors_RndEvt"].Fill(zrms[isec],isec)
-                self.hist["2DsectorChRMS_Vs_ChAboveNoise_RndEvt"].Fill(len(listAllChannelsAboveNoise[isec]),zrms[isec])
+                self.hist["2DcountChannelsAboveNoiseForAllSectors_RndEvt"].Fill(len(listAllChannelsAboveNoise[isec]),isec+1)
+                # self.hist["2DsectorChMeanForAllSectors_RndEvt"].Fill(zmean[isec],isec+1)
+                # self.hist["2DsectorChRMSForAllSectors_RndEvt"].Fill(zrms[isec],isec+1)
+                # self.hist["2DsectorChRMS_Vs_ChAboveNoise_RndEvt"].Fill(len(listAllChannelsAboveNoise[isec]),zrms[isec])
 
         ################################
         # cut on muon candidate sector #
@@ -398,51 +407,51 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         for imod in range(14):
             sigma = listSigmaChannel[muonSec][imod]
-            if [imod,muonSec] in badChannelsModSec:
+            if [muonSec+1,imod+1] in badChannelsSecMod:
                 #print "skipping channel", mod, sec
                 continue
             if sigma > 2:
                 # listAllChannelsAboveNoise[muonSec].append(imod)
-                self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_AllEvt"].Fill(imod,muonSec)
+                self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_AllEvt"].Fill(imod+1,muonSec+1)
                 if isRandom:
-                    self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt"].Fill(imod,muonSec)
+                    self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt"].Fill(imod+1,muonSec+1)
 
         muonSec = HottestSector
-        self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec)
-        self.hist["2DsectorChMeanFor3sigmaSectors"].Fill(zmean[muonSec],muonSec)
-        self.hist["2DsectorChRMSFor3sigmaSectors"].Fill(zrms[muonSec],muonSec)
+        self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec+1)
+        # self.hist["2DsectorChMeanFor3sigmaSectors"].Fill(zmean[muonSec],muonSec+1)
+        # self.hist["2DsectorChRMSFor3sigmaSectors"].Fill(zrms[muonSec],muonSec+1)
         if isRandom:
-            self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec)
-            self.hist["2DsectorChMeanFor3sigmaSectors_RndEvt"].Fill(zmean[muonSec],muonSec)
-            self.hist["2DsectorChRMSFor3sigmaSectors_RndEvt"].Fill(zrms[muonSec],muonSec)
+            self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec+1)
+            # self.hist["2DsectorChMeanFor3sigmaSectors_RndEvt"].Fill(zmean[muonSec],muonSec+1)
+            # self.hist["2DsectorChRMSFor3sigmaSectors_RndEvt"].Fill(zrms[muonSec],muonSec+1)
 
 
         ################################
         # cut oon noise veto sector #
         ################################
-       # if DeltaSigma < 1:
-        #    return 0
+        # if DeltaSigma < 1:
+        #     return 0
 
-        for imod in range(14):
-            sigma = listSigmaChannel[isec][imod]
-            if [imod,isec] in badChannelsModSec:
-                #print "skipping channel", imod, isec
-                continue
-            if sigma > 2:
-                # listAllChannelsAboveNoise[isec].append(imod)
-                self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_AllEvt"].Fill(imod,isec)
-                if isRandom:
-                    self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_RndEvt"].Fill(imod,isec)
+        # for imod in range(14):
+        #     sigma = listSigmaChannel[isec][imod]
+        #     if [isec+1,imod+1] in badChannelsSecMod:
+        #         #print "skipping channel", imod, isec
+        #         continue
+        #     if sigma > 2:
+        #         # listAllChannelsAboveNoise[isec].append(imod)
+        #         self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_AllEvt"].Fill(imod+1,muonSec+1)
+        #         if isRandom:
+        #             self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_RndEvt"].Fill(imod+1,muonSec+1)
       
-        self.hist["2DcountChannelsAboveNoiseForMuonCandidateSector_AllEvt"].Fill(len(listAllChannelsAboveNoise[isec]),isec)
-        self.hist["2DsectorChMeanForMuonCandidateSectors"].Fill(zmean[isec],isec)
-        self.hist["2DsectorChRMSForMuonCandidateSectors"].Fill(zrms[isec],isec)
-        if isRandom:
-            self.hist["2DcountChannelsAboveNoiseForMuonCandidateSector_RndEvt"].Fill(len(listAllChannelsAboveNoise[isec]),isec)
-            self.hist["2DsectorChMeanForMuonCandidateSectors_RndEvt"].Fill(zmean[isec],isec)
-            self.hist["2DsectorChRMSForMuonCandidateSectors_RndEvt"].Fill(zrms[isec],isec)
+        # self.hist["2DcountChannelsAboveNoiseForMuonCandidateSector_AllEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec+1)
+        # self.hist["2DsectorChMeanForMuonCandidateSectors"].Fill(zmean[muonSec],muonSec+1)
+        # self.hist["2DsectorChRMSForMuonCandidateSectors"].Fill(zrms[muonSec],muonSec+1)
+        # if isRandom:
+        #     self.hist["2DcountChannelsAboveNoiseForMuonCandidateSector_RndEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec+1)
+        #     self.hist["2DsectorChMeanForMuonCandidateSectors_RndEvt"].Fill(zmean[muonSec],muonSec+1)
+        #     self.hist["2DsectorChRMSForMuonCandidateSectors_RndEvt"].Fill(zrms[muonSec],muonSec+1)
 
-        self.hist["EventCount"].Fill(5)
+        # self.hist["EventCount"].Fill(5)
 
         
         #a selected sector have a signal above the noise threshold and remaining sectors are below a threshold.excluded the active sector + 2 neigbours + "the mirrored-sectors"
@@ -458,36 +467,49 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             cond1 =  isec == muonSec or isec == isec_pn or isec == isec_mn
             cond2 = (isec == (muonSec+8)%16 or isec == isec_pns or isec == isec_mns)
             for imod in xrange(0,14):
-                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
+                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
                 if not cond1 or not cond2:
                     self.hist[hnoise_neighbor].Fill(ch_energy[isec][imod])
 
                     
-        #selection on channels above noise
-        listChannelsAboveNoise = []
-        for i in xrange(0,224):
-            isec = self.fChain.CastorRecHitSector.at(i)-1
-            imod = self.fChain.CastorRecHitModule.at(i)-1
-            if [imod,isec] in badChannelsModSec:
-                #print "skipping channel", imod, isec
-                continue
+        
+        #Energy of muon
+        energy_secsum = [0] * 16
+        for isec in xrange(16):
+            for imod in range(14):
+                if [isec+1,imod+1] in badChannelsSecMod:
+                    continue
 
-            if ch_energy[isec][imod]> self.ch_mean[isec][imod] + 2*self.ch_RMS[isec][imod]:
-                self.hist["2DMuonCountMap_allch"].Fill(imod,isec)
-                if isec == muonSec:
-                    listChannelsAboveNoise.append(i)
-            # hchannel = 'Channelenergy_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-            # self.hist[hchannel].Fill(ch_energy[isec][imod])
-        countChannelsAboveNoise = len(listChannelsAboveNoise)
+                energy_secsum[isec] += ch_energy[isec][imod]  
+            
+        henergy = 'MuonSignalSec_energy_sec_{sec}'.format(sec=str(muonSec+1))
+        self.hist[henergy].Fill(energy_secsum[muonSec])
+
+        #selection on channels above noise
+        # listChannelsAboveNoise = []
+        # for i in xrange(0,224):
+        #     isec = self.fChain.CastorRecHitSector.at(i)-1
+        #     imod = self.fChain.CastorRecHitModule.at(i)-1hanme
+        #     if [isec+1,imod+1] in badChannelsSecMod:
+        #         #print "skipping channel", imod, isec
+        #         continue
+
+        #     if ch_energy[isec][imod]> self.ch_mean[isec][imod] + 2*self.ch_RMS[isec][imod]:
+        #         self.hist["2DMuonCountMap_allch"].Fill(imod+1,isec+1)
+        #         if isec == muonSec:
+        #             listChannelsAboveNoise.append(i)
+        #     # hchannel = 'Channelenergy_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
+        #     # self.hist[hchannel].Fill(ch_energy[isec][imod])
+        countChannelsAboveNoise = len(listAllChannelsAboveNoise[muonSec])
         #print "Channels above noise:", listChannelsAboveNoise
 
 
         NchannelNoiseCut = False
         if countChannelsAboveNoise > 3: # before we used the countChannelsAboveNoise > 5
             NchannelNoiseCut = True
-        if muonSec in [6,7,10,11,12,13]:
-            if countChannelsAboveNoise > 4:
-                NchannelNoiseCut = True
+        # if muonSec in [6,7,10,11,12,13]:
+        #     if countChannelsAboveNoise > 4:
+        #         NchannelNoiseCut = True
 
         if countChannelsAboveNoise > 6:
             goodMuonEventDifferentSelection = True
@@ -500,8 +522,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             Mid_Module= False
             Rear_Module =False
 
-            for i in listChannelsAboveNoise:
-                imod = self.fChain.CastorRecHitModule.at(i)-1
+            for imod in listAllChannelsAboveNoise[muonSec]:
+                # imod = self.fChain.CastorRecHitModule.at(i)-1
                 if imod in [0,1,2,3]:
                     Front_Module =True
 
@@ -524,17 +546,12 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             # print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
             self.hist["RunsWithGoodMuons"].Fill(self.fChain.run)
             for imod in xrange(0,14):
-                hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(muonSec))
+                hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(muonSec+1))
                 self.hist[hname].Fill(ch_energy[muonSec][imod])
 
-
-
-
-            self.hist["GoodMuonCountPerSec"].Fill(muonSec)
-            for ich in listChannelsAboveNoise:
-                isec = self.fChain.CastorRecHitSector.at(ich)-1
-                imod = self.fChain.CastorRecHitModule.at(ich)-1
-                self.hist["2DMuonCountMap"].Fill(imod,isec)
+            self.hist["GoodMuonCountPerSec"].Fill(muonSec+1)
+            for imod in listAllChannelsAboveNoise[muonSec]:
+                self.hist["2DMuonCountMap"].Fill(imod+1,muonSec+1)
         else:
             self.hist["RunsAllTrigger"].Fill(self.fChain.run)
 
@@ -544,13 +561,15 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
             # print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
             for imod in xrange(0,14):
-                hname = 'MuonSignalSecCh_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(muonSec))
+                hname = 'MuonSignalSecCh_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(muonSec+1))
                 self.hist[hname].Fill(ch_energy[muonSec][imod])
 
         if goodMuonEventDifferentSelection:
             for imod in xrange(0,14):
-                hname = 'MuonSignalSecCh_differentSelection_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(muonSec))
+                hname = 'MuonSignalSecCh_differentSelection_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(muonSec+1))
                 self.hist[hname].Fill(ch_energy[muonSec][imod])
+
+        
 
 
         #plot all the good muons
@@ -563,7 +582,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ch_energy_wo_bad_ch = np.asarray(ch_energy)
-            for imod,isec in badChannelsModSec:
+            for isec, imod in badChannelsSecMod:
                 ch_energy_wo_bad_ch[isec][imod] = 0
             for isec in np.arange(16):
                 xs = np.arange(14)
@@ -593,19 +612,19 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
         histcalibrationname = '2DMuonSignalMap'
         histcalibration = self.hist[histcalibrationname]
-        hreferencename = 'MuonSignalSecCh_mod_3_sec_8' #reference channel is (counting from one) mod=4 sec=9
+        hreferencename = 'MuonSignalSecCh_mod_4_sec_9' #reference channel is (counting from one) mod=4 sec=9
 
         referenceMean= self.hist[hreferencename].GetMean()
         meanReferenceNoise = hist_ch_Mean.GetBinContent(8*14 + 3 +1)
-#        referenceMean -= meanReferenceNoise #switch on at some point or da a fit
+        # referenceMean -= meanReferenceNoise #switch on at some point or da a fit
 
 
         if referenceMean != 0:
-            print "Warning reference channel (Sec 3 Mod 8) empty. Not dividing"
+            print "Warning reference channel (Sec 9 Mod 4) empty. Not dividing"
         for isec in xrange(0,16):
             for imod in xrange(0,14):
-                hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
+                hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
                 mean= self.hist[hname].GetMean()
                 i = isec * 14 + imod
                 meanNoise = hist_ch_Mean.GetBinContent(i+1) #noise is not estimated well. do iterative procedure from ralf? or random trigger?
@@ -613,7 +632,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 noiseSubtractedMean = (mean)# - meanNoise)
                 if referenceMean != 0:
                     noiseSubtractedMean /= referenceMean
-                if [imod,isec] in badChannelsModSec:
+                if [isec+1,imod+1] in badChannelsSecMod:
                     noiseSubtractedMean = 1 #set bad channels always to 1
                 histcalibration.SetBinContent(binnumber, noiseSubtractedMean)
                 print "checking means for muons", imod, isec, mean, self.hist[hname].GetEntries()
@@ -630,23 +649,22 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         # self.hist[hname].Scale(1./self.hist[hname].GetBinWidth(i)); 
                                                         
        
-        assert self.nEventsRandom > 0
+        if self.nEventsRandom > 0:
+            for i in xrange(0,16):
+                    print "Bin ", i, ": ", self.new_sec_mean[i], self.new_sec_mean[i] / self.nEventsRandom
+                    self.new_sec_mean[i] /= float(self.nEventsRandom)
+                    self.new_sec_RMS[i] = sqrt(self.new_sec_RMS[i]/float(self.nEventsRandom) - self.new_sec_mean[i]**2)
+                    self.hist['hist_sec_Mean'].Fill(i, self.new_sec_mean[i] )
+                    self.hist['hist_sec_RMS'].Fill(i, self.new_sec_RMS[i] )
 
-        for i in xrange(0,16):
-                print "Bin ", i, ": ", self.new_sec_mean[i], self.new_sec_mean[i] / self.nEventsRandom
-                self.new_sec_mean[i] /= float(self.nEventsRandom)
-                self.new_sec_RMS[i] = sqrt(self.new_sec_RMS[i]/float(self.nEventsRandom) - self.new_sec_mean[i]**2)
-                self.hist['hist_sec_Mean'].Fill(i, self.new_sec_mean[i] )
-                self.hist['hist_sec_RMS'].Fill(i, self.new_sec_RMS[i] )
-
-        for isec in xrange(0,16):
-            for imod in xrange(0,14):
-                if self.nEventsRandom>0:
-                    i = isec * 14 + imod
-                    self.new_ch_mean[isec][imod] /= float(self.nEventsRandom)
-                    self.new_ch_RMS[isec][imod] = sqrt(self.new_ch_RMS[isec][imod]/float(self.nEventsRandom) - self.new_ch_mean[isec][imod]**2)
-                    self.hist['hist_ch_Mean'].Fill(i, self.new_ch_mean[isec][imod] )
-                    self.hist['hist_ch_RMS'].Fill(i, self.new_ch_RMS[isec][imod] )
+            for isec in xrange(0,16):
+                for imod in xrange(0,14):
+                    if self.nEventsRandom>0:
+                        i = isec * 14 + imod
+                        self.new_ch_mean[isec][imod] /= float(self.nEventsRandom)
+                        self.new_ch_RMS[isec][imod] = sqrt(self.new_ch_RMS[isec][imod]/float(self.nEventsRandom) - self.new_ch_mean[isec][imod]**2)
+                        self.hist['hist_ch_Mean'].Fill(i, self.new_ch_mean[isec][imod] )
+                        self.hist['hist_ch_RMS'].Fill(i, self.new_ch_RMS[isec][imod] )
 
     def finalizeWhenMerged(self):
         olist = self.GetOutputList()
@@ -660,8 +678,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         for isec in xrange(0,16):
             for imod in xrange(0,14):
-                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
-                hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
+                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
 
                 if not histos["EventCount"].GetBinContent(3) == 0:
                     histos[hnoise_randomtrg].Scale( 1./histos["EventCount"].GetBinContent(3) )
@@ -670,7 +688,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 if not histos[hnoise_neighbor].GetEntries() == 0:
                     histos[hnoise_neighbor].Scale( 1./histos[hnoise_neighbor].GetEntries() )
 
-                hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
+                hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
                 if not histos["GoodMuonCountPerSec"].GetBinContent(isec+1) == 0:
                     histos[hname].Scale( 1./histos["GoodMuonCountPerSec"].GetBinContent(isec+1) )
                 
@@ -735,6 +753,6 @@ if __name__ == "__main__":
                            sampleList = sampleList,
                            maxFilesMC = None,
                            maxFilesData =None,  
-                           nWorkers =8,
+                           nWorkers =1,
                            outFile = outFileName,
                            verbosity = 2)
