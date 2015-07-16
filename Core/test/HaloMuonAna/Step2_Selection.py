@@ -183,7 +183,6 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             self.hist[h].Sumw2()
             self.GetOutputList().Add(self.hist[h])
 
-
     def getListSigmaSector(self, energy_sec):
         listSigmaSector = [0] * 16
 
@@ -292,15 +291,12 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         if isRandom: self.hist["EventCount"].Fill(3)
 
-       
-        
-
         for i in range(224):
             isec = self.fChain.CastorRecHitSector.at(i)-1
             imod = self.fChain.CastorRecHitModule.at(i)-1
             rh_energy = self.fChain.CastorRecHitEnergy.at(i)
 
-            binnumber = histCalibration.FindBin(imod,isec)
+            binnumber = histCalibration.FindBin(imod+1,isec+1)
             calibration = histCalibration.GetBinContent(binnumber)
             
             ich_energy = calibration * rh_energy
@@ -318,6 +314,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 if [isec+1, imod+1] not in badChannelsSecMod:
                     self.new_sec_mean[isec] += ich_energy
                     self.new_sec_RMS[isec] += ich_energy**2
+
 
 
 
@@ -480,7 +477,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         
         #Energy of muon
         energy_secsum = [0.0] * 16
-        for isec in xrange(16):
+        for isec in range(16):
             for imod in range(14):
                 if [isec+1,imod+1] in badChannelsSecMod:
                     continue
@@ -633,7 +630,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 mean= self.hist[hname].GetMean()
                 i = isec * 14 + imod
                 meanNoise = hist_ch_Mean.GetBinContent(i+1) #noise is not estimated well. do iterative procedure from ralf? or random trigger?
-                binnumber = histcalibration.FindBin(imod, isec)
+                binnumber = histcalibration.FindBin(imod+1, isec+1)
                 noiseSubtractedMean = (mean)# - meanNoise)
                 if referenceMean != 0:
                     noiseSubtractedMean /= referenceMean
@@ -757,7 +754,7 @@ if __name__ == "__main__":
                            slaveParameters = slaveParams,
                            sampleList = sampleList,
                            maxFilesMC = None,
-                           maxFilesData =2,  
-                           nWorkers =1,
+                           maxFilesData =None,  
+                           nWorkers =8,
                            outFile = outFileName,
                            verbosity = 2)
