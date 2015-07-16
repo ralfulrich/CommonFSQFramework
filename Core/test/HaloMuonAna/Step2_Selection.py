@@ -272,10 +272,10 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 self.hist[hnoise_electronic_RMS].Fill(self.ch_RMS[isec][imod])
 
         histcalibrationname = '2DMuonSignalMap'
-        histCalibration= self.hist[histcalibrationname]
+        histCalibration = self.hist[histcalibrationname]
 
         ch_energy = [[0.0 for _ in xrange(14)] for _ in xrange(16)]
-        sec_energy =[0.0] * 16
+        sec_energy = [0.0] * 16
         sec_front_energy = [0.0] * 16
 
         if self.fChain.CastorRecHitEnergy.size() != 224:
@@ -379,10 +379,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         for isec in xrange(16):
             for imod in xrange(14):
                 sigma = listSigmaChannel[isec][imod]
-                if [isec+1,imod+1] in badChannelsSecMod:
-                    #print "skipping channel", mod, sec
-                    continue
-                if sigma > 2:
+                if sigma > 2 and [isec+1,imod+1] not in badChannelsSecMod:
                     listAllChannelsAboveNoise[isec].append(imod)
                     self.hist["2DcountChannelAboveTwoSigma_AllEvt"].Fill(imod+1,isec+1)
                     if isRandom:
@@ -418,7 +415,6 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 if isRandom:
                     self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt"].Fill(imod+1,muonSec+1)
 
-        muonSec = HottestSector
         self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec+1)
         # self.hist["2DsectorChMeanFor3sigmaSectors"].Fill(zmean[muonSec],muonSec+1)
         # self.hist["2DsectorChRMSFor3sigmaSectors"].Fill(zrms[muonSec],muonSec+1)
