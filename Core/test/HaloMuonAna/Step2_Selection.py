@@ -78,14 +78,14 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt"] = ROOT.TH2D("2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt","2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt",88, -2, 20, 88, -2, 20)
         self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt","2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt",88,-2,20, 88, -2, 20)
         self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt","2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt",88, -2, 20, 88,-2, 20)
-    
+
         self.hist["2DsectorChMeanForAllSectors"] = ROOT.TH2D("2DsectorChMeanForAllSectors","2DsectorChMeanForAllSectors", 14, -0.5, 13.5, 16, -0.5, 15.5)
         self.hist["2DsectorChMeanForAllSectors_RndEvt"] = ROOT.TH2D("2DsectorChMeanForAllSectors_RndEvt","2DsectorChMeanForAllSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
         self.hist["2DsectorChMeanFor3sigmaSectors"] = ROOT.TH2D("2DsectorChMeanFor3sigmaSectors","2DsectorChMeanFor3sigmaSectors", 14, -0.5, 13.5, 16, 0.5, 16.5)
         self.hist["2DsectorChMeanFor3sigmaSectors_RndEvt"] = ROOT.TH2D("2DsectorChMeanFor3sigmaSectors_RndEvt","2DsectorChMeanFor3sigmaSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
         self.hist["2DsectorChMeanForMuonCandidateSectors"] = ROOT.TH2D("2DsectorChMeanForMuonCandidateSectors","2DsectorChMeanForMuonCandidateSectors", 14, -0.5, 13.5, 16, 0.5, 16.5)
         self.hist["2DsectorChMeanForMuonCandidateSectors_RndEvt"] = ROOT.TH2D("2DsectorChMeanForMuonCandidateSectors_RndEvt","2DsectorChMeanForMuonCandidateSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
-       
+
         self.hist["2DsectorChRMSForAllSectors"] = ROOT.TH2D("2DsectorChRMSForAllSectors","2DsectorChRMSForAllSectors", 14, -0.5, 13.5, 16, 0.5, 16.5)
         self.hist["2DsectorChRMSForAllSectors_RndEvt"] = ROOT.TH2D("2DsectorChRMSForAllSectors_RndEvt","2DsectorChRMSForAllSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
         self.hist["2DsectorChRMSFor3sigmaSectors"] = ROOT.TH2D("2DsectorChRMSFor3sigmaSectors","2DsectorChRMSFor3sigmaSectors", 14, -0.5, 13.5, 16, 0.5, 16.5)
@@ -103,7 +103,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         self.hist["RunsAllTrigger"] =  ROOT.TH1D("RunsAllTrigger","RunsAllTrigger", 10000, 247000-0.5, 257000-0.5)
         self.hist["DeltaSigma_AllEvt"] = ROOT.TH1D("DeltaSigma_AllEvt","DeltaSigma_AllEvt",100, 0, 50)
         self.hist["DeltaSigma_RndEvt"] = ROOT.TH1D("DeltaSigma_RndEvt","DeltaSigma_RndEvt",100, 0, 50)
-       
+
         histcalibrationname = '2DMuonSignalMap'
         if not firstRun:
             self.hist[histcalibrationname] = inputFile.Get("data_MinimumBias_Run2015A/2DMuonSignalMap")
@@ -126,7 +126,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
                 hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
                 hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
-        
+
                 #hempty = 'CastorEmptysectors_mod_{mod}_sec_{sec}'.format(mod=str(imod), sec=str(isec))
                 self.hist[hname] = ROOT.TH1D( hname, hname, 50, -100, 400)
                 self.hist[hwithouttrigger] = ROOT.TH1D(hwithouttrigger, hwithouttrigger, 50, -100, 400)
@@ -134,16 +134,16 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 self.hist[hnoise_neighbor] = ROOT.TH1D(hnoise_neighbor, hnoise_neighbor, 50, -100, 400)
                 self.hist[hnoise_randomtrg] = ROOT.TH1D(hnoise_randomtrg, hnoise_randomtrg, 50, -100, 400)
                 self.hist[hnoise_electronic_RMS] = ROOT.TH1D(hnoise_electronic_RMS,hnoise_electronic_RMS, 224,-0.5,223.5)
-       
-            henergy= 'MuonSignalSec_energy_sec_{sec}'.format(sec=str(isec+1))               
+
+            henergy= 'MuonSignalSec_energy_sec_{sec}'.format(sec=str(isec+1))
             self.hist[henergy] = ROOT.TH1D( henergy, henergy, 50, 0, 400)
                 #self.hist[hempty] = ROOT. TH1D( hempty, hempty, 500, -100, 400)
-        
-        
+
+
 
         #get channel energies from input file
-        self.ch_mean = [[0 for _ in range(14)] for _ in range(16)]
-        self.ch_RMS = [[0 for _ in range(14)] for _ in range(16)]
+        self.ch_mean = [[0 for _ in xrange(14)] for _ in xrange(16)]
+        self.ch_RMS = [[0 for _ in xrange(14)] for _ in xrange(16)]
         for i in xrange(0, 224):
             #how I get Channel information
             isec = i//14
@@ -158,7 +158,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
             #print i, "sec,mod", sec, mod, hist_ch_RMS.GetBinContent(i+1)
 
-            
+
         #get mean and rms from sector histogram
         self.sec_mean = [0] * 16
         self.sec_RMS = [0] * 16
@@ -167,8 +167,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             self.sec_RMS[i] = hist_sec_RMS.GetBinContent(i+1) #+1 because of underflow
 
         #these ones are needed to update mean and RMS for the new calibration constants
-        self.new_ch_mean = [[0 for _ in range(14)] for _ in range(16)]
-        self.new_ch_RMS = [[0 for _ in range(14)] for _ in range(16)]
+        self.new_ch_mean = [[0 for _ in xrange(14)] for _ in xrange(16)]
+        self.new_ch_RMS = [[0 for _ in xrange(14)] for _ in xrange(16)]
         self.new_sec_mean = [0] * 16
         self.new_sec_RMS = [0] * 16
 
@@ -177,7 +177,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,0.5,16.5) #change later to hist_sec_mean
         self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,0.5,224.5)
         self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,0.5,224.5)
-        
+
 
         for h in self.hist:
             self.hist[h].Sumw2()
@@ -197,9 +197,9 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         return listSigmaSector
 
     def getListSigmaChannel(self, energy_ch):
-        listSigmaChannel = [[0 for _ in range(14)] for _ in range(16)]
-        for isec in range(16):
-            for imod in range(14):
+        listSigmaChannel = [[0 for _ in xrange(14)] for _ in xrange(16)]
+        for isec in xrange(16):
+            for imod in xrange(14):
                 energy = energy_ch[isec][imod]
                 # print "RMS mod {mod} sec {sec}: {rms}".format(mod=str(imod),sec=str(isec),rms=self.ch_RMS[isec][imod])
                 if [isec+1,imod+1] in badChannelsSecMod:
@@ -214,14 +214,14 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
     def filterListSector(self, l, sigma_th):
         listSectorsAboveThr = []
-        for isec in range(16):
+        for isec in xrange(16):
             if l[isec] > sigma_th: listSectorsAboveThr.append(isec)
         return listSectorsAboveThr
 
     def filterListChannel(self, l, sigma_th):
         listChannelsAboveThr = []
-        for isec in range(16):
-            for imod in range(14):
+        for isec in xrange(16):
+            for imod in xrange(14):
                 if l[isec][imod] > sigma_th: listChannelsAboveThr.append([isec,imod])
         return listChannelsAboveThr
 
@@ -233,8 +233,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         zmean = [0] * 16
         zrms = [0] * 16
         esecsum = [0] * 16
-        for isec in range(0,16):
-            for imod in range(0,14):
+        for isec in xrange(0,16):
+            for imod in xrange(0,14):
                 if [isec+1, imod+1] in badChannelsSecMod:
                     #print "skipping channel", imod, isec
                     continue
@@ -264,18 +264,18 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #print self.maxEta # see slaveParams below
 
         self.hist["EventCount"].Fill(1)
-        
+
         # if self.flag_use_merjin_electronic_channel_noise:
-        for isec in range(16):
-            for imod in range(14):
-                hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))   
+        for isec in xrange(16):
+            for imod in xrange(14):
+                hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
                 self.hist[hnoise_electronic_RMS].Fill(self.ch_RMS[isec][imod])
-        
+
         histcalibrationname = '2DMuonSignalMap'
-        histCalibration= self.hist[histcalibrationname]
-        
-        ch_energy = [[0.0 for _ in range(14)] for _ in range(16)]
-        sec_energy =[0.0] * 16
+        histCalibration = self.hist[histcalibrationname]
+
+        ch_energy = [[0.0 for _ in xrange(14)] for _ in xrange(16)]
+        sec_energy = [0.0] * 16
         sec_front_energy = [0.0] * 16
 
         if self.fChain.CastorRecHitEnergy.size() != 224:
@@ -291,21 +291,21 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         if isRandom: self.hist["EventCount"].Fill(3)
 
-        for i in range(224):
+        for i in xrange(224):
             isec = self.fChain.CastorRecHitSector.at(i)-1
             imod = self.fChain.CastorRecHitModule.at(i)-1
             rh_energy = self.fChain.CastorRecHitEnergy.at(i)
 
             binnumber = histCalibration.FindBin(imod+1,isec+1)
             calibration = histCalibration.GetBinContent(binnumber)
-            
+
             ich_energy = calibration * rh_energy
             ch_energy[isec][imod] = ich_energy
 
             if [isec+1, imod+1] not in badChannelsSecMod:
                 sec_energy[isec] += ich_energy
                 if imod < 5: sec_front_energy[isec] += ich_energy
-                
+
             if isRandom:
                 hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{imod}_sec_{isec}'.format(imod=str(imod+1), isec=str(isec+1))
                 self.hist[hnoise_randomtrg].Fill(ch_energy[isec][imod])
@@ -341,14 +341,14 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         # listSectorsAbove2sigma = self.filterListSector(listSigmaSector,1.5)
         # listChannelsAbove2sigma = self.filterListChannel(listSigmaChannel,2)
 
-        
+
         SigmaHottestSector = None
         SigmaSecHottestSector = None
         HottestSector = None
         SecondHottestSector = None
-        for isec in range(16):
+        for isec in xrange(16):
             sigma = listSigmaSector[isec]
- 
+
             self.hist["2DcountSectorRMS_AllEvt"].Fill(sigma,isec+1)
             if isRandom:
                 self.hist["2DcountSectorRMS_RndEvt"].Fill(sigma,isec+1)
@@ -363,26 +363,23 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             elif sigma > SigmaSecHottestSector:
                 SigmaSecHottestSector = sigma
                 SecondHottestSector = isec
-        
+
         DeltaSigma= (SigmaHottestSector - SigmaSecHottestSector)
         self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_AllEvt"].Fill(SigmaHottestSector,SigmaSecHottestSector)
-        self.hist["DeltaSigma_AllEvt"].Fill(DeltaSigma) 
-        self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt"].Fill(DeltaSigma,SigmaSecHottestSector) 
+        self.hist["DeltaSigma_AllEvt"].Fill(DeltaSigma)
+        self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt"].Fill(DeltaSigma,SigmaSecHottestSector)
         if isRandom:
             self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt"].Fill(SigmaHottestSector,SigmaSecHottestSector)
             self.hist["DeltaSigma_RndEvt"].Fill(DeltaSigma)
-            self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt"].Fill(DeltaSigma,SigmaSecHottestSector) 
+            self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt"].Fill(DeltaSigma,SigmaSecHottestSector)
         # selection of all channels above noise
-        listAllChannelsAboveNoise = [[] for _ in range(16)]
+        listAllChannelsAboveNoise = [[] for _ in xrange(16)]
 
-        
-        for isec in range(16):
-            for imod in range(14):
+
+        for isec in xrange(16):
+            for imod in xrange(14):
                 sigma = listSigmaChannel[isec][imod]
-                if [isec+1,imod+1] in badChannelsSecMod:
-                    #print "skipping channel", mod, sec
-                    continue
-                if sigma > 2:
+                if sigma > 2 and [isec+1,imod+1] not in badChannelsSecMod:
                     listAllChannelsAboveNoise[isec].append(imod)
                     self.hist["2DcountChannelAboveTwoSigma_AllEvt"].Fill(imod+1,isec+1)
                     if isRandom:
@@ -407,7 +404,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         muonSec = HottestSector
 
-        for imod in range(14):
+        for imod in xrange(14):
             sigma = listSigmaChannel[muonSec][imod]
             if [muonSec+1,imod+1] in badChannelsSecMod:
                 #print "skipping channel", mod, sec
@@ -418,7 +415,6 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 if isRandom:
                     self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt"].Fill(imod+1,muonSec+1)
 
-        muonSec = HottestSector
         self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec+1)
         # self.hist["2DsectorChMeanFor3sigmaSectors"].Fill(zmean[muonSec],muonSec+1)
         # self.hist["2DsectorChRMSFor3sigmaSectors"].Fill(zrms[muonSec],muonSec+1)
@@ -434,7 +430,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         # if DeltaSigma < 1:
         #     return 0
 
-        # for imod in range(14):
+        # for imod in xrange(14):
         #     sigma = listSigmaChannel[isec][imod]
         #     if [isec+1,imod+1] in badChannelsSecMod:
         #         #print "skipping channel", imod, isec
@@ -444,7 +440,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #         self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_AllEvt"].Fill(imod+1,muonSec+1)
         #         if isRandom:
         #             self.hist["2DcountChannelAboveTwoSigmaForMuonCandidateSector_RndEvt"].Fill(imod+1,muonSec+1)
-      
+
         # self.hist["2DcountChannelsAboveNoiseForMuonCandidateSector_AllEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec+1)
         # self.hist["2DsectorChMeanForMuonCandidateSectors"].Fill(zmean[muonSec],muonSec+1)
         # self.hist["2DsectorChRMSForMuonCandidateSectors"].Fill(zrms[muonSec],muonSec+1)
@@ -455,7 +451,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         # self.hist["EventCount"].Fill(5)
 
-        
+
         #a selected sector have a signal above the noise threshold and remaining sectors are below a threshold.excluded the active sector + 2 neigbours + "the mirrored-sectors"
         isec_pn = ((muonSec + 1) + 16)%16
         isec_mn = ((muonSec - 1) + 16)%16
@@ -473,17 +469,17 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 if not cond1 or not cond2:
                     self.hist[hnoise_neighbor].Fill(ch_energy[isec][imod])
 
-                    
-        
+
+
         #Energy of muon
         energy_secsum = [0.0] * 16
-        for isec in range(16):
-            for imod in range(14):
+        for isec in xrange(16):
+            for imod in xrange(14):
                 if [isec+1,imod+1] in badChannelsSecMod:
                     continue
 
-                energy_secsum[isec] += ch_energy[isec][imod]  
-            
+                energy_secsum[isec] += ch_energy[isec][imod]
+
         henergy = 'MuonSignalSec_energy_sec_{sec}'.format(sec=str(muonSec+1))
         self.hist[henergy].Fill(energy_secsum[muonSec])
 
@@ -506,9 +502,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #print "Channels above noise:", listChannelsAboveNoise
 
 
-        NchannelNoiseCut = False
-        if countChannelsAboveNoise > 3: # before we used the countChannelsAboveNoise > 5
-            NchannelNoiseCut = True
+        NchannelNoiseCut = countChannelsAboveNoise > 3 # before we used the countChannelsAboveNoise > 5
         # if muonSec in [6,7,10,11,12,13]:
         #     if countChannelsAboveNoise > 4:
         #         NchannelNoiseCut = True
@@ -517,28 +511,26 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             goodMuonEventDifferentSelection = True
 
         Front_Module = False
-        Mid_Module= False
-        Rear_Module =False
+        Mid_Module   = False
+        Rear_Module  = False
 
         if NchannelNoiseCut:
             self.hist["EventCount"].Fill(6)
 
             for imod in listAllChannelsAboveNoise[muonSec]:
                 # imod = self.fChain.CastorRecHitModule.at(i)-1
-                if imod in [0,1,2,3]:
-                    Front_Module =True
-
-                if imod in [4,5,6,7,8]:
-                    Mid_Module= True
-
-                if imod in [9,10,11,12,13]:
-                    Rear_Module= True
+                if imod <= 3:# [0,1,2,3]
+                    Front_Module = True
+                elif imod <= 8: #[4,5,6,7,8]
+                    Mid_Module = True
+                else: # [9,10,11,12,13]:
+                    Rear_Module = True
 
             if (Front_Module + Mid_Module + Rear_Module) >= 3: #maybe change to 3
                 goodMuonEventWithoutAnyTriggerSelection = True
                 if hasMuonTrigger:
                     goodMuonEvent = True
-        
+
         #found an interesting event. now fill histograms for channels above noise
         if goodMuonEvent:
             self.hist["EventCount"].Fill(7)
@@ -569,7 +561,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 hname = 'MuonSignalSecCh_differentSelection_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(muonSec+1))
                 self.hist[hname].Fill(ch_energy[muonSec][imod])
 
-        
+
 
 
         #plot all the good muons
@@ -584,7 +576,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             ch_energy_wo_bad_ch = np.asarray(ch_energy)
             for [isec, imod] in badChannelsSecMod:
                 ch_energy_wo_bad_ch[isec-1][imod-1] = 0
-            for isec in np.arange(16):
+            for isec in xrange(16):
                 xs = np.arange(14)
                 ys = ch_energy_wo_bad_ch[isec]
                 ax.bar(xs, ys, zs=isec, zdir='y', color="g" if isec == muonSec else "r", alpha=0.8)
@@ -645,12 +637,12 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
                 # From 16 channels in one module, only 10 are filled into histogram. Scale to get per channel noise...
                 # self.hist[hnoise_neighbor].Scale(1./10.) # hnoise_neighbor.Scale(1./10.)AttributeError: 'str' object has no attribute 'Scale'
-        
-        #self.hist[hname].Scale(1./self.hist[hname].Integral());                          
 
-        # self.hist[hname].Scale(1./self.hist[hname].GetBinWidth(i)); 
-                                                        
-       
+        #self.hist[hname].Scale(1./self.hist[hname].Integral());
+
+        # self.hist[hname].Scale(1./self.hist[hname].GetBinWidth(i));
+
+
         if self.nEventsRandom > 0:
             for i in xrange(0,16):
                     print "Bin ", i, ": ", self.new_sec_mean[i], self.new_sec_mean[i] / self.nEventsRandom
@@ -685,15 +677,15 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
                 if not histos["EventCount"].GetBinContent(3) == 0:
                     histos[hnoise_randomtrg].Scale( 1./histos["EventCount"].GetBinContent(3) )
-                
-                #  From 16 channels in one module, only 10 are filled into histogram 
+
+                #  From 16 channels in one module, only 10 are filled into histogram
                 if not histos[hnoise_neighbor].GetEntries() == 0:
                     histos[hnoise_neighbor].Scale( 1./histos[hnoise_neighbor].GetEntries() )
 
                 hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
                 if not histos["GoodMuonCountPerSec"].GetBinContent(isec+1) == 0:
                     histos[hname].Scale( 1./histos["GoodMuonCountPerSec"].GetBinContent(isec+1) )
-                
+
 
 
 
@@ -754,7 +746,7 @@ if __name__ == "__main__":
                            slaveParameters = slaveParams,
                            sampleList = sampleList,
                            maxFilesMC = None,
-                           maxFilesData =None,  
+                           maxFilesData =None,
                            nWorkers =8,
                            outFile = outFileName,
                            verbosity = 2)
