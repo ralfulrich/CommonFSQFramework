@@ -48,7 +48,9 @@ def json(ds):
     realData = isData(ds)
     if realData:
         if "2015" in name(ds): return "CommonFSQFramework/Skim/lumi/MinBias_CastorMuonRuns_v2.json"
-        if "2013" in name(ds): return "CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns.json"
+        if "2013" in name(ds):
+            if "PAMinBias" in name(ds): return "CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns.json"
+            if "PPMinBias" in name(ds): return "CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns_ppInterfill.json"
     else:
         return ""
 
@@ -81,6 +83,9 @@ def numEvents(ds):
     
     # data
     if "Run2015A" in name(ds): return 80446390
+    if "Run2013" in name(ds):
+        if "PAMinBias" in name(ds): return 286814246
+        if "PPMinBias" in name(ds): return 34393913
     
     return 0
 

@@ -1,2 +1,2 @@
-/PAMinBiasUPC/HIRun2013-PromptReco-v1/AOD
-/PPMinBias/Run2013A-PromptReco-v1/AOD
+/PAMinBiasUPC/HIRun2013-PromptReco-v1/RECO
+/PPMinBias/Run2013A-PromptReco-v1/RECO

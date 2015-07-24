@@ -9,26 +9,26 @@ skimEfficiencyMethod="getSkimEff"
 sam = {}
 
 sam["data_PAMinBiasUPC_Run2013"]={}
-sam["data_PAMinBiasUPC_Run2013"]["crabJobs"]=0
+sam["data_PAMinBiasUPC_Run2013"]["crabJobs"]=5736
 sam["data_PAMinBiasUPC_Run2013"]["GT"]='GR_R_75_V5A'
 sam["data_PAMinBiasUPC_Run2013"]["name"]='data_PAMinBiasUPC_Run2013'
 sam["data_PAMinBiasUPC_Run2013"]["isData"]=True
-sam["data_PAMinBiasUPC_Run2013"]["numEvents"]=0
+sam["data_PAMinBiasUPC_Run2013"]["numEvents"]=286814246
 sam["data_PAMinBiasUPC_Run2013"]["json"]='CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns.json'
 sam["data_PAMinBiasUPC_Run2013"]["lumiMinBias"]=-1
 sam["data_PAMinBiasUPC_Run2013"]["XS"]=-1
-sam["data_PAMinBiasUPC_Run2013"]["DS"]='/PAMinBiasUPC/HIRun2013-PromptReco-v1/AOD'
+sam["data_PAMinBiasUPC_Run2013"]["DS"]='/PAMinBiasUPC/HIRun2013-PromptReco-v1/RECO'
 
 sam["data_PPMinBias_Run2013"]={}
-sam["data_PPMinBias_Run2013"]["crabJobs"]=0
+sam["data_PPMinBias_Run2013"]["crabJobs"]=688
 sam["data_PPMinBias_Run2013"]["GT"]='GR_R_75_V5A'
 sam["data_PPMinBias_Run2013"]["name"]='data_PPMinBias_Run2013'
 sam["data_PPMinBias_Run2013"]["isData"]=True
-sam["data_PPMinBias_Run2013"]["numEvents"]=0
-sam["data_PPMinBias_Run2013"]["json"]='CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns.json'
+sam["data_PPMinBias_Run2013"]["numEvents"]=34393913
+sam["data_PPMinBias_Run2013"]["json"]='CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns_ppInterfill.json'
 sam["data_PPMinBias_Run2013"]["lumiMinBias"]=-1
 sam["data_PPMinBias_Run2013"]["XS"]=-1
-sam["data_PPMinBias_Run2013"]["DS"]='/PPMinBias/Run2013A-PromptReco-v1/AOD'
+sam["data_PPMinBias_Run2013"]["DS"]='/PPMinBias/Run2013A-PromptReco-v1/RECO'
 
 
 def fixLocalPaths(sam):
