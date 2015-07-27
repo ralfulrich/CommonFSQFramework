@@ -14,9 +14,12 @@ sam["data_PAMinBiasUPC_Run2013"]["GT"]='GR_R_75_V5A'
 sam["data_PAMinBiasUPC_Run2013"]["name"]='data_PAMinBiasUPC_Run2013'
 sam["data_PAMinBiasUPC_Run2013"]["isData"]=True
 sam["data_PAMinBiasUPC_Run2013"]["numEvents"]=286814246
+sam["data_PAMinBiasUPC_Run2013"]["pathSE"]='srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/PAMinBiasUPC/MuonAna_0T_20150723_data_PAMinBiasUPC_Run2013/150724_110319/0000/'
+sam["data_PAMinBiasUPC_Run2013"]["pathTrees"]='/XXXTMFTTree/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/PAMinBiasUPC/MuonAna_0T_20150723_data_PAMinBiasUPC_Run2013/150724_110319/0000//'
 sam["data_PAMinBiasUPC_Run2013"]["json"]='CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns.json'
 sam["data_PAMinBiasUPC_Run2013"]["lumiMinBias"]=-1
 sam["data_PAMinBiasUPC_Run2013"]["XS"]=-1
+sam["data_PAMinBiasUPC_Run2013"]["pathPAT"]='/XXXTMFPAT/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/PAMinBiasUPC/MuonAna_0T_20150723_data_PAMinBiasUPC_Run2013/150724_110319/0000//'
 sam["data_PAMinBiasUPC_Run2013"]["DS"]='/PAMinBiasUPC/HIRun2013-PromptReco-v1/RECO'
 
 sam["data_PPMinBias_Run2013"]={}
@@ -25,9 +28,12 @@ sam["data_PPMinBias_Run2013"]["GT"]='GR_R_75_V5A'
 sam["data_PPMinBias_Run2013"]["name"]='data_PPMinBias_Run2013'
 sam["data_PPMinBias_Run2013"]["isData"]=True
 sam["data_PPMinBias_Run2013"]["numEvents"]=34393913
+sam["data_PPMinBias_Run2013"]["pathSE"]='srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/PPMinBias/MuonAna_0T_20150723_data_PPMinBias_Run2013/150724_110336/0000/'
+sam["data_PPMinBias_Run2013"]["pathTrees"]='/XXXTMFTTree/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/PPMinBias/MuonAna_0T_20150723_data_PPMinBias_Run2013/150724_110336/0000//'
 sam["data_PPMinBias_Run2013"]["json"]='CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns_ppInterfill.json'
 sam["data_PPMinBias_Run2013"]["lumiMinBias"]=-1
 sam["data_PPMinBias_Run2013"]["XS"]=-1
+sam["data_PPMinBias_Run2013"]["pathPAT"]='/XXXTMFPAT/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/PPMinBias/MuonAna_0T_20150723_data_PPMinBias_Run2013/150724_110336/0000//'
 sam["data_PPMinBias_Run2013"]["DS"]='/PPMinBias/Run2013A-PromptReco-v1/RECO'
 
 
