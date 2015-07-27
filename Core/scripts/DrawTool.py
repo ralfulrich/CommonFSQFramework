@@ -109,7 +109,7 @@ def getAllHistos():
     print "All histograms from ", GlobalIn, " loaded. In total: ", len(GlobalHistoList), " in the memory"
     # end getAllHistos function
 
-def draw(localHistoList=[],normMeth="",localSampleList=[], drawLegend=True):
+def draw(localHistoList=[],normMeth="",localSampleList=[], drawLegend=True, drawCommand=""):
     
     global GlobalCanvasList
     global GlobalLegendList
@@ -218,12 +218,8 @@ def draw(localHistoList=[],normMeth="",localSampleList=[], drawLegend=True):
                     if os.path.isfile(GlobalScriptFile+".style"):
                         execfile(GlobalScriptFile+".style")
                         
-                    if ihisto == 0:
-                        if h.InheritsFrom("TH2"):
-                            h.Draw("colz text")
-                        else: h.Draw()
-                    # if ihisto == 0: h.Draw()
-                    if ihisto != 0: h.Draw("same")
+                    if ihisto == 0: h.Draw(drawCommand)
+                    if ihisto != 0: h.Draw("same " + drawCommand)
                     if hsample == GlobalPlotRatioToSample: hdata = h.Clone()
                     # add legend entry
                     GlobalLegendList[icanvas].AddEntry(h,GlobalSampleDic[hsample],"lpf");
@@ -251,12 +247,8 @@ def draw(localHistoList=[],normMeth="",localSampleList=[], drawLegend=True):
                         execfile(GlobalScriptFile+".style")
                 
                     # draw the stuff
-                    if ihisto == 0:
-                        if h.InheritsFrom("TH2"):
-                            h.Draw("colz text")
-                        else: h.Draw()
-                    # if ihisto == 0: h.Draw()
-                    if ihisto != 0: h.Draw("same")
+                    if ihisto == 0: h.Draw(drawCommand)
+                    if ihisto != 0: h.Draw("same " + drawCommand)
                     if hsample == GlobalPlotRatioToSample: hdata = h.Clone()
                     # add legend entry
                     GlobalLegendList[icanvas].AddEntry(h,GlobalSampleDic[hsample],"lpf");
@@ -306,8 +298,8 @@ def draw(localHistoList=[],normMeth="",localSampleList=[], drawLegend=True):
                             hratio.GetYaxis().SetRangeUser(0.,2.)
                             GlobalHistoRatioList.append(hratio)
                             # draw the stuff
-                            if iratio == 0: hratio.Draw()
-                            if iratio != 0: hratio.Draw("same")
+                            if iratio == 0: hratio.Draw(drawCommand)
+                            if iratio != 0: hratio.Draw("same " + drawCommand)
 
                             iratio+=1
     

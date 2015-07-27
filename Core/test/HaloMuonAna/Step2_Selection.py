@@ -37,9 +37,10 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         self.hist = {}
         self.nEventsRandom = 0
         #self.tree = {}
-        self.hist["EventCount"] = ROOT.TH1D("EventCount","EventCount",10,0,10)
+        self.hist["EventCount"] = ROOT.TH1D("EventCount","EventCount",10,0,20)
        
-       
+        #MC
+        #if not self.isData:
 
         #Getting sector RMS and Mean
         if firstRun:
@@ -291,14 +292,14 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
 
         self.hist["EventCount"].Fill("all",1)
 
-        #isCollision = True
-        #if not (self.fChain.trgl1L1GTTech[1] and self.fChain.trgl1L1GTTech[2]): #not (bptx+ and bptx-)
-         #   isCollision = False
+        isBptxminus = True
+            #if not (self.fChain.trgl1L1GTTech[1] and self.fChain.trgl1L1GTTech[2]): #not (bptx+ and bptx-)
+        if (self.fChain.trgl1L1GTTech[1]) and not (self.fChain.trgl1L1GTTech[2]):
+           isBptxminus = False
 
-      # if isCollision:
-      #      return 0
+
         
-        self.hist["EventCount"].Fill("bptx +-",1)
+        self.hist["EventCount"].Fill("bptx +",1)
 
         # if self.flag_use_merjin_electronic_channel_noise:
         for isec in xrange(16):
@@ -377,10 +378,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         listSigmaSector = self.getListSigmaSector(sec_energy)
         listSigmaChannel = self.getListSigmaChannel(ch_energy)
 
-        # listSectorsAbove3sigma = self.filterListSector(listSigmaSector,2.0)
-        # listSectorsAbove2sigma = self.filterListSector(listSigmaSector,1.5)
-        # listChannelsAbove2sigma = self.filterListChannel(listSigmaChannel,2)
-
+       
 
         SigmaHottestSector = None
         SigmaSecHottestSector = None
@@ -422,7 +420,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 if sigma > 2 and [isec+1,imod+1] not in badChannelsSecMod:
                     listAllChannelsAboveNoise[isec].append(imod)
                     self.hist["2DcountChannelAboveTwoSigma_AllEvt"].Fill(imod+1,isec+1)
-                    if isRandom:
+                    if 3:
                         self.hist["2DcountChannelAboveTwoSigma_RndEvt"].Fill(imod+1,isec+1)
 
         for isec in xrange(0,16):
@@ -454,14 +452,23 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_AllEvt"].Fill(imod+1,muonSec+1)
                 if isRandom:
                     self.hist["2DcountChannelAboveTwoSigmaFor3SigmaSectors_RndEvt"].Fill(imod+1,muonSec+1)
+                    
 
         self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec+1)
         # self.hist["2DsectorChMeanFor3sigmaSectors"].Fill(zmean[muonSec],muonSec+1)
         # self.hist["2DsectorChRMSFor3sigmaSectors"].Fill(zrms[muonSec],muonSec+1)
         if isRandom:
             self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt"].Fill(len(listAllChannelsAboveNoise[muonSec]),muonSec+1)
+            self.hist["EventCount"].Fill("Rntrgsigma sec cut",1)
             # self.hist["2DsectorChMeanFor3sigmaSectors_RndEvt"].Fill(zmean[muonSec],muonSec+1)
             # self.hist["2DsectorChRMSFor3sigmaSectors_RndEvt"].Fill(zrms[muonSec],muonSec+1)
+        if hasMuonTrigger:
+           self.hist["EventCount"].Fill("MuTrgsigma sec cut",1)
+
+        if not isBptxminus:
+           self.hist["EventCount"].Fill("Bptx(+)sigma sec cut",1)
+
+
 
         self.hist["EventCount"].Fill("sigma sec cut",1)
 
@@ -537,6 +544,16 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         #     if countChannelsAboveNoise > 4:
         #         NchannelNoiseCut = True
 
+        if isRandom:
+           self.hist["EventCount"].Fill("RndTrg ch cut",1)
+        if hasMuonTrigger:
+           self.hist["EventCount"].Fill("MuTrg ch cut",1)
+        if not isBptxminus:
+            self.hist["EventCount"].Fill("Bptx(+) ch cut",1)
+
+
+
+
         if countChannelsAboveNoise > 6:
             goodMuonEventDifferentSelection = True
 
@@ -565,6 +582,17 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         if goodMuonEvent:
             # print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
             self.hist["EventCount"].Fill("good muon evt",1)
+            if isRandom:
+               self.hist["EventCount"].Fill("RndtrggoodMuonEvent cut",1)
+            if hasMuonTrigger:
+               self.hist["EventCount"].Fill("MuTrg goodMuonEvent cut",1)
+
+            if not isBptxminus:
+               self.hist["EventCount"].Fill("Bptx(+) goodMuonEvent cut",1)
+
+
+
+         
             #Energy of muon
             energy_secsum = [0.0] * 16
             for isec in xrange(16):
