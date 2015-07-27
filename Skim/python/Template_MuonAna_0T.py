@@ -31,20 +31,26 @@ def name(ds):
     if not isData(ds): return split[1]
 
     if isData(ds):
-	if "Commissioning2015" in ds: return "data_"+split[1]+"_Commissioning2015"
-	if "Run2015A" in ds: return "data_"+split[1]+"_Run2015A"
-	return "data_"+split[1]
+        if "Commissioning2015" in ds: return "data_"+split[1]+"_Commissioning2015"
+        if "Run2015A" in ds: return "data_"+split[1]+"_Run2015A"
+        if "Run2013" in ds: return "data_"+split[1]+"_Run2013"
+
+    return "data_"+split[1]
 
 def isData(ds):
     realData = False
     if "Commissioning2015" in ds: realData = True
     if "Run2015A" in ds: realData = True
+    if "Run2013" in ds: realData = True
     return realData
 
 def json(ds):
     realData = isData(ds)
     if realData:
-        return "CommonFSQFramework/Skim/lumi/MinBias_CastorMuonRuns_v2.json"
+        if "2015" in name(ds): return "CommonFSQFramework/Skim/lumi/MinBias_CastorMuonRuns_v2.json"
+        if "2013" in name(ds):
+            if "PAMinBias" in name(ds): return "CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns.json"
+            if "PPMinBias" in name(ds): return "CommonFSQFramework/Skim/lumi/MinBias_2013_CastorMuonRuns_ppInterfill.json"
     else:
         return ""
 
@@ -77,8 +83,11 @@ def numEvents(ds):
     
     # data
     if "Run2015A" in name(ds): return 80446390
+    if "Run2013" in name(ds):
+        if "PAMinBias" in name(ds): return 286814246
+        if "PPMinBias" in name(ds): return 34393913
     
-    return evts
+    return 0
 
 def GT(ds):
     if isData(ds): return "GR_R_75_V5A"
