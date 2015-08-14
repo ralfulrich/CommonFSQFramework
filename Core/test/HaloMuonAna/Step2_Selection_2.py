@@ -10,7 +10,7 @@ from os.path import isfile, join
 import ROOT
 ROOT.gROOT.SetBatch(True)
 from ROOT import edm
-from math import sqrt
+from math import sqrt, log10
 from array import *
 import copy
 
@@ -118,12 +118,16 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
         histcalibrationname = '2DMuonSignalMap'
         histcalibrationKatname = '2DMuonSignalMap_katerina'
+        histcalibrationIgorname = '2DMuonSignalMap_igor'
+        histcalibrationRatioIgorname = "2DMuonSignalMapIgor_Ratio"
         histcalibrationRationame = "2DMuonSignalMap_Ratio"
         histcalibrationname_rms = '2DMuonSignalMap_rms'
         histcalibration_notdividedRefname = '2DMuonSignalMap_notdividedRef'
         self.hist[histcalibration_notdividedRefname] =  ROOT.TH2D(histcalibration_notdividedRefname,histcalibration_notdividedRefname, 14, 0.5, 14.5, 16, 0.5, 16.5)
         self.hist[histcalibrationKatname] =  ROOT.TH2D(histcalibrationKatname,histcalibrationKatname, 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist[histcalibrationIgorname] =  ROOT.TH2D(histcalibrationIgorname,histcalibrationIgorname, 14, 0.5, 14.5, 16, 0.5, 16.5)
         self.hist[histcalibrationRationame] =  ROOT.TH2D(histcalibrationRationame,histcalibrationRationame, 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist[histcalibrationRatioIgorname] =  ROOT.TH2D(histcalibrationRatioIgorname,histcalibrationRatioIgorname, 14, 0.5, 14.5, 16, 0.5, 16.5)
         self.hist[histcalibrationname_rms] =  ROOT.TH2D(histcalibrationname_rms,histcalibrationname_rms, 14, 0.5, 14.5, 16, 0.5, 16.5)
         if not firstRun:
             self.hist[histcalibrationname] = inputFile.Get("data_MinimumBias_Run2015A/2DMuonSignalMap")
@@ -165,6 +169,11 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.hist[histMuonSignalKatMean] = ROOT.TH1D(histMuonSignalKatMean,histMuonSignalKatMean,224,-0.5,223.5)
         histMuonSignalRatioMean = "1DMuonsignalRatioMean"
         self.hist[ histMuonSignalRatioMean] = ROOT.TH1D( histMuonSignalRatioMean, histMuonSignalRatioMean,224,-0.5,223.5)
+        histMuonSignalRatioMeanPull = "1DMuonsignalRatioMeanPull"
+        self.hist[ histMuonSignalRatioMeanPull] = ROOT.TH1D( histMuonSignalRatioMeanPull, histMuonSignalRatioMeanPull,224,-0.5,223.5)
+        histMuonSignalRatioLog = "1DMuonsignalRatioLog"
+        self.hist[ histMuonSignalRatioLog] = ROOT.TH1D( histMuonSignalRatioLog, histMuonSignalRatioLog,80,-2,2)
+
 
         hnameAllsec= 'MuonSignalAllSec_energy'
         self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec,50, 0, 400)
@@ -214,6 +223,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,0.5,224.5)
         
         self.getKaterinacalibrationnumbers()
+        self.getIgorcalibrationnumbers()
+
 
         for h in self.hist:
             self.hist[h].Sumw2()
@@ -251,9 +262,36 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             for mod,z in enumerate(line):
                 #print "hist->SetBinContent({x},{y},{z});".format(x=mod+1,y=sec+1,z=z)
                 histCalibrationKat.SetBinContent(mod+1,sec+1,z);
-       
+                #histCalibrationKat.GetBinContent(binnumber)/8.
+    def getIgorcalibrationnumbers(self):
+        calib_igor= [[1.000425,  0.931195,  1.722751,  0.0,        0.249538,    0.394333,   0.0,   0.155133,    0.123307,   0.264286,    0.217681,   0.125848,   0.234006,  0.075464], 
+                    [1.28372,    1.08159,   1.974339,  0.851123,   0.352999,    0.377796,   0.0,   0.246074,    0.191197,   0.263945,    0.289805,   0.120486,   0.298206,  0.076201],
+                    [1.252213,   0.925163,  1.754341,  0.803017,   0.209004,    0.424808,   0.0,   0.0, 0.0,    0.221043,   0.0,         0.249512,   0.269058,   0.15739], 
+                    [1.100644,   0.966124,  1.63636,   1.019983,   0.264205,    0.492828,   0.0,   0.0, 0.0,    0.240881,   0.0,         0.168351,   0.0,        0.128583], 
+                    [1.000826,   0.0,       1.293415,  0.86196,    0.295809,    0.475899,   0.0,   0.0, 0.0,    0.314342,   0.20608,     0.164808,   0.271375,   0.156374],
+                    [0.722059,   0.780461,  1.995963,  0.661209,   0.259085,    0.487429,   0.0,   0.0, 0.0,    0.377144,   0.26507,     0.206327,   0.336299,   0.199795], 
+                    [1.096988,   1.218608,  1.745835,  0.888802,   0.225927,    0.45836,    0.0,   0.020096,    0.142001,   0.385257,    0.256415,   0.189381,   0.376582,   0.299507],
+                    [1.091334,   1.025778,  2.106153,  1.199047,   0.337598,    0.58613,    0.0,   0.0,         0.154015,   0.424145,    0.292679,   0.204659,   0.404868,   0.113908], 
+                    [1.054333,   1.474295,  1.124023,  1.0,        0.315433,    1.090999,   0.0,   0.166044,    0.154629,   0.215142,    0.154745,   0.230574,   0.0,        0.188459], 
+                    [1.282433,   1.126571,  2.271284,  1.148607,   0.315623,    1.124756,   0.0,   0.076184,    0.150419,   0.244338,    0.149832,   0.202471,   0.158535,   0.221797], 
+                    [1.207038,   1.494127,  1.223583,  0.99518,    0.282358,    0.342161,   0.0,   0.0,         0.158282,   0.160647,    0.317039,   0.414463,   0.45517,    0.183079],
+                    [1.634185,   1.708066,  2.259616,  1.518867,   0.310965,    0.90365,    0.0,   0.0,         0.104076,   0.191959,    0.281285,   0.261916,   0.120645,   0.158001], 
+                    [1.528451,   1.548834,  2.212892,  1.048122,   0.276433,    0.0,        0.0,   0.0,         0.072358,   0.188554,    0.254051,   0.237827,   0.082658,   0.146762], 
+                    [1.335749,   1.727109,  2.040581,  1.309911,   0.245352,    1.458605,   0.0,   0.0,         0.10903,    0.278077,    0.327009,   0.203752,   0.221086,   0.162093], 
+                    [1.215644,   1.620683,  2.06946,   1.029579,   0.269562,    1.893122,   0.0,   0.0,         0.176633,   0.0,         0.146783,   0.183976,   0.177801,   0.265278],
+                    [1.282735,   1.439203,  1.96242,   0.842085,   0.197566,    0.0,        0.0,   0.117696,    0.18644,    0.191907,    0.127682,   0.134317,   0.216069,   0.14071]]
 
-    
+
+
+        histcalibrationIgorname = '2DMuonSignalMap_igor'
+        histCalibrationIgor = self.hist[histcalibrationIgorname]
+        
+        for isec,line in enumerate(calib_igor):
+            for imod,z in enumerate(line):
+                #print "hist->SetBinContent({x},{y},{z});".format(x=mod+1,y=sec+1,z=z)
+                histCalibrationIgor.SetBinContent(isec+1,imod+1,z);
+               
+                #histCalibrationIgor.GetBinContent(binnumber)/8.
     def getListSigmaSector(self, energy_sec):
         listSigmaSector = [0] * 16
 
@@ -793,12 +831,16 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         hist_ch_Mean = inputFile.Get("data_PPMinBias_Run2013/hist_ch_Mean")
         histcalibrationname = '2DMuonSignalMap'
         histcalibrationKatname = '2DMuonSignalMap_katerina'
+        histcalibrationIgorname = '2DMuonSignalMap_igor'
         histcalibrationRationame = "2DMuonSignalMap_Ratio"
+        histcalibrationRatioIgorname = "2DMuonSignalMapIgor_Ratio"
         histcalibrationname_rms = '2DMuonSignalMap_rms'
         histcalibration_notdividedRefname = '2DMuonSignalMap_notdividedRef'
         histcalibration = histos[histcalibrationname]
         histCalibrationKat = histos[histcalibrationKatname]
+        histCalibrationIgor = histos[histcalibrationIgorname]
         histcalibrationRatio = histos[histcalibrationRationame]
+        histcalibrationRatioIgor = histos[histcalibrationRatioIgorname]
         histcalibration_rms = histos[histcalibrationname_rms]
         histcalibration_notdividedRef = histos[histcalibration_notdividedRefname]
         hreferencename = 'MuonSignalSecCh_mod_4_sec_9' #reference channel is (counting from one) mod=4 sec=9
@@ -838,7 +880,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
                 # division by 8 because of 8 workers
                 mean_Kat = histCalibrationKat.GetBinContent(binnumber)/8.
-                
+                mean_Igor = histCalibrationIgor.GetBinContent(binnumber)
                 # histMuonSignalMean.SetBinContent(i+1,mean)
                 # histMuonSignalMean.SetBinError(i+1,rms)
                 
@@ -847,6 +889,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     noiseSubtractedMean /= referenceMean
                     if mean > 0 and referenceMean > 0:
                         sigma_mean_diff_refCh = sqrt(noiseSubtractedMean**2 * ((sigma_mean/mean)**2 + (sigma_refCh/referenceMean)**2))
+                   
+
                 #if [isec+1,imod+1] in badChannelsSecMod:
                 #   noiseSubtractedMean = 1 #set ba channels always to 1
                 
@@ -861,25 +905,39 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 
                 meanRatio = 0
                 sigma_meanRatio = 0
-                if mean_Kat>0 and inv_mean>0:
+                meanRatio_igor=0
+                if mean_Kat>0 and inv_mean>0 and mean_Igor:
                     meanRatio = inv_mean/mean_Kat
+                    meanRatio_igor = inv_mean/mean_Igor
                     sigma_meanRatio = sqrt( meanRatio**2 * ( (sigma_inv_mean/inv_mean)**2 + 0.2**2 ) )
+                
+                    pull= (inv_mean -mean_Kat)/sqrt((mean_Kat*0.2)*2 + (sigma_inv_mean)*2)
+
 
                 histcalibration.SetBinContent(binnumber, noiseSubtractedMean)
                 histcalibration_rms.SetBinContent(binnumber,sigma_mean_diff_refCh)
                 histcalibrationRatio.SetBinContent(binnumber, meanRatio)
-                
+                histcalibrationRatioIgor.SetBinContent(binnumber, meanRatio_igor)
                
                 histMuonSignalMean = histos["1DMuonsignalMean"] 
                 histMuonSignalKatMean= histos["1DMuonsignalKaterinaMean"]
                 histMuonSignalRatioMean = histos["1DMuonsignalRatioMean"] 
-
+                histMuonSignalRatioLog = histos["1DMuonsignalRatioLog"] 
+                histMuonSignalRatioMeanPull = histos["1DMuonsignalRatioMeanPull"] 
                 histMuonSignalKatMean.SetBinContent(i+1,mean_Kat)
                 histMuonSignalKatMean.SetBinError(i+1,mean_Kat*0.2)
                 histMuonSignalMean.SetBinContent(i+1,inv_mean)
                 histMuonSignalMean.SetBinError(i+1,sigma_inv_mean)
                 histMuonSignalRatioMean.SetBinContent(i+1,meanRatio)
                 histMuonSignalRatioMean.SetBinError(i+1,sigma_meanRatio)
+                histMuonSignalRatioMeanPull.SetBinContent(i+1,pull)
+
+                if meanRatio > 0:
+                    histMuonSignalRatioLog.Fill(log10(meanRatio))
+                else:
+                    print "Warning mean ratio for channel ID", i, "is <= 0. Cannot calculate log10"
+                #histMuonSignalRatioMean.SetBinError(i+1,sigma_meanRatio)
+
                 print "checking means for muons", imod, isec, mean, histos[hname].GetEntries()
          
         
@@ -943,7 +1001,7 @@ if __name__ == "__main__":
                            slaveParameters = slaveParams,
                            sampleList = sampleList,
                            maxFilesMC = None,
-                           maxFilesData = None,
-                           nWorkers =8,
+                           maxFilesData = 1,
+                           nWorkers =1,
                            outFile = outFileName,
                            verbosity = 2)
