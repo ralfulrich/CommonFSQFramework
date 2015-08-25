@@ -14,6 +14,8 @@ from math import sqrt, log10
 from array import *
 import copy
 
+from outsource_analzye_muon import *
+
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
@@ -46,6 +48,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         if firstRun:
             inputFile = ROOT.TFile(join(outfolder,"mean_rms_2.root"))
             inputFile_noise = ROOT.TFile(join(outfolder,"Histograms_StatFitInformationPedNoise.root"))
+            
+
+
         else:
             inputFile = ROOT.TFile(join(outfolder,"plotsMuonselectioncuts_2_{n:04d}.root".format(n=self.maxFileNo)))
             # check naming if rerunning step1 again
