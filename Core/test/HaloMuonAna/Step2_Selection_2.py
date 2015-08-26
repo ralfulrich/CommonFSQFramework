@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+DATASOURCE = "TOYMC" #options are "TOYMC" "DATA". first generates events, the second uses the sample specified
+
 import CommonFSQFramework.Core.ExampleProofReader
 from BadChannels2013 import badChannelsSecMod
 
@@ -14,7 +16,7 @@ from math import sqrt, log10
 from array import *
 import copy
 
-from outsource_analzye_muon import *
+#from outsource_analzye_muon import *
 
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -22,6 +24,10 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
 import matplotlib.pyplot as plt
+
+if DATASOURCE == "TOYMC":
+    from ToyMC import toyMCClass
+    theToyMC = toyMCClass()
 
 outfolder = os.environ["HaloMuonOutput"]
 
@@ -322,24 +328,38 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         goodMuonEvent = False
         goodMuonEventWithoutAnyTriggerSelection = False
         goodMuonEventDifferentSelection = False
-
+        print "asd"
 
         # genTracks
         #num = self.fChain.genTracks.size()
         #print num
         #print self.maxEta # see slaveParams below
         
-       
+
+        if DATASOURCE == "DATA":
+            trgl1L1GTTech1    = self.fChain.trgl1L1GTTech[1]
+            trgl1L1GTTech2    = self.fChain.trgl1L1GTTech[2]
+            trgl1L1GTTech7    = self.fChain.trgl1L1GTTech[7]
+            trgRandom         = self.fChain.trgRandom
+            trgCastorHaloMuon = self.fChain.trgCastorHaloMuon
+            trgl1L1GTAlgo102  = self.fChain.trgl1L1GTAlgo[102]
+        elif DATASOURCE == "TOYMC":
+            theToyMC.GenerateEvent()
+            trgl1L1GTTech1    = True
+            trgl1L1GTTech2    = True
+            trgl1L1GTTech7    = False
+            trgRandom         = False
+            trgCastorHaloMuon = True
+            trgl1L1GTAlgo102  = True
+
 
         self.hist["EventCount"].Fill("all",1)
 
         isBptxminus = True
-            #if not (self.fChain.trgl1L1GTTech[1] and self.fChain.trgl1L1GTTech[2]): #not (bptx+ and bptx-)
-        if (self.fChain.trgl1L1GTTech[1]) and not (self.fChain.trgl1L1GTTech[2]):
+            #if not (trgl1L1GTTech1 and trgl1L1GTTech2): #not (bptx+ and bptx-)
+        if (trgl1L1GTTech1) and not (trgl1L1GTTech2):
            isBptxminus = False
-
-
-        
+                
         self.hist["EventCount"].Fill("bptx +",1)
 
         # if self.flag_use_merjin_electronic_channel_noise:
@@ -364,18 +384,21 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.hist["EventCount"].Fill("size rh",1)
 
         isRandom = False
-        if self.fChain.trgRandom:
-            if self.fChain.trgl1L1GTTech[7]: #not bptx+ or bptx-
+        if trgRandom:
+            if trgl1L1GTTech7: #not bptx+ or bptx-
                 self.nEventsRandom += 1
                 isRandom = 1
 
-        if isRandom: self.hist["EventCount"].Fill("rnd trg",1)
-
+        if isRandom:
+            self.hist["EventCount"].Fill("rnd trg",1)
 
         for i in xrange(224):
-            isec = self.fChain.CastorRecHitSector.at(i)-1
-            imod = self.fChain.CastorRecHitModule.at(i)-1
-            rh_energy = self.fChain.CastorRecHitEnergy.at(i)
+            isec = i//14
+            imod = i%14
+            if DATASOURCE == "DATA":
+                rh_energy = self.fChain.CastorRecHitEnergy.at(i)
+            elif DATASOURCE == "TOYMC":
+                rh_energy = theToyMC.CastorRecHitEnergy(i)
 
             binnumber = histCalibration.FindBin(imod+1,isec+1)
             #binnumber_notdividedRef = histcalibration_notdividedRef.FindBin(imod+1,isec+1)
@@ -396,8 +419,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 if [isec+1, imod+1] not in badChannelsSecMod:
                     self.new_sec_mean[isec] += ich_energy
                     self.new_sec_RMS[isec] += ich_energy**2
-
-
+            
 
 
 
@@ -405,7 +427,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         ######################
         # Setup muon trigger #
         ######################
-        hasMuonTrigger = (self.fChain.trgCastorHaloMuon or self.fChain.trgl1L1GTAlgo[102])
+        hasMuonTrigger = (trgCastorHaloMuon or trgl1L1GTAlgo102)
         # if not hasMuonTrigger: return 1
         if hasMuonTrigger: self.hist["EventCount"].Fill("muon trg",1)
 
@@ -984,51 +1006,63 @@ if __name__ == "__main__":
 
     slaveParams = {}
 
-    #check which output files already exist
-    maxFileNo = -1
-    filenames = [ f for f in listdir(outfolder) if isfile(join(outfolder,f)) ]
-    listOfOutputFiles = []
-    for ifilename in filenames:
-        if not "plotsMuonselectioncuts" in ifilename:
-            continue
-        else:
-            print "Found previous output file with name: ", ifilename
-            maxFileNo = max(maxFileNo,int(ifilename.split("_")[1].strip(".root")))
-            listOfOutputFiles.append(join(outfolder,ifilename))
+    if DATASOURCE == "DATA":
+        #check which output files already exist
+        maxFileNo = -1
+        filenames = [ f for f in listdir(outfolder) if isfile(join(outfolder,f)) ]
+        listOfOutputFiles = []
+        for ifilename in filenames:
+            if not "plotsMuonselectioncuts" in ifilename:
+                continue
+            else:
+                print "Found previous output file with name: ", ifilename
+                maxFileNo = max(maxFileNo,int(ifilename.split("_")[1].strip(".root")))
+                listOfOutputFiles.append(join(outfolder,ifilename))
 
-    #prompt for deletion of previous outputfiles
-    if maxFileNo != -1:
-        print "\nDo you want to delete previous output filenames and start from beginning? (y/n)"
-        case = ""
-        while not (case == "y" or case == "n"):
-            case = raw_input(">> ").lower()
-            if case == "y":
-                maxFileNo = -1
-                for ifilename in listOfOutputFiles:
-                    if os.path.exists(ifilename):
-                        print "Deleting file:", ifilename
-                        os.remove(ifilename)
-                break
-            if case == "n":
-                break
+        #prompt for deletion of previous outputfiles
+        if maxFileNo != -1:
+            print "\nDo you want to delete previous output filenames and start from beginning? (y/n)"
+            case = ""
+            while not (case == "y" or case == "n"):
+                case = raw_input(">> ").lower()
+                if case == "y":
+                    maxFileNo = -1
+                    for ifilename in listOfOutputFiles:
+                        if os.path.exists(ifilename):
+                            print "Deleting file:", ifilename
+                            os.remove(ifilename)
+                    break
+                if case == "n":
+                    break
 
-    #decide on output filename
     
+        #decide on output filename
+        slaveParams["maxFileNo"] = maxFileNo
+        outFileName = join(outfolder,"plotsMuonselectioncuts_2_{n:04d}.root".format(n=maxFileNo+1))
+        if maxFileNo == -1:
+            print "No previous output file found"
+        else:
+            print "Found prevous output file(s). Setting new output file name to:", outFileName
 
-    outFileName = join(outfolder,"plotsMuonselectioncuts_2_{n:04d}.root".format(n=maxFileNo+1))
-    if maxFileNo == -1:
-        print "No previous output file found"
-    else:
-        print "Found prevous output file(s). Setting new output file name to:", outFileName
+        # use printTTree.py <sampleName> to see what trees are avaliable inside the skim file
 
-    # use printTTree.py <sampleName> to see what trees are avaliable inside the skim file
-
-    slaveParams["maxFileNo"] = maxFileNo
-    Step2_Selection_2.runAll(treeName="MuonCastorVTwo",
-                           slaveParameters = slaveParams,
-                           sampleList = sampleList,
-                           maxFilesMC = None,
-                           maxFilesData =None,
-                           nWorkers =8,
-                           outFile = outFileName,
-                           verbosity = 2)
+        Step2_Selection_2.runAll(treeName="MuonCastorVTwo",
+                               slaveParameters = slaveParams,
+                               sampleList = sampleList,
+                               maxFilesMC = None,
+                               maxFilesData =None,
+                               nWorkers =8,
+                               outFile = outFileName,
+                               verbosity = 2)
+    elif DATASOURCE == "TOYMC":
+        max_events = 10000
+        slaveParams["maxFileNo"] = -1
+        Step2_Selection_2.runAll(treeName="MuonCastorVTwo",
+                               slaveParameters = slaveParams,
+                               sampleList = sampleList,
+                               maxFilesMC = None,
+                               maxFilesData = 1,
+                               maxNevents = max_events,
+                               nWorkers = 1,
+                               outFile = "output_toy_mc.root",
+                               verbosity = 2)
