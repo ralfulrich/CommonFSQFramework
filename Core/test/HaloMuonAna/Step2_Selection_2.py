@@ -8,13 +8,13 @@ import sys, os, time
 sys.path.append(os.path.dirname(__file__))
 from os import listdir
 from os.path import isfile, join
-
 import ROOT
 ROOT.gROOT.SetBatch(True)
 from ROOT import edm
 from math import sqrt, log10
 from array import *
 import copy
+import time
 
 #from outsource_analzye_muon import *
 
@@ -60,8 +60,11 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         else:
             inputFile = ROOT.TFile(join(outfolder,"plotsMuonselectioncuts_2_{n:04d}.root".format(n=self.maxFileNo)))
             # check naming if rerunning step1 again
+        #
         
-        
+
+
+
         # create the branches and assign the fill-variables to them
 
         # ftree = ROOT.TFile("tree.root", "recreate")
@@ -137,6 +140,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         histcalibrationRationame = "2DMuonSignalMap_Ratio"
         histcalibrationname_rms = '2DMuonSignalMap_rms'
         histcalibration_notdividedRefname = '2DMuonSignalMap_notdividedRef'
+        
         self.hist[histcalibration_notdividedRefname] =  ROOT.TH2D(histcalibration_notdividedRefname,histcalibration_notdividedRefname, 14, 0.5, 14.5, 16, 0.5, 16.5)
         self.hist[histcalibrationKatname] =  ROOT.TH2D(histcalibrationKatname,histcalibrationKatname, 14, 0.5, 14.5, 16, 0.5, 16.5)
         self.hist[histcalibrationIgorname] =  ROOT.TH2D(histcalibrationIgorname,histcalibrationIgorname, 14, 0.5, 14.5, 16, 0.5, 16.5)
@@ -146,15 +150,16 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.hist[histcalibrationname_rms] =  ROOT.TH2D(histcalibrationname_rms,histcalibrationname_rms, 14, 0.5, 14.5, 16, 0.5, 16.5)
         if not firstRun:
             self.hist[histcalibrationname] = inputFile.Get("data_MinimumBias_Run2015A/2DMuonSignalMap")
-           # print "Extracted histogram from file. Checking entries:",  self.hist[histcalibrationname].GetEntries()
+            # print "Extracted histogram from file. Checking entries:",  self.hist[histcalibrationname].GetEntries()
+            
         else: #first time running analyser the calibration constants are all set to 1
             self.hist[histcalibrationname] =  ROOT.TH2D(histcalibrationname,histcalibrationname, 14, 0.5, 14.5, 16, 0.5, 16.5)
-           
+            
             for imod in xrange(0,14):
                 for isec in xrange(0,16):
                     self.hist[histcalibrationname].SetBinContent(self.hist[histcalibrationname].FindBin(imod+1,isec+1), 1.) #all factors set to 1
                      
-                    print "Created new 2d calibration map. Checking entries:",  self.hist[histcalibrationname].GetEntries(), ". maxFileNo =", self.maxFileNo, firstRun
+                    # print "Created new 2d calibration map. Checking entries:",  self.hist[histcalibrationname].GetEntries(), ". maxFileNo =", self.maxFileNo, firstRun
         #histCalibration.SetBit(ROOT.TH1.kIsAverage) # does not seem to work. use TProfile2D instead
 
         #make new histograms
@@ -328,7 +333,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         goodMuonEvent = False
         goodMuonEventWithoutAnyTriggerSelection = False
         goodMuonEventDifferentSelection = False
-        print "asd"
+        
 
         # genTracks
         #num = self.fChain.genTracks.size()
@@ -793,6 +798,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 if not "TH2" in o.ClassName():
                     continue
             histos[o.GetName()] = o
+
+        
+
             # print " TH1/2 histogram in output: ", o.GetName()
 
         for isec in xrange(0,16):
@@ -983,11 +991,11 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     histMuonSignalPull_Kat_Igor.Fill(pull_Kat_Igor)
                 if meanRatio > 0:
                     histMuonSignalRatioLog.Fill(log10(meanRatio))
-                else:
-                    print "Warning mean ratio for channel ID", i, "is <= 0. Cannot calculate log10"
+                # else:
+                #     print "Warning mean ratio for channel ID", i, "is <= 0. Cannot calculate log10"
                 #histMuonSignalRatioMean.SetBinError(i+1,sigma_meanRatio)
 
-                print "checking means for muons", imod, isec, mean, histos[hname].GetEntries()
+                # print "checking means for muons", imod, isec, mean, histos[hname].GetEntries()
          
         
 
@@ -995,16 +1003,24 @@ if __name__ == "__main__":
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
     ROOT.gSystem.Load("libFWCoreFWLite.so")
     ROOT.AutoLibraryLoader.enable()
-
+    
     # sampleList = None # run through all
-
+    histos_from_main = {}
     # debug config:
     # Run printTTree.py alone to get the samples list
     sampleList = []
     sampleList.append("data_PPMinBias_Run2013")
-
+    
+    
 
     slaveParams = {}
+    
+    
+    for imod in xrange(0,14):
+            for isec in xrange(0,16):
+                histcountRatio = '1DcountRatio_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+    
+                histos_from_main[histcountRatio] = ROOT.TH1D(histcountRatio,histcountRatio,50, 0.5,50)
 
     if DATASOURCE == "DATA":
         #check which output files already exist
@@ -1055,14 +1071,72 @@ if __name__ == "__main__":
                                outFile = outFileName,
                                verbosity = 2)
     elif DATASOURCE == "TOYMC":
-        max_events = 10000
-        slaveParams["maxFileNo"] = -1
-        Step2_Selection_2.runAll(treeName="MuonCastorVTwo",
-                               slaveParameters = slaveParams,
-                               sampleList = sampleList,
-                               maxFilesMC = None,
-                               maxFilesData = 1,
-                               maxNevents = max_events,
-                               nWorkers = 1,
-                               outFile = "output_toy_mc.root",
-                               verbosity = 2)
+        
+        
+
+        repetitions = 1
+        for iRep in xrange(repetitions):
+            max_events = 1000
+            slaveParams["maxFileNo"] = -1
+
+            print iRep, "type", Step2_Selection_2, type(Step2_Selection_2)      
+            Step2_Runner = Step2_Selection_2() if iRep == 0 else Step2_Selection_2.Step2_Selection_2()
+            Step2_Runner.runAll(treeName="MuonCastorVTwo",
+                                   slaveParameters = slaveParams,
+                                   sampleList = sampleList,
+                                   maxFilesMC = None,
+                                   maxFilesData = 2,
+                                   maxNevents = max_events,
+                                   nWorkers = 1,
+                                   outFile = join(outfolder,"output_for_toyMC.root"),
+                                   verbosity = 2)
+            print "###################################################"
+            print "###################################################"
+            print "###################################################"
+            time.sleep(1)
+
+            olisthistos = {}
+            # olist = Step2_Runner.GetOutputList()
+            # print "Step2_Runner", Step2_Runner
+            # print "olist", olist.Print()
+            
+
+            del Step2_Runner #clean the object and write the output file
+            inputFile = ROOT.TFile(join(outfolder,"output_for_toyMC.root"))
+            histcalibrationname ='2DMuonSignalMap'
+            olisthistos[histcalibrationname] = inputFile.Get("data_PPMinBias_Run2013/2DMuonSignalMap")
+            print histcalibrationname    
+            
+
+            # for o in olist:
+            #     if not "TH1" in o.ClassName():
+            #         if not "TH2" in o.ClassName():
+            #             continue
+            #     olisthistos[o.GetName()] = o
+            # print "histos_from_main", olisthistos
+            
+                
+            
+            histcalibrationname ='2DMuonSignalMap'
+            for isec in xrange(16):
+                for imod in xrange(14):
+                    histcalibration = olisthistos[histcalibrationname]
+                    binnumber = histcalibration.FindBin(imod+1, isec+1)
+                    
+                    ratio = histcalibration.GetBinContent(binnumber)
+                    histcountRatio ='1DcountRatio_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+
+                    histos_from_main[histcountRatio].Fill(ratio)
+
+
+                #fill 224 histosp
+
+        #open the last created output file
+        lastCreatedFile = ROOT.TFile(join(outfolder,"output_for_toyMC.root"),"UPDATE")
+        for isec in xrange(16):
+            for imod in xrange(14):
+                histcountRatio ='1DcountRatio_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                lastCreatedFile.cd()
+                histos_from_main[histcountRatio].Write()
+        lastCreatedFile.Write()
+        lastCreatedFile.Close()

@@ -115,16 +115,20 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         self.hist["RunsAllTrigger"] =  ROOT.TH1D("RunsAllTrigger","RunsAllTrigger", 10000, 247000-0.5, 257000-0.5)
         self.hist["DeltaSigma_AllEvt"] = ROOT.TH1D("DeltaSigma_AllEvt","DeltaSigma_AllEvt",100, 0, 50)
         self.hist["DeltaSigma_RndEvt"] = ROOT.TH1D("DeltaSigma_RndEvt","DeltaSigma_RndEvt",100, 0, 50)
-        histgainname = '2DMuonSignalMap_gainratio'
+        
         histcalibrationname = '2DMuonSignalMap'
         histcalibration_notdividedRefname = '2DMuonSignalMap_notdividedRef'
         self.hist[histcalibration_notdividedRefname] =  ROOT.TH2D(histcalibration_notdividedRefname,histcalibration_notdividedRefname, 14, 0.5, 14.5, 16, 0.5, 16.5)
+        histgaincorrectionname = '2DMuonSignalMap_gain'
+        self.hist[histgaincorrectionname] =  ROOT.TH2D(histgaincorrectionname,histgaincorrectionname, 14, 0.5, 14.5, 16, 0.5, 16.5)
+        
+
         if not firstRun:
             self.hist[histcalibrationname] = inputFile.Get("data_MinimumBias_Run2015A/2DMuonSignalMap")
            # print "Extracted histogram from file. Checking entries:",  self.hist[histcalibrationname].GetEntries()
         else: #first time running analyser the calibration constants are all set to 1
             self.hist[histcalibrationname] =  ROOT.TH2D(histcalibrationname,histcalibrationname, 14, 0.5, 14.5, 16, 0.5, 16.5)
-            self.hist[histgainname] =  ROOT.TH2D(histgainname,histgainname, 14, 0.5, 14.5, 16, 0.5, 16.5)
+            
             for imod in xrange(0,14):
                 for isec in xrange(0,16):
                     self.hist[histcalibrationname].SetBinContent(self.hist[histcalibrationname].FindBin(imod+1,isec+1), 1.) #all factors set to 1
@@ -205,8 +209,36 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
             self.GetOutputList().Add(self.hist[h])
 
 
+    def HVGainCorrectionnumbers(self):
+        infile = open("CASTORpmtgainparameters_V0_2.txt","r")
+        gain_arr = [[0.0 for _ in range(14)] for _ in range(16)]
 
+        for line in infile:
+            if "PMTSRNR" in line:
+               continue
+        
 
+        tmp = line[:-1].split("\t")
+        imod = int(tmp[1])
+        isec = int(tmp[2])
+        if "VALUE" in tmp[6]:
+            gain = 1.0
+            invgain = 1.0
+        else:
+            gain = float(tmp[6])
+            invgain = float(tmp[7])
+            print gain
+        gain_arr[isec-1][imod-1] = gain
+        histgaincorrectionname = '2DMuonSignalMap_gain'
+        histgaincorrection = self.hist[histgaincorrection]
+        # .format(mod=str(imod+1),sec=str(isec+1),val=)
+        histCalibrationKat.SetBinContent(imod+1,isec+1,gain_arr[isec][imod]);
+
+#print gain_arr
+    for isec in range(16):
+    for imod in range(14):
+        print "hist.SetBinContent({mod},{sec},{val}*hist.GetBinContent({mod},{sec}))".format(mod=str(imod+1),sec=str(isec+1),val=gain_arr[isec][imod])
+   
 
     def getListSigmaSector(self, energy_sec):
         listSigmaSector = [0] * 16
@@ -421,7 +453,7 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 if sigma > 2 and [isec+1,imod+1] not in badChannelsSecMod:
                     listAllChannelsAboveNoise[isec].append(imod)
                     self.hist["2DcountChannelAboveTwoSigma_AllEvt"].Fill(imod+1,isec+1)
-                    if 3:
+                    if isRandom:
                         self.hist["2DcountChannelAboveTwoSigma_RndEvt"].Fill(imod+1,isec+1)
 
         for isec in xrange(0,16):
@@ -745,7 +777,6 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         histcalibration = histos[histcalibrationname]
         histcalibration_notdividedRef = histos[histcalibration_notdividedRefname]
         hreferencename = 'MuonSignalSecCh_mod_4_sec_9' #reference channel is (counting from one) mod=4 sec=9
-        histgain = histos[histgainname]
         referenceMean= histos[hreferencename].GetMean()
         meanReferenceNoise = hist_ch_Mean.GetBinContent(8*14 + 3 +1)
         # referenceMean -= meanReferenceNoise #switch on at some point or da a fit
@@ -769,8 +800,8 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
                 #if [isec+1,imod+1] in badChannelsSecMod:
                 #   noiseSubtractedMean = 1 #set bad channels always to 1
                 histcalibration.SetBinContent(binnumber, noiseSubtractedMean)
-                gain= 0.0692284654
-                histgain.SetBinContent(binnumber, gain*noiseSubtractedMean)
+                
+               
                 print "checking means for muons", imod, isec, mean, histos[hname].GetEntries()
          
         

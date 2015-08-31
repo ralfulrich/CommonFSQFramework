@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import CommonFSQFramework.Core.ExampleProofReader
-from BadChannels2015 import badChannelsModSec
+from BadChannels2013 import badChannelsSecMod
 
 import sys, os, time
 sys.path.append(os.path.dirname(__file__))
@@ -25,10 +25,10 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
         
         for isec in xrange(0,16):
             for imod in xrange(0,14):
-                hname ='ChannelNoise_sec_{sec}_mod_{mod}'.format(sec=str(isec),mod=str(imod))
+                hname ='ChannelNoise_sec_{sec}_mod_{mod}'.format(sec=str(isec+1),mod=str(imod+1))
                 self.hist[hname] = ROOT. TH1D( hname, hname, 500, -50,200)
 
-            hname = 'SectorNoise_sec_{sec}'.format(sec=str(isec))
+            hname = 'SectorNoise_sec_{sec}'.format(sec=str(isec+1))
             self.hist[hname] = ROOT.TH1D( hname, hname, 500, -50, 200)
             
         self.new_ch_mean = [[0 for _ in range(14)] for _ in range(16)]
@@ -80,17 +80,17 @@ class Step1_Mean_RMS(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRead
             self.new_ch_mean[sec][mod] += ich_energy
             self.new_ch_RMS[sec][mod] += ich_energy**2
 
-            hname = 'ChannelNoise_sec_{sec}_mod_{mod}'.format(sec=str(sec),mod=str(mod))
+            hname = 'ChannelNoise_sec_{sec}_mod_{mod}'.format(sec=str(sec+1),mod=str(mod+1))
             self.hist[hname].Fill(ich_energy)
 
-            if [mod,sec] not in badChannelsModSec:
+            if [sec+1,mod+1] not in badChannelsSecMod:
                 sec_sum[sec] += ich_energy
 
                 self.new_sec_mean[sec] += ich_energy
                 self.new_sec_RMS[sec] += ich_energy**2
              
         for isec in xrange(0,16):
-            hname = 'SectorNoise_sec_{sec}'.format(sec=str(isec))
+            hname = 'SectorNoise_sec_{sec}'.format(sec=str(isec+1))
             self.hist[hname].Fill(sec_sum[isec])
 
         return 1
@@ -139,11 +139,12 @@ if __name__ == "__main__":
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
     ROOT.gSystem.Load("libFWCoreFWLite.so")
     ROOT.AutoLibraryLoader.enable()
-
-    sampleList = None # run through all
+    sampleList = []
+    sampleList.append("data_PPMinBias_Run2013")
+    #sampleList = None # run through all
     maxFilesMC = None # run through all ffiles found
     maxFilesData = None # same
-    nWorkers = None # Use all cpu cores
+    nWorkers = 8 # Use all cpu cores
 
     # debug config:
     # Run printTTree.py alone to get the samples list
@@ -166,4 +167,4 @@ if __name__ == "__main__":
            maxFilesMC = maxFilesMC,
            maxFilesData = maxFilesData,
            nWorkers=nWorkers,
-           outFile = "output/mean_rms.root" )
+           outFile = "output/mean_rms.root" ) #2013 mean_RMS_2, for 2015 mean_RMs
