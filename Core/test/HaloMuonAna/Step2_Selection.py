@@ -766,12 +766,12 @@ class Step2_Selection(CommonFSQFramework.Core.ExampleProofReader.ExampleProofRea
         hreferencename = 'MuonSignalSecCh_mod_4_sec_9' #reference channel is (counting from one) mod=4 sec=9
         referenceMean= histos[hreferencename].GetMean()
         referenceNmuons = histos[hreferencename].GetEntries()
+        referenceRMS = histos[hreferencename].GetRMS()
         histLED1800V = histos[histLED1800Vname]
         histLEDerror1800V = histos[histLEDerror1800Vname]
         histGainPPHV= histos[histGainPPHVname]
         histGainErrorPPHV= histos[histGainErrorPPHVname]
-
-
+        
         meanReferenceNoise = hist_ch_Mean.GetBinContent(8*14 + 3 +1)
         
 
