@@ -137,8 +137,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.hist["RunsAllTrigger"] =  ROOT.TH1D("RunsAllTrigger","RunsAllTrigger", 10000, 247000-0.5, 257000-0.5)
         self.hist["DeltaSigma_AllEvt"] = ROOT.TH1D("DeltaSigma_AllEvt","DeltaSigma_AllEvt",100, 0, 50)
         self.hist["DeltaSigma_RndEvt"] = ROOT.TH1D("DeltaSigma_RndEvt","DeltaSigma_RndEvt",100, 0, 50)
-        histrepetitionname = '2DMuonSignalMap_repetition'
+       
         histcalibrationname = '2DMuonSignalMap'
+        histcalibrationTOYMCname= '2DMuonSignalMap_TOYMC'
         histcalibrationKatname = '2DMuonSignalMap_katerina'
         histcalibrationIgorname = '2DMuonSignalMap_igor'
         histcalibrationRatioIgorname = "2DMuonSignalMapIgor_Ratio"
@@ -160,7 +161,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.hist[histcalibrationname_rms] =  ROOT.TH2D(histcalibrationname_rms,histcalibrationname_rms, 14, 0.5, 14.5, 16, 0.5, 16.5)
         self.hist[histMCname_rms] =  ROOT.TH2D(histMCname_rms,histMCname_rms, 14, 0.5, 14.5, 16, 0.5, 16.5)
         self.hist[histMCname_rms_dividedbymean] =  ROOT.TH2D(histMCname_rms_dividedbymean,histMCname_rms_dividedbymean, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histrepetitionname] =  ROOT.TH2D(histrepetitionname,histrepetitionname, 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist[histcalibrationTOYMCname] =  ROOT.TH2D(histcalibrationTOYMCname,histcalibrationTOYMCname, 14, 0.5, 14.5, 16, 0.5, 16.5)
        
 
 
@@ -218,14 +219,16 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.hist[histMuonSignalRatioMeanPull] = ROOT.TH1D(histMuonSignalRatioMeanPull, histMuonSignalRatioMeanPull,224,-0.5,223.5)
         histMuonSignalRatioLog = "1DMuonsignalRatioLog"
         self.hist[histMuonSignalRatioLog] = ROOT.TH1D(histMuonSignalRatioLog, histMuonSignalRatioLog,80,-2,2)
-        
         histMuonSignalPull_Meli_Kat = "1DMuonsignalPull_Meli_Kat"
         self.hist[histMuonSignalPull_Meli_Kat] = ROOT.TH1D(histMuonSignalPull_Meli_Kat, histMuonSignalPull_Meli_Kat,40,-4,4)
         histMuonSignalPull_Meli_Igor = "1DMuonsignalPull_Meli_Igor"
         self.hist[histMuonSignalPull_Meli_Igor] = ROOT.TH1D(histMuonSignalPull_Meli_Igor, histMuonSignalPull_Meli_Igor,40,-4,4)
         histMuonSignalPull_Kat_Igor = "1DMuonsignalPull_Kat_Igor"
         self.hist[histMuonSignalPull_Kat_Igor] = ROOT.TH1D(histMuonSignalPull_Kat_Igor, histMuonSignalPull_Kat_Igor,40,-4,4)
+        histMuonSignalPull_Melike_TOYMC= "1DPull_Melike_TOYMC"
+        self.hist[histMuonSignalPull_Melike_TOYMC] = ROOT.TH1D(histMuonSignalPull_Melike_TOYMC, histMuonSignalPull_Melike_TOYMC,40,-4,4)
         
+
         hnameAllsec= 'MuonSignalAllSec_energy'
         self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec,50, 0, 400)
        
@@ -405,7 +408,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             # print  "EventCount (bin \'all\') :" ,self.hist["EventCount"].GetBinContent(self.hist["EventCount"].GetXaxis().FindBin("all"))
             # print  "EventCount 2 :" ,self.hist["EventCount"].GetXaxis().FindBin("all")
             # print "Nevent" ,Nevent
-            
+            self.hist["ToyMCEventCount"].Fill("all",1)
             if Nevent >= NBRHIST: Nevent = NBRHIST-1
            
                    
@@ -416,7 +419,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
            isBptxminus = False
                 
         self.hist["EventCount"].Fill("bptx +",1)
-
+        self.hist["ToyMCEventCount"].Fill("bptx +1",1)
         # if self.flag_use_merjin_electronic_channel_noise:
         for isec in xrange(16):
             for imod in xrange(14):
@@ -436,7 +439,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             return 0
 
         self.hist["EventCount"].Fill("size rh",1)
-
+        self.hist["ToyMCEventCount"].Fill("size rh",1)
         isRandom = False
         if trgRandom:
             if trgl1L1GTTech7: #not bptx+ or bptx-
@@ -484,7 +487,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         hasMuonTrigger = (trgCastorHaloMuon or trgl1L1GTAlgo102)
         # if not hasMuonTrigger: return 1
         if hasMuonTrigger: self.hist["EventCount"].Fill("muon trg",1)
-
+        if hasMuonTrigger:self.hist["ToyMCEventCount"].Fill("muon trg",1)
 
             #  print 'sec', sec, 'mod', mod, 'e_ch=', ch_energy, "e_sec", sec_energy[sec]
             #  print "all sector energies:  ", sec_energy
@@ -588,7 +591,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
         self.hist["EventCount"].Fill("sigma sec cut",1)
-
+        self.hist["ToyMCEventCount"].Fill("sigma sec cut",1)
         ################################
         # cut oon noise veto sector #
         ################################
@@ -666,7 +669,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
         if NchannelNoiseCut:
             self.hist["EventCount"].Fill("N_ch noise cut",1)
-            
+            self.hist["ToyMCEventCount"].Fill("N_ch noise cut",1)
             for imod in xrange(0,14):
                 self.hist["2DMuonCountFor3Ch"].Fill(imod+1,muonSec+1)
 
@@ -697,6 +700,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         if goodMuonEvent:
             # print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
             self.hist["EventCount"].Fill("good muon evt",1)
+            self.hist["ToyMCEventCount"].Fill("good muon evt",1)
             if isRandom:
                self.hist["EventCount"].Fill("RndtrggoodMuonEvent cut",1)
             if hasMuonTrigger:
@@ -725,7 +729,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
             for imod in xrange(14):
             
-                # histrepetitionname = '2DMuonSignalMap_repetition'
+               
             
                 hname_MC = 'MuonSignalMCCh_mod_{mod}_sec_{sec}_number_{number}'.format(mod=str(imod+1), sec=str(muonSec+1), number=str(Nevent))   
                 self.hist[hname_MC].Fill(ch_energy[muonSec][imod])
@@ -896,12 +900,13 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         histcalibrationRationame = "2DMuonSignalMap_Ratio"
         histcalibrationRatioIgorname = "2DMuonSignalMapIgor_Ratio"
         histcalibrationRatioIgor_Katname = "2DMuonSignalMapIgor_KatRatio"
-        histcalibrationname_rms = '2DMuonSignalMap_rms'
+        histcalibrationname_rms = '2DMuonSignalMap_rms' 
         histMCname_rms = '2DMuonMCMap_rms'
         histMCname_rms_dividedbymean = '2DMuonMCMap_rms_dividedbymean'
-
+        histcalibrationTOYMCname= '2DMuonSignalMap_TOYMC'
         histcalibration_notdividedRefname = '2DMuonSignalMap_notdividedRef'
         histMC_notdividedRefname = '2DMuonMCMap_notdividedRef'
+        histcalibrationTOYMC = histos[histcalibrationTOYMCname]
         histcalibration = histos[histcalibrationname]
         histCalibrationKat = histos[histcalibrationKatname]
         histCalibrationIgor = histos[histcalibrationIgorname]
@@ -920,10 +925,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         referenceNmuons = histos[hreferencename].GetEntries()
         meanReferenceNoise = hist_ch_Mean.GetBinContent(8*14 + 3 +1)
         
-       
-      
-
-
+        
+        
+        
 
 
         # referenceMean -= meanReferenceNoise #switch on at some point or da a fit
@@ -987,11 +991,13 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         
 
         sigma_refCh = 0
-        if referenceNmuons > 0:
+        sigma_TOYMCrefCh = 0
+        if referenceNmuons > 0 :
             sigma_refCh = referenceRMS/sqrt(referenceNmuons)
-
-        if referenceMean != 0:
+           
+        if referenceMean == 0:
             print "Warning reference channel (Sec 9 Mod 4) empty. Not dividing"
+
         for isec in xrange(0,16):
             for imod in xrange(0,14):
                 hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
@@ -1006,26 +1012,52 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     mean_mc= histos[hname_MC].GetMean()
                     histos[hMC1D].Fill(mean_mc)
 
-                
+                Nmuons_mc1d = histos[hMC1D].GetEntries()
                 mean_mc1d= histos[hMC1D].GetMean()       
                 rms_mc1d= histos[hMC1D].GetRMS()
+        
+
+        hreferencenTOYMCname = '1DSignalMCCh_mod_4_sec_9' #reference channel is (counting from one) mod=4 sec=9
+        referenceTOYMCMean= histos[hreferencenTOYMCname].GetMean()
+        referenceTOYMCRMS= histos[hreferencenTOYMCname].GetRMS()
+        referenceTOYMCNmuons = histos[hreferencenTOYMCname].GetEntries()
                 
+        
+        if  referenceTOYMCNmuons>0:
+            sigma_TOYMCrefCh = referenceTOYMCRMS/sqrt(referenceTOYMCNmuons)
+
+            print "referenceTOYMCMean", referenceTOYMCMean
+
+
+        if  referenceTOYMCMean == 0:
+            print "Warning reference channel (Sec 9 Mod 4) empty. Not dividing"
+
+         
+        for isec in xrange(0,16):
+            for imod in xrange(0,14):
                 RMSdividedMean_mc1d=0
                 if mean_mc1d > 0:
                    RMSdividedMean_mc1d = rms_mc1d/mean_mc1d 
 
                 sigma_mean = 0
-                if Nmuons > 0:
-                    sigma_mean = rms/sqrt(Nmuons)
+                sigma_TOYMCmean =0
+               
+                if Nmuons > 0 :
+                   sigma_mean = rms/sqrt(Nmuons)
+               
+                if Nmuons_mc1d>0:  
+                   sigma_TOYMCmean = rms_mc1d/sqrt(Nmuons_mc1d)
 
 
                 i = isec * 14 + imod
                 meanNoise = hist_ch_Mean.GetBinContent(i+1) #noise is not estimated well. do iterative procedure from ralf? or random trigger?
                 binnumber = histcalibration.FindBin(imod+1, isec+1)
                 noiseSubtractedMean = (mean)# - meanNoise)
+                TOYMCMeanDividedRefMean= mean_mc1d
+                
                 histcalibration_notdividedRef.SetBinContent(binnumber, noiseSubtractedMean)
-                histMC_notdividedRef.SetBinContent(binnumber,mean_mc1d)
-                histMC_rms .SetBinContent(binnumber,rms_mc1d)
+                histMC_notdividedRef.SetBinContent(binnumber,TOYMCMeanDividedRefMean) ## use mean_mc1d
+                #histMC_rms .SetBinContent(binnumber,rms_mc1d) #Debuggi
                 histMC_rms_dividedbymean .SetBinContent(binnumber,RMSdividedMean_mc1d)
                 mean_Kat = histCalibrationKat.GetBinContent(binnumber)
                 mean_Igor = histCalibrationIgor.GetBinContent(binnumber)
@@ -1033,40 +1065,68 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 # histMuonSignalMean.SetBinError(i+1,rms)
                 
                 sigma_mean_diff_refCh = 0
-                if referenceMean != 0:
+                sigma_ToyMCmean_diff_refCh =0
+                if referenceMean != 0 :
                     noiseSubtractedMean /= referenceMean #divide by reference channel
-                    if mean > 0 and referenceMean > 0:
-                        sigma_mean_diff_refCh = sqrt(noiseSubtractedMean**2 * ((sigma_mean/mean)**2 + (sigma_refCh/referenceMean)**2))
+                    
+                if  referenceTOYMCMean!=0:
+                    TOYMCMeanDividedRefMean/=referenceTOYMCMean
+                
+                    
                    
-
+                    if mean > 0 and referenceMean > 0 :
+                       sigma_mean_diff_refCh = sqrt(noiseSubtractedMean**2 * ((sigma_mean/mean)**2 + (sigma_refCh/referenceMean)**2))
+                    
+                    if  mean_mc1d> 0 and referenceTOYMCMean >0 :   
+                        sigma_ToyMCmean_diff_refCh= sqrt(TOYMCMeanDividedRefMean**2 * ((sigma_TOYMCmean/mean_mc1d)**2 + (sigma_TOYMCrefCh/referenceTOYMCMean)**2))
+                        print "sigma_ToyMCmean_diff_refCh", sigma_ToyMCmean_diff_refCh
+                
                 #if [isec+1,imod+1] in badChannelsSecMod:
                 #   noiseSubtractedMean = 1 #set ba channels always to 1
                 
                 inv_mean = 0
+                inv_TOYMCmean= 0
                 sigma_inv_mean = 0
-                if noiseSubtractedMean>0:
-                    inv_mean = 1./noiseSubtractedMean #invert to get a "correction factor"
-                    sigma_inv_mean = sigma_mean_diff_refCh/(noiseSubtractedMean**2)
+                sigma_inv_TOYMCmean =0
+                if TOYMCMeanDividedRefMean>0 :
+                   inv_TOYMCmean = 1./TOYMCMeanDividedRefMean #invert to get a "correction factor"
+                   sigma_inv_TOYMCmean = sigma_ToyMCmean_diff_refCh/(TOYMCMeanDividedRefMean **2)
+                
+                   
+                if noiseSubtractedMean>0:   
+                   inv_mean = 1./noiseSubtractedMean #invert to get a "correction factor"
+                   sigma_inv_mean = sigma_mean_diff_refCh/(noiseSubtractedMean**2)
+                     
                 if imod>=0 and imod<2:
                     inv_mean /= 2 #em modules are half the size
                     sigma_inv_mean /= 2
-                
+                    inv_TOYMCmean/=2
+                    sigma_inv_TOYMCmean/=2
+                    
                 meanRatio = 0
                 sigma_meanRatio = 0
                 meanRatio_igor=0
                 meanRatioIgor_Kat=0
-                if mean_Kat>0 and inv_mean>0 and mean_Igor>0 :
+
+                if  mean_Kat>0 and inv_mean>0 and mean_Igor>0 :
                     meanRatio = inv_mean/mean_Kat
                     meanRatio_igor = inv_mean/mean_Igor
                     meanRatioIgor_Kat= mean_Kat/mean_Igor
-                    sigma_meanRatio = sqrt(meanRatio**2 * ( (sigma_inv_mean/inv_mean)**2 + 0.2**2 ) )
+                    sigma_meanRatio = sqrt(meanRatio**2 * ((sigma_inv_mean/inv_mean)**2 + 0.2**2 ))
                 
                     pull_Meli_Kat= (inv_mean -mean_Kat)/sqrt((mean_Kat*0.2)**2 + (sigma_inv_mean)**2)
                     pull_Meli_Igor= (inv_mean -mean_Igor)/sqrt((mean_Igor*0.2)**2 + (sigma_inv_mean)**2)
                     pull_Kat_Igor= (mean_Kat -mean_Igor)/sqrt((mean_Igor*0.2)**2 + (mean_Kat*0.2)**2)
                 
+               
+  
+
+                if  inv_TOYMCmean>0 and sigma_inv_TOYMCmean>0:    
+                    pull_TOYMC_Melike= (inv_mean -inv_TOYMCmean)/sqrt((sigma_inv_TOYMCmean)**2 + (sigma_inv_mean)**2)
+                    
+
                     histcalibration.SetBinContent(binnumber, inv_mean)
-                          
+                    histcalibrationTOYMC.SetBinContent(binnumber, inv_TOYMCmean)         
                     histcalibration_rms.SetBinContent(binnumber,sigma_inv_mean)
                     histcalibrationRatio.SetBinContent(binnumber, meanRatio)
                     histcalibrationRatioIgor.SetBinContent(binnumber, meanRatio_igor)
@@ -1078,7 +1138,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     histMuonSignalRatioMeanPull = histos["1DMuonsignalRatioMeanPull"] 
                     histMuonSignalPull_Meli_Kat = histos["1DMuonsignalPull_Meli_Kat"] 
                     histMuonSignalPull_Meli_Igor = histos["1DMuonsignalPull_Meli_Igor"] 
-                    histMuonSignalPull_Kat_Igor = histos["1DMuonsignalPull_Kat_Igor"] 
+                    histMuonSignalPull_Kat_Igor = histos["1DMuonsignalPull_Kat_Igor"]  
                     histMuonSignalKatMean.SetBinContent(i+1,mean_Kat)
                     histMuonSignalKatMean.SetBinError(i+1,mean_Kat*0.2)
                     histMuonSignalMean.SetBinContent(i+1,inv_mean)
@@ -1089,16 +1149,13 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     histMuonSignalPull_Meli_Kat.Fill(pull_Meli_Kat)
                     histMuonSignalPull_Meli_Igor.Fill(pull_Meli_Igor)
                     histMuonSignalPull_Kat_Igor.Fill(pull_Kat_Igor)
+               
+                histMuonSignalPull_Melike_TOYMC= histos["1DPull_Melike_TOYMC"] 
+                histMuonSignalPull_Melike_TOYMC.Fill(sigma_inv_TOYMCmean)
 
-
-                if meanRatio > 0:
-                    histMuonSignalRatioLog.Fill(log10(meanRatio))
-                # else:
-                #     print "Warning mean ratio for channel ID", i, "is <= 0. Cannot calculate log10"
-                #histMuonSignalRatioMean.SetBinError(i+1,sigma_meanRatio)
-
-                # print "checking means for muons", imod, isec, mean, histos[hname].GetEntries()
-         
+                # if  meanRatio > 0:
+                #     histMuonSignalRatioLog.Fill(log10(meanRatio))
+               
         
 
 if __name__ == "__main__":
@@ -1176,9 +1233,9 @@ if __name__ == "__main__":
         print "Im in TOYMC!!!!!!!!!!!!!!!!!"
         # repetitions = 2
         # for iRep in xrange(repetitions):
-        # max_events = 1000000
+        #max_events = 100 #if command out when you want to run whole files 
         max_events = int(NBRHIST*NBREVTPERHIST-1)
-        slaveParams["maxFileNo"] = -1
+        slaveParams["maxFileNo"] =-1
         Step2_Selection_2.runAll(treeName="MuonCastorVTwo",
                                slaveParameters = slaveParams,
                                sampleList = sampleList,
