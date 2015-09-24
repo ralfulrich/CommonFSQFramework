@@ -1,4 +1,4 @@
-import os, sys, subprocess
+import os, sys, subprocess, imp
 
 def getCrabVersion():
     try:
@@ -45,4 +45,57 @@ def getAnaDefinition(varname, toGlobal=False):
 
     return obj
 
+def getROOTPrefix():
 
+    if "SmallXAnaDefFile" not in os.environ:
+        print "Please set SmallXAnaDefFile environment variable:"
+        print "export SmallXAnaDefFile=FullPathToFile"
+        raise Exception("Whooops! SmallXAnaDefFile env var not defined")
+
+    anaDefFile = os.environ["SmallXAnaDefFile"]
+    mod_dir, filename = os.path.split(anaDefFile)
+    mod, ext = os.path.splitext(filename)
+    f, filename, desc = imp.find_module(mod, [mod_dir])
+    mod = imp.load_module(mod, f, filename, desc)
+    
+    return mod.ROOTPrefix
+    
+def getTTreeBasePath():
+
+    if "SmallXAnaDefFile" not in os.environ:
+        print "Please set SmallXAnaDefFile environment variable:"
+        print "export SmallXAnaDefFile=FullPathToFile"
+        raise Exception("Whooops! SmallXAnaDefFile env var not defined")
+
+    anaDefFile = os.environ["SmallXAnaDefFile"]
+    mod_dir, filename = os.path.split(anaDefFile)
+    mod, ext = os.path.splitext(filename)
+    f, filename, desc = imp.find_module(mod, [mod_dir])
+    mod = imp.load_module(mod, f, filename, desc)
+
+    return mod.TTreeBasePATH
+   
+def getPATBasePath():
+
+    if "SmallXAnaDefFile" not in os.environ:
+        print "Please set SmallXAnaDefFile environment variable:"
+        print "export SmallXAnaDefFile=FullPathToFile"
+        raise Exception("Whooops! SmallXAnaDefFile env var not defined")
+
+    anaDefFile = os.environ["SmallXAnaDefFile"]
+    mod_dir, filename = os.path.split(anaDefFile)
+    mod, ext = os.path.splitext(filename)
+    f, filename, desc = imp.find_module(mod, [mod_dir])
+    mod = imp.load_module(mod, f, filename, desc)
+
+    return mod.PATbasePATH
+
+def preventExit():
+    print " "
+    py3 = sys.version_info[0] > 2 #creates boolean value for test that Python major version > 2
+    if py3:
+        response = input("Press enter to exit ")
+    else:
+        response = raw_input("Press enter to exit ")
+
+    return 1

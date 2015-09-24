@@ -1,4 +1,4 @@
-anaType="RunIILowPU_0T"
+anaType="RunIILowPU_38T"
 
 # root path needs proper XXX
 # some stuff needed for crab configuration, e.g. blacklisting
@@ -10,7 +10,7 @@ skimEfficiencyMethod="getSkimEff"
 '''
 
 # point towards your list of samples you want
-dsFile="CommonFSQFramework/Skim/python/ds_RunIILowPU_0T_v4.txt"
+dsFile="CommonFSQFramework/Skim/python/ds_RunIILowPU_38T_v3.txt"
 
 # define the util decorator. Functions marked with this wont turn into ds attribute
 def util(func):
@@ -26,29 +26,22 @@ def name(ds):
     split=ds.split("/") 
     if len(split) == 0: return None
 
-    if "NoPU0TRawReco_magnetOff" in ds: return split[1]+"_MagnetOff"
     
     if not isData(ds): return split[1]
 
-    if isData(ds):
-	if "Run247324" in ds: return "data_"+split[1]+"_Run2015A_Run247324"
-	if "LHCf_lowPUruns" in ds: return "data_"+split[1]+"_Run2015A_LHCf_lowPU"
-	if "LHCf_lastruns" in ds: return "data_"+split[1]+"_Run2015A_LHCf_lastruns"
-	return "data_"+split[1]
+    if isData(ds): return "data_"+split[1]
 
 def isData(ds):
     realData = False
     if "Commissioning2015" in ds: realData = True
-    if "Run2015A" in ds: realData = True
+    if "Run2015" in ds: realData = True
     return realData
 
 def json(ds):
     realData = isData(ds)
     if realData:
-        if "Run245194" in ds: return "CommonFSQFramework/Skim/lumi/Run245194.json"
-	if "Run247324" in ds: return "CommonFSQFramework/Skim/lumi/Run247324.json"
-	if "LHCf_lowPUruns" in ds: return "CommonFSQFramework/Skim/lumi/LHCf_lowPUruns_v1.json"
-	if "LHCf_lastruns" in ds: return "CommonFSQFramework/Skim/lumi/LHCf_lastruns_v1.json"
+        if "Run2015B" in ds: return "CommonFSQFramework/Skim/lumi/Run251721.json"
+        if "Run2015C" in ds: return "CommonFSQFramework/Skim/lumi/VdM38Truns_v1.json"
     else:
         return ""
 
@@ -62,14 +55,6 @@ def crabJobs(ds):
 
 def numEvents(ds):
     
-    # 0T MC - put this first to work!
-    if "MinBias_TuneMonash13_13TeV-pythia8_MagnetOff" in name(ds): return 953393
-    if "MinBias_TuneZ2star_13TeV-pythia6_MagnetOff" in name(ds): return 998082
-    if "MinBias_TuneMBR_13TeV-pythia8_MagnetOff" in name(ds): return 997146
-    if "MinBias_TuneEE5C_13TeV-herwigpp_MagnetOff" in name(ds): return 997682
-    if "ReggeGribovPartonMC_13TeV-EPOS_MagnetOff" in name(ds): return 998671
-    if "ReggeGribovPartonMC_13TeV-QGSJetII_MagnetOff" in name(ds): return 980585
-    
     # 3.8T MC
     if "MinBias_TuneMonash13_13TeV-pythia8" in name(ds): return 997552
     if "ReggeGribovPartonMC_13TeV-EPOS" in name(ds): return 998312
@@ -80,24 +65,14 @@ def numEvents(ds):
     if "MinBias_TuneEE5C_13TeV-herwigpp" in name(ds): return 1000000 
     
     # data
-    if "Run245194" in ds: return 505132
-    if "ZeroBias1" in ds and "Run247324" in ds: return 1666987
-    if "ZeroBias1" in ds and "LHCf_lowPUruns" in ds: return 2551697
-    if "EmptyBX" in ds and "LHCf_lowPUruns" in ds: return 2921923
-    if "ZeroBias1" in ds and "LHCf_lastruns" in ds: return 6070244
-    if "EmptyBX" in ds and "LHCf_lastruns" in ds: return 17318167
-    if "L1TechBPTXQuiet" in ds and "Run247324" in ds: return 1454985
-    if "L1TechBPTXPlusOnly" in ds and "Run247324" in ds: return 1500029
-    if "L1TechBPTXMinusOnly" in ds and "Run247324" in ds: return 1748311
     
     # if nothing found...
     return -1
 
 def GT(ds):
-    if isData(ds): return "GR_P_V56"
-    
-    # 0T MC GT
-    if "magnetOff_MCRUN2_740TV0" in ds: return "MCRUN2_740TV0"
+    if isData(ds) and "Run2015B-PromptReco-v1" in ds: return "74X_dataRun2_Prompt_v0"
+    if isData(ds) and "Run2015B-Express-v1" in ds: return "74X_dataRun2_Express_v0"
+    if isData(ds) and "Run2015C-PromptReco-v1" in ds: return "74X_dataRun2_Prompt_v1"
 	
     # 3.8T MC GT
     if "NoPU_castor_MCRUN2_74_V8" in ds: return "MCRUN2_74_V8" 
@@ -131,14 +106,6 @@ def XS(ds):
     s["MinBias_TuneCUETP8M1_13TeV-pythia8"] = 78418400000.0
     s["MinBias_TuneMBR_13TeV-pythia8"] = 78418400000.0
     s["MinBias_TuneEE5C_13TeV-herwigpp"] = 36460000000.0
-    
-    s["MinBias_TuneMonash13_13TeV-pythia8_MagnetOff"] = 78418400000.0 # from DAS - McM
-    s["ReggeGribovPartonMC_13TeV-EPOS_MagnetOff"] = 78418400000.0
-    s["ReggeGribovPartonMC_13TeV-QGSJetII_MagnetOff"] = 78418400000.0
-    s["MinBias_TuneZ2star_13TeV-pythia6_MagnetOff"] = 78260000000.0
-    s["MinBias_TuneCUETP8M1_13TeV-pythia8_MagnetOff"] = 78418400000.0
-    s["MinBias_TuneMBR_13TeV-pythia8_MagnetOff"] = 78418400000.0
-    s["MinBias_TuneEE5C_13TeV-herwigpp_MagnetOff"] = 36460000000.0
 
 
     dsName = name(ds)
