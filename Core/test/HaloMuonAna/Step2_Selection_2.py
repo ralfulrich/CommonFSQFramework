@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 DATASOURCE = "TOYMC" #options are "TOYMC" "DATA". first generates events, the second uses the sample specified
-NBRHIST = 165 # the number of hist for toyMc
-NBREVTPERHIST = 2886
+NBRHIST =  418 # the number of hist for toyMc
+NBREVTPERHIST = 10000 #2387
 
 
 import CommonFSQFramework.Core.ExampleProofReader
-from BadChannels2013 import badChannelsSecMod
+from BadChannels2015 import badChannelsSecMod
 
 import sys, os, time
 sys.path.append(os.path.dirname(__file__))
@@ -52,13 +52,12 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.nEventsRandom = 0
         #self.tree = {}
         self.hist["EventCount"] = ROOT.TH1D("EventCount","EventCount",10,0,20)
-        self.hist["ToyMCEventCount"] = ROOT.TH1D("ToyMCEventCount","ToyMCEventCount",10,0,20)
-        #MC
+        
         #if not self.isData:
 
         #Getting sector RMS and Mean
         if firstRun:
-            inputFile = ROOT.TFile(join(outfolder,"mean_rms_2.root"))
+            inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
             inputFile_noise = ROOT.TFile(join(outfolder,"Histograms_StatFitInformationPedNoise.root"))
             
 
@@ -78,12 +77,14 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         # np= np.zeros(1, dtype=float)
         # tree.Branch('ch_energy', ch_energy, 'ch_energy')
 
-        hist_sec_Mean = inputFile.Get("data_PPMinBias_Run2013/hist_sec_Mean")
-        hist_sec_RMS = inputFile.Get("data_PPMinBias_Run2013/hist_sec_RMS")
+        hist_sec_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_Mean")
+        hist_sec_RMS = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_RMS")
 
         #Getting channel RMS and Mean
-        hist_ch_Mean = inputFile.Get("data_PPMinBias_Run2013/hist_ch_Mean")
-        hist_ch_RMS =  inputFile.Get("data_PPMinBias_Run2013/hist_ch_RMS")
+        hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
+        hist_ch_RMS =  inputFile.Get("data_MinimumBias_Run2015A/hist_ch_RMS")
+
+        print "Pointer Address of Noise level hist:", hist_sec_Mean
 
         #Getting electronic noise from in the Merijns file
         hist_ch_noise_RMS= inputFile_noise.Get("SumHistoNoiseFit")
@@ -139,33 +140,14 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.hist["DeltaSigma_RndEvt"] = ROOT.TH1D("DeltaSigma_RndEvt","DeltaSigma_RndEvt",100, 0, 50)
        
         histcalibrationname = '2DMuonSignalMap'
-        histcalibrationTOYMCname= '2DMuonSignalMap_TOYMC'
-        histcalibrationKatname = '2DMuonSignalMap_katerina'
-        histcalibrationIgorname = '2DMuonSignalMap_igor'
-        histcalibrationRatioIgorname = "2DMuonSignalMapIgor_Ratio"
-        histcalibrationRatioIgor_Katname = "2DMuonSignalMapIgor_KatRatio"
-        histcalibrationRationame = "2DMuonSignalMap_Ratio"
-        histcalibrationname_rms = '2DMuonSignalMap_rms'
-        histMCname_rms = '2DMuonMCMap_rms'
-        histMCname_rms_dividedbymean = '2DMuonMCMap_rms_dividedbymean'
+        histcalibrationname_sigma = '2DMuonSignalMap_sigma'
+        histcalibrationname_RMS = '2DMuonSignalMap_RMS'
         histcalibration_notdividedRefname = '2DMuonSignalMap_notdividedRef'
-        histMC_notdividedRefname = '2DMuonMCMap_notdividedRef'
         
         self.hist[histcalibration_notdividedRefname] =  ROOT.TH2D(histcalibration_notdividedRefname,histcalibration_notdividedRefname, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histMC_notdividedRefname] =  ROOT.TH2D(histMC_notdividedRefname,histMC_notdividedRefname, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histcalibrationKatname] =  ROOT.TH2D(histcalibrationKatname,histcalibrationKatname, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histcalibrationIgorname] =  ROOT.TH2D(histcalibrationIgorname,histcalibrationIgorname, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histcalibrationRationame] =  ROOT.TH2D(histcalibrationRationame,histcalibrationRationame, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histcalibrationRatioIgorname] =  ROOT.TH2D(histcalibrationRatioIgorname,histcalibrationRatioIgorname, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histcalibrationRatioIgor_Katname] =  ROOT.TH2D(histcalibrationRatioIgor_Katname,histcalibrationRatioIgor_Katname, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histcalibrationname_rms] =  ROOT.TH2D(histcalibrationname_rms,histcalibrationname_rms, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histMCname_rms] =  ROOT.TH2D(histMCname_rms,histMCname_rms, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histMCname_rms_dividedbymean] =  ROOT.TH2D(histMCname_rms_dividedbymean,histMCname_rms_dividedbymean, 14, 0.5, 14.5, 16, 0.5, 16.5)
-        self.hist[histcalibrationTOYMCname] =  ROOT.TH2D(histcalibrationTOYMCname,histcalibrationTOYMCname, 14, 0.5, 14.5, 16, 0.5, 16.5)
-       
-
-
-
+        self.hist[histcalibrationname_RMS] =  ROOT.TH2D(histcalibrationname_RMS,histcalibrationname_RMS, 14, 0.5, 14.5, 16, 0.5, 16.5)
+        self.hist[histcalibrationname_sigma] =  ROOT.TH2D(histcalibrationname_sigma,histcalibrationname_sigma, 14, 0.5, 14.5, 16, 0.5, 16.5)
+    
         if not firstRun:
             self.hist[histcalibrationname] = inputFile.Get("data_MinimumBias_Run2015A/2DMuonSignalMap")
             print "Extracted histogram from file. Checking entries:",  self.hist[histcalibrationname].GetEntries()
@@ -211,32 +193,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
        
         histMuonSignalMean = "1DMuonsignalMean"
         self.hist[histMuonSignalMean] = ROOT.TH1D(histMuonSignalMean,histMuonSignalMean,224,-0.5,223.5)
-        histMuonSignalKatMean = "1DMuonsignalKaterinaMean"
-        self.hist[histMuonSignalKatMean] = ROOT.TH1D(histMuonSignalKatMean,histMuonSignalKatMean,224,-0.5,223.5)
-        histMuonSignalRatioMean = "1DMuonsignalRatioMean"
-        self.hist[histMuonSignalRatioMean] = ROOT.TH1D(histMuonSignalRatioMean, histMuonSignalRatioMean,224,-0.5,223.5)
-        histMuonSignalRatioMeanPull = "1DMuonsignalRatioMeanPull"
-        self.hist[histMuonSignalRatioMeanPull] = ROOT.TH1D(histMuonSignalRatioMeanPull, histMuonSignalRatioMeanPull,224,-0.5,223.5)
-        histMuonSignalRatioLog = "1DMuonsignalRatioLog"
-        self.hist[histMuonSignalRatioLog] = ROOT.TH1D(histMuonSignalRatioLog, histMuonSignalRatioLog,80,-2,2)
-        histMuonSignalPull_Meli_Kat = "1DMuonsignalPull_Meli_Kat"
-        self.hist[histMuonSignalPull_Meli_Kat] = ROOT.TH1D(histMuonSignalPull_Meli_Kat, histMuonSignalPull_Meli_Kat,40,-4,4)
-        histMuonSignalPull_Meli_Igor = "1DMuonsignalPull_Meli_Igor"
-        self.hist[histMuonSignalPull_Meli_Igor] = ROOT.TH1D(histMuonSignalPull_Meli_Igor, histMuonSignalPull_Meli_Igor,40,-4,4)
-        histMuonSignalPull_Kat_Igor = "1DMuonsignalPull_Kat_Igor"
-        self.hist[histMuonSignalPull_Kat_Igor] = ROOT.TH1D(histMuonSignalPull_Kat_Igor, histMuonSignalPull_Kat_Igor,40,-4,4)
-        histMuonSignalPull_Melike_TOYMC= "1DPull_Melike_TOYMC"
-        self.hist[histMuonSignalPull_Melike_TOYMC] = ROOT.TH1D(histMuonSignalPull_Melike_TOYMC, histMuonSignalPull_Melike_TOYMC,40,-4,4)
-        
-
         hnameAllsec= 'MuonSignalAllSec_energy'
         self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec,50, 0, 400)
-       
-
-
-               #self.hist[hempty] = ROOT. TH1D( hempty, hempty, 500, -100, 400)
-
-         
        
 
         #get channel energies from input file
@@ -408,7 +366,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             # print  "EventCount (bin \'all\') :" ,self.hist["EventCount"].GetBinContent(self.hist["EventCount"].GetXaxis().FindBin("all"))
             # print  "EventCount 2 :" ,self.hist["EventCount"].GetXaxis().FindBin("all")
             # print "Nevent" ,Nevent
-            self.hist["ToyMCEventCount"].Fill("all",1)
+            
             if Nevent >= NBRHIST: Nevent = NBRHIST-1
            
                    
@@ -419,7 +377,6 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
            isBptxminus = False
                 
         self.hist["EventCount"].Fill("bptx +",1)
-        self.hist["ToyMCEventCount"].Fill("bptx +1",1)
         # if self.flag_use_merjin_electronic_channel_noise:
         for isec in xrange(16):
             for imod in xrange(14):
@@ -427,10 +384,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 self.hist[hnoise_electronic_RMS].Fill(self.ch_RMS[isec][imod])
                 
         histCalibration = self.hist[histcalibrationname]
-        histcalibrationname_rms = '2DMuonSignalMap_rms'
-       
-       
-       
+        #histcalibrationname_sigma = '2DMuonSignalMap_sigma'
+
+
         ch_energy = [[0.0 for _ in xrange(14)] for _ in xrange(16)]
         sec_energy = [0.0] * 16
         sec_front_energy = [0.0] * 16
@@ -439,7 +395,10 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             return 0
 
         self.hist["EventCount"].Fill("size rh",1)
-        self.hist["ToyMCEventCount"].Fill("size rh",1)
+        
+     
+        
+       
         isRandom = False
         if trgRandom:
             if trgl1L1GTTech7: #not bptx+ or bptx-
@@ -449,6 +408,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         if isRandom:
             self.hist["EventCount"].Fill("rnd trg",1)
 
+        
         for i in xrange(224):
             isec = i//14
             imod = i%14
@@ -458,7 +418,6 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 rh_energy = theToyMC.CastorRecHitEnergy(i)
 
             binnumber = histCalibration.FindBin(imod+1,isec+1)
-            #binnumber_notdividedRef = histcalibration_notdividedRef.FindBin(imod+1,isec+1)
             calibration = histCalibration.GetBinContent(binnumber)
 
             ich_energy = calibration * rh_energy
@@ -487,7 +446,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         hasMuonTrigger = (trgCastorHaloMuon or trgl1L1GTAlgo102)
         # if not hasMuonTrigger: return 1
         if hasMuonTrigger: self.hist["EventCount"].Fill("muon trg",1)
-        if hasMuonTrigger:self.hist["ToyMCEventCount"].Fill("muon trg",1)
+       
 
             #  print 'sec', sec, 'mod', mod, 'e_ch=', ch_energy, "e_sec", sec_energy[sec]
             #  print "all sector energies:  ", sec_energy
@@ -591,7 +550,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
         self.hist["EventCount"].Fill("sigma sec cut",1)
-        self.hist["ToyMCEventCount"].Fill("sigma sec cut",1)
+        
         ################################
         # cut oon noise veto sector #
         ################################
@@ -669,7 +628,6 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
         if NchannelNoiseCut:
             self.hist["EventCount"].Fill("N_ch noise cut",1)
-            self.hist["ToyMCEventCount"].Fill("N_ch noise cut",1)
             for imod in xrange(0,14):
                 self.hist["2DMuonCountFor3Ch"].Fill(imod+1,muonSec+1)
 
@@ -684,6 +642,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 else: # [9,10,11,12,13]:
                       Rear_Module = True
                       self.hist["2DMuonactiveregion"].Fill(3,muonSec+1) 
+            
 
             if (Front_Module + Mid_Module + Rear_Module) >= 3: #maybe change to 3
                 goodMuonEventWithoutAnyTriggerSelection = True
@@ -700,7 +659,6 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         if goodMuonEvent:
             # print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
             self.hist["EventCount"].Fill("good muon evt",1)
-            self.hist["ToyMCEventCount"].Fill("good muon evt",1)
             if isRandom:
                self.hist["EventCount"].Fill("RndtrggoodMuonEvent cut",1)
             if hasMuonTrigger:
@@ -709,6 +667,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             if not isBptxminus:
                self.hist["EventCount"].Fill("Bptx(+) goodMuonEvent cut",1)
 
+            
 
 
          
@@ -777,14 +736,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         if goodMuonEventDifferentSelection:
             for imod in xrange(0,14):
                 hname = 'MuonSignalSecCh_differentSelection_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(muonSec+1))
-                self.hist[hname].Fill(ch_energy[muonSec][imod])
-
-           
-    
-
-                   
-                                       
-                   
+                self.hist[hname].Fill(ch_energy[muonSec][imod])                
                     
 
         #plot all the good muons
@@ -864,11 +816,10 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     continue
             histos[o.GetName()] = o
 
-        
-
-            print " TH1/2 histogram in output: ", o.GetName()
-        print "finsihed printing olist of", self
+        #     print " TH1/2 histogram in output: ", o.GetName()
+        # print "finsihed printing olist of", self
           
+
         for isec in xrange(0,16):
             for imod in xrange(0,14):
                 hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
@@ -892,267 +843,105 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
 
-        inputFile = ROOT.TFile(join(outfolder,"mean_rms_2.root"))
-        hist_ch_Mean = inputFile.Get("data_PPMinBias_Run2013/hist_ch_Mean")
+        inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
+        hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
         histcalibrationname = '2DMuonSignalMap'
-        histcalibrationKatname = '2DMuonSignalMap_katerina'
-        histcalibrationIgorname = '2DMuonSignalMap_igor'
-        histcalibrationRationame = "2DMuonSignalMap_Ratio"
-        histcalibrationRatioIgorname = "2DMuonSignalMapIgor_Ratio"
-        histcalibrationRatioIgor_Katname = "2DMuonSignalMapIgor_KatRatio"
-        histcalibrationname_rms = '2DMuonSignalMap_rms' 
-        histMCname_rms = '2DMuonMCMap_rms'
-        histMCname_rms_dividedbymean = '2DMuonMCMap_rms_dividedbymean'
-        histcalibrationTOYMCname= '2DMuonSignalMap_TOYMC'
+        histcalibrationname_sigma = '2DMuonSignalMap_sigma' 
+        histcalibrationname_RMS = '2DMuonSignalMap_RMS' 
         histcalibration_notdividedRefname = '2DMuonSignalMap_notdividedRef'
-        histMC_notdividedRefname = '2DMuonMCMap_notdividedRef'
-        histcalibrationTOYMC = histos[histcalibrationTOYMCname]
         histcalibration = histos[histcalibrationname]
-        histCalibrationKat = histos[histcalibrationKatname]
-        histCalibrationIgor = histos[histcalibrationIgorname]
-        histcalibrationRatio = histos[histcalibrationRationame]
-        histcalibrationRatioIgor_Kat = histos[histcalibrationRatioIgor_Katname]
-        histcalibrationRatioIgor = histos[histcalibrationRatioIgorname]
-        histcalibration_rms = histos[histcalibrationname_rms]
-        histMC_rms = histos[histMCname_rms]
-        histMC_rms_dividedbymean = histos[histMCname_rms_dividedbymean]
-
+        histcalibration_sigma = histos[histcalibrationname_sigma]
+        histcalibration_RMS= histos[histcalibrationname_RMS]
         histcalibration_notdividedRef = histos[histcalibration_notdividedRefname]
-        histMC_notdividedRef = histos[histMC_notdividedRefname]
-        hreferencename = 'MuonSignalSecCh_mod_4_sec_9' #reference channel is (counting from one) mod=4 sec=9
-        referenceMean= histos[hreferencename].GetMean()
-        referenceRMS = histos[hreferencename].GetRMS()
-        referenceNmuons = histos[hreferencename].GetEntries()
-        meanReferenceNoise = hist_ch_Mean.GetBinContent(8*14 + 3 +1)
-        
-        
-        
-        
-
-
-        # referenceMean -= meanReferenceNoise #switch on at some point or da a fit
-
-        def getKaterinacalibrationnumbers():
-            calib=[[  0.7510,    0.8700,    2.7370,    0.0000,    0.3630,    0.6430,    0.0000,    0.3100,    0.2120,    0.2740,    0.3030,    0.1690,    0.2650,    0.1550], 
-                  [  0.6190,    0.6160,    1.8130,    0.8690,    0.1820,    0.6280,    0.0000,    0.5070,    0.1680,    0.2910,    0.3380,    0.1460,    0.2490,    0.1250], 
-                  [  1.0700,    0.6510,    1.4250,    0.7660,    0.3040,    0.1930,    8.2170,   13.2900,    0.4650,    0.2350,    0.0000,    0.2950,    0.3430,    0.3510], 
-                  [  0.5310,    0.3300,    0.8910,    0.8260,    0.1170,    0.3300,    0.0000,    0.0000,    0.0000,    0.6390,    0.0000,    0.3170,    0.0000,    0.4580], 
-                  [  0.6120,    0.0000,    1.3410,    0.7020,    0.1560,    0.5690,    0.8360,    0.0000,    0.0000,    0.5230,    0.2360,    0.3290,    0.3990,    0.3420], 
-                  [  1.3130,    0.4870,    1.4000,    0.6320,    0.1990,    0.7950,    1.2090,    0.0000,    0.5100,    0.7060,    0.2330,    0.2800,    0.4830,    0.4410], 
-                  [  0.4160,    0.2820,    1.0430,    0.3130,    0.1140,    0.0860,  250.6690,    0.1950,    0.4200,    6.9160,    3.4790,    1.5110,    4.8590,    3.5340], 
-                  [  0.3420,    0.2950,    1.1980,    1.4030,    0.2130,    1.0730,    0.0000,    0.2060,    0.6350,   27.2690,    9.4210,    3.3400,    3.4880,    1.0100], 
-                  [  0.3030,    0.8460,    1.4120,    1.0000,    0.2180,    0.8830,    0.0000,    0.1320,    0.1950,    0.2490,    0.2250,    0.2270,    0.2990,    0.2780], 
-                  [  0.9040,    1.4030,    2.6580,    1.1900,    0.2350,    1.5570,    0.0000,    0.3160,    0.1990,    0.3100,    0.1790,    0.2510,    0.2510,    0.2520], 
-                  [  1.0160,    0.9930,    1.6950,    0.8870,    0.2850,    0.6230,    0.0000,   10.0790,    0.3730,    0.2440,    9.6350,    0.5240,    0.6990,    0.3790], 
-                  [  1.1690,    1.1300,    2.1400,    1.3920,    0.2630,    1.2470,    0.0000,    0.0000,    0.5670,    0.3030,   99.3510,    0.3510,    0.1980,    0.3560], 
-                  [  0.9160,    1.2700,    1.6430,    0.8070,    0.2310,    2.3020,    0.0000,    0.0000,    0.3230,    0.2910,    0.0000,    0.3430,    0.1280,    0.3080], 
-                  [  0.6010,    0.9840,    2.1400,    0.8210,    0.1770,    1.0970,    0.0000,    0.0000,    0.2030,    0.2920,   16.6350,    0.3020,    0.3510,    0.3680], 
-                  [  0.7590,    1.3650,    2.9620,    1.1740,    0.3800,    2.3370,    0.0000,  517.2540,    0.2690,    0.0000,    0.1940,    0.2740,    0.2800,    0.4100], 
-                  [  0.7420,    0.9720,    2.4600,    0.9240,    0.2200,    0.1630,    3.9070,    0.1970,    0.2700,    0.2580,    0.1510,    0.1340,    0.2790,    0.2620]]
-            # calib2 = list(reversed(calib))
-            # fig = plt.figure(figsize=(15, 8))
-            # ax = fig.add_subplot(111)
-            # map2d = plt.imshow(calib2,interpolation="none")
-            # ax.set_aspect('equal')
-            # cbar = plt.colorbar(orientation='vertical',norm=mpl.colors.Normalize(vmin=0, vmax=8))
-            # map2d.set_clim(0, 8.0)
-            
-            for sec,line in enumerate(calib):
-                for mod,z in enumerate(line):
-                    #print "hist->SetBinContent({x},{y},{z});".format(x=mod+1,y=sec+1,z=z)
-                    histCalibrationKat.SetBinContent(mod+1,sec+1,z);
-
-        def getIgorcalibrationnumbers():
-            calib_igor= [[1.000425,  0.931195,  1.722751,  0.0,        0.249538,    0.394333,   0.0,   0.155133,    0.123307,   0.264286,    0.217681,   0.125848,   0.234006,  0.075464], 
-                        [1.28372,    1.08159,   1.974339,  0.851123,   0.352999,    0.377796,   0.0,   0.246074,    0.191197,   0.263945,    0.289805,   0.120486,   0.298206,  0.076201],
-                        [1.252213,   0.925163,  1.754341,  0.803017,   0.209004,    0.424808,   0.0,   0.0, 0.0,    0.221043,   0.0,         0.249512,   0.269058,   0.15739], 
-                        [1.100644,   0.966124,  1.63636,   1.019983,   0.264205,    0.492828,   0.0,   0.0, 0.0,    0.240881,   0.0,         0.168351,   0.0,        0.128583], 
-                        [1.000826,   0.0,       1.293415,  0.86196,    0.295809,    0.475899,   0.0,   0.0, 0.0,    0.314342,   0.20608,     0.164808,   0.271375,   0.156374],
-                        [0.722059,   0.780461,  1.995963,  0.661209,   0.259085,    0.487429,   0.0,   0.0, 0.0,    0.377144,   0.26507,     0.206327,   0.336299,   0.199795], 
-                        [1.096988,   1.218608,  1.745835,  0.888802,   0.225927,    0.45836,    0.0,   0.020096,    0.142001,   0.385257,    0.256415,   0.189381,   0.376582,   0.299507],
-                        [1.091334,   1.025778,  2.106153,  1.199047,   0.337598,    0.58613,    0.0,   0.0,         0.154015,   0.424145,    0.292679,   0.204659,   0.404868,   0.113908], 
-                        [1.054333,   1.474295,  1.124023,  1.0,        0.315433,    1.090999,   0.0,   0.166044,    0.154629,   0.215142,    0.154745,   0.230574,   0.0,        0.188459], 
-                        [1.282433,   1.126571,  2.271284,  1.148607,   0.315623,    1.124756,   0.0,   0.076184,    0.150419,   0.244338,    0.149832,   0.202471,   0.158535,   0.221797], 
-                        [1.207038,   1.494127,  1.223583,  0.99518,    0.282358,    0.342161,   0.0,   0.0,         0.158282,   0.160647,    0.317039,   0.414463,   0.45517,    0.183079],
-                        [1.634185,   1.708066,  2.259616,  1.518867,   0.310965,    0.90365,    0.0,   0.0,         0.104076,   0.191959,    0.281285,   0.261916,   0.120645,   0.158001], 
-                        [1.528451,   1.548834,  2.212892,  1.048122,   0.276433,    0.0,        0.0,   0.0,         0.072358,   0.188554,    0.254051,   0.237827,   0.082658,   0.146762], 
-                        [1.335749,   1.727109,  2.040581,  1.309911,   0.245352,    1.458605,   0.0,   0.0,         0.10903,    0.278077,    0.327009,   0.203752,   0.221086,   0.162093], 
-                        [1.215644,   1.620683,  2.06946,   1.029579,   0.269562,    1.893122,   0.0,   0.0,         0.176633,   0.0,         0.146783,   0.183976,   0.177801,   0.265278],
-                        [1.282735,   1.439203,  1.96242,   0.842085,   0.197566,    0.0,        0.0,   0.117696,    0.18644,    0.191907,    0.127682,   0.134317,   0.216069,   0.14071]]
-
-            for isec,line in enumerate(calib_igor):
-                for imod,z in enumerate(line):
-                    #print "hist->SetBinContent({x},{y},{z});".format(x=mod+1,y=sec+1,z=z)
-                    histCalibrationIgor.SetBinContent(imod+1,isec+1,z);
-                  
-
-        getKaterinacalibrationnumbers()
-        getIgorcalibrationnumbers()
-        
-
-        sigma_refCh = 0
-        sigma_TOYMCrefCh = 0
-        if referenceNmuons > 0 :
-            sigma_refCh = referenceRMS/sqrt(referenceNmuons)
-           
-        if referenceMean == 0:
-            print "Warning reference channel (Sec 9 Mod 4) empty. Not dividing"
-
+               
         for isec in xrange(0,16):
             for imod in xrange(0,14):
-                hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
-                hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
-                mean= histos[hname].GetMean()
-                rms = histos[hname].GetRMS()
-                Nmuons = histos[hname].GetEntries()
-
-                for ihist in xrange(NBRHIST):
-                    hname_MC = 'MuonSignalMCCh_mod_{mod}_sec_{sec}_number_{number}'.format(mod=str(imod+1), sec=str(isec+1), number=str(ihist))    
-                    hMC1D = '1DSignalMCCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
-                    mean_mc= histos[hname_MC].GetMean()
-                    histos[hMC1D].Fill(mean_mc)
-
-                Nmuons_mc1d = histos[hMC1D].GetEntries()
-                mean_mc1d= histos[hMC1D].GetMean()       
-                rms_mc1d= histos[hMC1D].GetRMS()
-        
-
-        hreferencenTOYMCname = '1DSignalMCCh_mod_4_sec_9' #reference channel is (counting from one) mod=4 sec=9
-        referenceTOYMCMean= histos[hreferencenTOYMCname].GetMean()
-        referenceTOYMCRMS= histos[hreferencenTOYMCname].GetRMS()
-        referenceTOYMCNmuons = histos[hreferencenTOYMCname].GetEntries()
-                
-        
-        if  referenceTOYMCNmuons>0:
-            sigma_TOYMCrefCh = referenceTOYMCRMS/sqrt(referenceTOYMCNmuons)
-
-            print "referenceTOYMCMean", referenceTOYMCMean
-
-
-        if  referenceTOYMCMean == 0:
-            print "Warning reference channel (Sec 9 Mod 4) empty. Not dividing"
-
-         
-        for isec in xrange(0,16):
-            for imod in xrange(0,14):
-                RMSdividedMean_mc1d=0
-                if mean_mc1d > 0:
-                   RMSdividedMean_mc1d = rms_mc1d/mean_mc1d 
-
-                sigma_mean = 0
-                sigma_TOYMCmean =0
-               
-                if Nmuons > 0 :
-                   sigma_mean = rms/sqrt(Nmuons)
-               
-                if Nmuons_mc1d>0:  
-                   sigma_TOYMCmean = rms_mc1d/sqrt(Nmuons_mc1d)
-
-
                 i = isec * 14 + imod
-                meanNoise = hist_ch_Mean.GetBinContent(i+1) #noise is not estimated well. do iterative procedure from ralf? or random trigger?
+                #meanNoise = hist_ch_Mean.GetBinContent(i+1) #noise is not estimated well. do iterative procedure from ralf? or random trigger?
                 binnumber = histcalibration.FindBin(imod+1, isec+1)
-                noiseSubtractedMean = (mean)# - meanNoise)
-                TOYMCMeanDividedRefMean= mean_mc1d
-                
-                histcalibration_notdividedRef.SetBinContent(binnumber, noiseSubtractedMean)
-                histMC_notdividedRef.SetBinContent(binnumber,TOYMCMeanDividedRefMean) ## use mean_mc1d
-                #histMC_rms .SetBinContent(binnumber,rms_mc1d) #Debuggi
-                histMC_rms_dividedbymean .SetBinContent(binnumber,RMSdividedMean_mc1d)
-                mean_Kat = histCalibrationKat.GetBinContent(binnumber)
-                mean_Igor = histCalibrationIgor.GetBinContent(binnumber)
-                # histMuonSignalMean.SetBinContent(i+1,mean)
-                # histMuonSignalMean.SetBinError(i+1,rms)
-                
-                sigma_mean_diff_refCh = 0
-                sigma_ToyMCmean_diff_refCh =0
-                if referenceMean != 0 :
-                    noiseSubtractedMean /= referenceMean #divide by reference channel
-                    
-                if  referenceTOYMCMean!=0:
-                    TOYMCMeanDividedRefMean/=referenceTOYMCMean
-                
-                    
-                   
-                    if mean > 0 and referenceMean > 0 :
-                       sigma_mean_diff_refCh = sqrt(noiseSubtractedMean**2 * ((sigma_mean/mean)**2 + (sigma_refCh/referenceMean)**2))
-                    
-                    if  mean_mc1d> 0 and referenceTOYMCMean >0 :   
-                        sigma_ToyMCmean_diff_refCh= sqrt(TOYMCMeanDividedRefMean**2 * ((sigma_TOYMCmean/mean_mc1d)**2 + (sigma_TOYMCrefCh/referenceTOYMCMean)**2))
-                        print "sigma_ToyMCmean_diff_refCh", sigma_ToyMCmean_diff_refCh
-                
-                #if [isec+1,imod+1] in badChannelsSecMod:
-                #   noiseSubtractedMean = 1 #set ba channels always to 1
-                
-                inv_mean = 0
-                inv_TOYMCmean= 0
-                sigma_inv_mean = 0
-                sigma_inv_TOYMCmean =0
-                if TOYMCMeanDividedRefMean>0 :
-                   inv_TOYMCmean = 1./TOYMCMeanDividedRefMean #invert to get a "correction factor"
-                   sigma_inv_TOYMCmean = sigma_ToyMCmean_diff_refCh/(TOYMCMeanDividedRefMean **2)
-                
-                   
-                if noiseSubtractedMean>0:   
-                   inv_mean = 1./noiseSubtractedMean #invert to get a "correction factor"
-                   sigma_inv_mean = sigma_mean_diff_refCh/(noiseSubtractedMean**2)
+                if  DATASOURCE == "DATA":
+                    hname = 'MuonSignalSecCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                    hnoise_neighbor = 'CastorNoise_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                    Nmuons = histos[hname].GetEntries()
+                    mean= histos[hname].GetMean()
+                    rms = histos[hname].GetRMS()
+                    sigma_mean = 0
+                    if Nmuons > 0 :
+                       sigma_mean = rms/sqrt(Nmuons)
+  
+                    hreferencename = 'MuonSignalSecCh_mod_4_sec_9' #reference channel is (counting from one) mod=4 sec=9
                      
-                if imod>=0 and imod<2:
+                   
+                    
+                elif DATASOURCE == "TOYMC":
+                           
+                      for ihist in xrange(NBRHIST):
+                          hname_MC = 'MuonSignalMCCh_mod_{mod}_sec_{sec}_number_{number}'.format(mod=str(imod+1), sec=str(isec+1), number=str(ihist))    
+                          hMC1D = '1DSignalMCCh_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
+                          mean_mc= histos[hname_MC].GetMean()
+                          histos[hMC1D].Fill(mean_mc)
+                          Nmuons = histos[hMC1D].GetEntries()
+                          mean= histos[hMC1D].GetMean()       
+                          rms= histos[hMC1D].GetRMS()
+                          hreferencename = '1DSignalMCCh_mod_4_sec_9' #reference channel is (counting from one) mod=4 sec=9
+                          sigma_mean = 0
+                          if Nmuons > 0 :
+                             sigma_mean = rms/sqrt(Nmuons)
+                         
+                         
+                referenceMean= histos[hreferencename].GetMean()
+                referenceRMS = histos[hreferencename].GetRMS()
+                referenceNmuons = histos[hreferencename].GetEntries()
+                  
+                print  "1:referenceRMS, referenceMean", referenceMean,referenceRMS
+                if referenceNmuons > 0 :
+                    sigma_refCh = referenceRMS/sqrt(referenceNmuons)
+                if  referenceMean == 0:
+                    print "Warning reference channel (Sec 9 Mod 4) empty. Not dividing"         
+               
+               
+                
+                # and sigma_mean",  sigma_refCh, sigma_inv_mean
+                # print "Muon Signal mean Ch_{sec}_{mod} = {mval}".format(sec=str(isec+1),mod=str(imod+1),mval=str(mean))
+                print  "2 : referenceRMS, referenceMean", referenceRMS, referenceMean                 
+                
+                histcalibration_notdividedRef.SetBinContent(binnumber,mean)
+                histcalibration_RMS.SetBinContent(binnumber,rms)
+                MeanDividedRefMean = mean
+                sigma_mean_diff_refCh = 0
+                
+
+                if  referenceMean != 0 :
+                    MeanDividedRefMean /= referenceMean #divide by reference channel
+                    print "sigma_refCh", sigma_refCh
+                    if mean > 0 and referenceMean > 0 :
+                       sigma_mean_diff_refCh = sqrt(MeanDividedRefMean**2 * ((sigma_mean/mean)**2 + (sigma_refCh/referenceMean)**2))
+                    
+               # inv_mean = 0
+               # sigma_inv_mean = 0
+                if  MeanDividedRefMean>0 :
+                    inv_mean = 1./MeanDividedRefMean #invert to get a "correction factor"
+                    sigma_inv_mean = sigma_mean_diff_refCh/(MeanDividedRefMean**2)
+                    
+
+                if  imod>=0 and imod<2:
                     inv_mean /= 2 #em modules are half the size
                     sigma_inv_mean /= 2
-                    inv_TOYMCmean/=2
-                    sigma_inv_TOYMCmean/=2
-                    
-                meanRatio = 0
-                sigma_meanRatio = 0
-                meanRatio_igor=0
-                meanRatioIgor_Kat=0
 
-                if  mean_Kat>0 and inv_mean>0 and mean_Igor>0 :
-                    meanRatio = inv_mean/mean_Kat
-                    meanRatio_igor = inv_mean/mean_Igor
-                    meanRatioIgor_Kat= mean_Kat/mean_Igor
-                    sigma_meanRatio = sqrt(meanRatio**2 * ((sigma_inv_mean/inv_mean)**2 + 0.2**2 ))
+              
+                print "inv_mean and sigma_mean", inv_mean, sigma_inv_mean
                 
-                    pull_Meli_Kat= (inv_mean -mean_Kat)/sqrt((mean_Kat*0.2)**2 + (sigma_inv_mean)**2)
-                    pull_Meli_Igor= (inv_mean -mean_Igor)/sqrt((mean_Igor*0.2)**2 + (sigma_inv_mean)**2)
-                    pull_Kat_Igor= (mean_Kat -mean_Igor)/sqrt((mean_Igor*0.2)**2 + (mean_Kat*0.2)**2)
-                
-               
-  
-
-                if  inv_TOYMCmean>0 and sigma_inv_TOYMCmean>0:    
-                    pull_TOYMC_Melike= (inv_mean -inv_TOYMCmean)/sqrt((sigma_inv_TOYMCmean)**2 + (sigma_inv_mean)**2)
+                histcalibration.SetBinContent(binnumber, inv_mean)
+                histcalibration_sigma.SetBinContent(binnumber,sigma_inv_mean)
+                histMuonSignalMean = histos["1DMuonsignalMean"] 
+                histMuonSignalMean.SetBinContent(i+1,inv_mean)
+                histMuonSignalMean.SetBinError(i+1,sigma_inv_mean)
                     
-
-                    histcalibration.SetBinContent(binnumber, inv_mean)
-                    histcalibrationTOYMC.SetBinContent(binnumber, inv_TOYMCmean)         
-                    histcalibration_rms.SetBinContent(binnumber,sigma_inv_mean)
-                    histcalibrationRatio.SetBinContent(binnumber, meanRatio)
-                    histcalibrationRatioIgor.SetBinContent(binnumber, meanRatio_igor)
-                    histcalibrationRatioIgor_Kat.SetBinContent(binnumber, meanRatio_igor)
-                    histMuonSignalMean = histos["1DMuonsignalMean"] 
-                    histMuonSignalKatMean= histos["1DMuonsignalKaterinaMean"]
-                    histMuonSignalRatioMean = histos["1DMuonsignalRatioMean"] 
-                    histMuonSignalRatioLog = histos["1DMuonsignalRatioLog"] 
-                    histMuonSignalRatioMeanPull = histos["1DMuonsignalRatioMeanPull"] 
-                    histMuonSignalPull_Meli_Kat = histos["1DMuonsignalPull_Meli_Kat"] 
-                    histMuonSignalPull_Meli_Igor = histos["1DMuonsignalPull_Meli_Igor"] 
-                    histMuonSignalPull_Kat_Igor = histos["1DMuonsignalPull_Kat_Igor"]  
-                    histMuonSignalKatMean.SetBinContent(i+1,mean_Kat)
-                    histMuonSignalKatMean.SetBinError(i+1,mean_Kat*0.2)
-                    histMuonSignalMean.SetBinContent(i+1,inv_mean)
-                    histMuonSignalMean.SetBinError(i+1,sigma_inv_mean)
-                    histMuonSignalRatioMean.SetBinContent(i+1,meanRatio)
-                    histMuonSignalRatioMean.SetBinError(i+1,sigma_meanRatio)
-                    histMuonSignalRatioMeanPull.SetBinContent(i+1,pull_Meli_Kat)
-                    histMuonSignalPull_Meli_Kat.Fill(pull_Meli_Kat)
-                    histMuonSignalPull_Meli_Igor.Fill(pull_Meli_Igor)
-                    histMuonSignalPull_Kat_Igor.Fill(pull_Kat_Igor)
-               
-                histMuonSignalPull_Melike_TOYMC= histos["1DPull_Melike_TOYMC"] 
-                histMuonSignalPull_Melike_TOYMC.Fill(sigma_inv_TOYMCmean)
-
+                
+                # you use the value in the following at next step which is pull distribution 
+                # if  inv_TOYMCmean>0 and sigma_inv_TOYMCmean>0:    
+                #     pull_TOYMC_Melike= (inv_mean -inv_TOYMCmean)/sqrt((sigma_inv_TOYMCmean)**2 + (sigma_inv_mean)**2)
+                    
                 # if  meanRatio > 0:
                 #     histMuonSignalRatioLog.Fill(log10(meanRatio))
                
@@ -1168,7 +957,7 @@ if __name__ == "__main__":
     # debug config:
     # Run printTTree.py alone to get the samples list
     sampleList = []
-    sampleList.append("data_PPMinBias_Run2013")
+    sampleList.append("data_MinimumBias_Run2015A")
     
     
 
