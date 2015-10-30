@@ -22,6 +22,19 @@ sam["data_MinimumBias_Run2015A"]["XS"]=-1
 sam["data_MinimumBias_Run2015A"]["pathPAT"]='/XXXTMFPAT/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/MinimumBias/MuonAna_0T_20150717_data_MinimumBias_Run2015A/150717_095008/0000//'
 sam["data_MinimumBias_Run2015A"]["DS"]='/MinimumBias/Run2015A-PromptReco-v1/RECO'
 
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]={}
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["crabJobs"]=1609
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["GT"]='GR_R_75_V5A'
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["name"]='data_MinimumBias_MuonHLTSkim_Run2015A'
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["isData"]=True
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["numEvents"]=80446390
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["pathSE"]='srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/MinimumBias/MuonAna_0T_20150717_data_MinimumBias_Run2015A/151030_111657/0000/'
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["pathTrees"]='/XXXTMFTTree/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/MinimumBias/MuonAna_0T_20150717_data_MinimumBias_Run2015A/151030_111657/0000//'
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["json"]='CommonFSQFramework/Skim/lumi/MinBias_CastorMuonRuns_v2.json'
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["lumiMinBias"]=-1
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["XS"]=-1
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["pathPAT"]='/XXXTMFPAT/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/MinimumBias/MuonAna_0T_20150717_data_MinimumBias_Run2015A/151030_111657/0000//'
+sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["DS"]='/MinimumBias/Run2015A-PromptReco-v1/RECO'
 
 def fixLocalPaths(sam):
         import os,imp
