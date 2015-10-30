@@ -30,8 +30,8 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('/store/user/hvanhaev/MinBias_TuneMonash13_13TeV-pythia8/RunIISpring15DR74-NoPU0T_MCRUN2_740TV0_step2-v2/150610_055012/0000/step2_RAW2DIGI_L1Reco_RECO_1.root')
     #fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/ReggeGribovPartonMC_13TeV-EPOS/GEN-SIM-RECO/NoPURawReco_castor_MCRUN2_74_V8B-v1/10000/BC62D29E-7707-E511-A6D9-AC853D9F5344.root')
     #fileNames = cms.untracked.vstring('/store/data/Run2015A/ZeroBias/RECO/PromptReco-v1/000/247/607/00000/52EA626D-9210-E511-843F-02163E01451D.root')
-    # fileNames = cms.untracked.vstring('/store/data/Run2015A/MinimumBias/RECO/PromptReco-v1/000/246/877/00000/F8A29E2C-160B-E511-8E70-02163E01461C.root')
-    fileNames = cms.untracked.vstring('/store/hidata/HIRun2013/PAMinBiasUPC/RECO/PromptReco-v1/000/209/948/00000/184CCE65-8C60-E211-B2D4-003048D2BE12.root')
+    fileNames = cms.untracked.vstring('/store/data/Run2015A/MinimumBias/RECO/PromptReco-v1/000/247/403/00000/061A4C94-3B0F-E511-B492-02163E0140E0.root')
+    # fileNames = cms.untracked.vstring('/store/hidata/HIRun2013/PAMinBiasUPC/RECO/PromptReco-v1/000/209/948/00000/184CCE65-8C60-E211-B2D4-003048D2BE12.root')
 )
 
 # from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
@@ -122,8 +122,17 @@ process.patJetsAK4Calo.useLegacyJetMCFlavour=True # Need to use legacy flavour s
 ###############################################################################
 ###############################################################################
 
-
-
+###############################################################################
+# HLT path filter
+process.hltcastormuon = cms.EDFilter("HLTHighLevel",
+     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+     HLTPaths = cms.vstring('HLT_L1CastorMuon_v1','HLT_L1Tech59_CASTORHaloMuon_v1'), # provide list of HLT paths (or patterns) you want
+     eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key #HLT_MinBiasBSC # HLT_L1Tech_BSC_minBias
+     andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+     throw = cms.bool(False)    # throw exception on unknown path names
+) 
+###############################################################################
+###############################################################################
 
 # Here starts the CFF specific part
 import CommonFSQFramework.Core.customizePAT
@@ -134,6 +143,8 @@ process = CommonFSQFramework.Core.customizePAT.customizeGT(process)
 
 # define treeproducer
 process.MuonCastorVTwo = cms.EDAnalyzer("CFFTreeProducer")
+
+process.FiltererdTree = cms.Path(process.hltcastormuon*process.MuonCastorVTwo)
 
 import CommonFSQFramework.Core.VerticesViewsConfigs
 import CommonFSQFramework.Core.CaloRecHitViewsConfigs
@@ -153,7 +164,7 @@ if not isData:
 # process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.CastorViewsConfigs.get(["ak5CastorJetView"]))
 process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.CastorViewsConfigs.get(["CastorRecHitViewFull"]))
 # process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.PFObjectsViewsConfigs.get(["PFCandidateView","ecalPFClusterView","hcalPFClusterView","hfPFClusterView"]))
-process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.TriggerResultsViewsConfigs.get(["CastorSpecialMuonTriggerResultsView_2013PA","L1GTriggerResultsView"]))
+process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.TriggerResultsViewsConfigs.get(["CastorSpecialMuonTriggerResultsView","L1GTriggerResultsView"]))
 #process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.JetViewsConfigs.get(["JetViewAK4Calo"]))
 
 if not isData:
@@ -165,4 +176,5 @@ if not isData:
 #     process = CommonFSQFramework.Core.customizePAT.addPath(process, process.CastorReReco)
 
 # process = CommonFSQFramework.Core.customizePAT.addPath(process, process.PFClustersHF)
-process = CommonFSQFramework.Core.customizePAT.addTreeProducer(process, process.MuonCastorVTwo)
+# process = CommonFSQFramework.Core.customizePAT.addTreeProducer(process, process.MuonCastorVTwo)
+process = CommonFSQFramework.Core.customizePAT.addPath(process, process.FiltererdTree)
