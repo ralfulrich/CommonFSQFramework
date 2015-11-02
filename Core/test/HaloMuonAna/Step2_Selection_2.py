@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 DATASOURCE = "DATA" #options are "TOYMC" "DATA". first generates events, the second uses the sample specified
 NBRHIST =  418 # the number of hist for toyMc
 NBREVTPERHIST = 10000 #2387
@@ -19,7 +20,7 @@ from array import *
 import copy
 # import time
 
-#from outsource_analzye_muon import *
+# from outsource_analzye_muon import *
 
 
 from mpl_toolkits.mplot3d import Axes3D
@@ -121,48 +122,44 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
             self.hist["EventCount_Excl" + str(iDelta)] = ROOT.TH1D("EventCount_Excl" + str(iDelta),"EventCount",10,0,20)
 
-            self.hist["2DMuonCountMap_Excl" + str(iDelta)] =  ROOT.TH2D("2DMuonCountMap_Excl" + str(iDelta),"2DMuonCountMap", 14, 0.5, 14.5, 16, 0.5, 16.5)
-            self.hist["2DMuonCountFor3Ch_Excl" + str(iDelta)] =  ROOT.TH2D("2DMuonCountFor3Ch_Excl" + str(iDelta),"2DMuonCountFor3Ch", 14, 0.5, 14.5, 16, 0.5, 16.5)
-            self.hist["2DMuonactiveregion_Excl" + str(iDelta)] =  ROOT.TH2D("2DMuonactiveregion_Excl" + str(iDelta),"2DMuonactiveregion", 14, 0.5, 14.5, 16, 0.5, 16.5)
+            self.hist["MuonCount_Muo_Excl" + str(iDelta)] = ROOT.TH1D("MuonCount_Muo_Excl"+str(iDelta),"MuonCount (Muo);N_{muon}/evt;;", 17, -0.5, 16.5)
+            self.hist["MuonCount_Rnd_Excl" + str(iDelta)] = ROOT.TH1D("MuonCount_Rnd_Excl"+str(iDelta),"MuonCount (Rnd);N_{muon}/evt;;", 17, -0.5, 16.5)
 
-#            self.hist["2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_AllEvt"] =  ROOT.TH2D("2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_AllEvt","2DcountChannelAboveNoiseFor3SigmaSectors_AllEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
-            self.hist["2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_MuoEvt"] =  ROOT.TH2D("2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_MuoEvt","2DcountChannelAboveNoiseFor3SigmaSectors_MuoEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
-            self.hist["2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_RndEvt"] =  ROOT.TH2D("2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_RndEvt","2DcountChannelAboveNoiseFor3SigmaSectors_RndEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
+            self.hist["2DMuonCountMap_Excl" + str(iDelta)] =  ROOT.TH2D("2DMuonCountMap_Excl" + str(iDelta),"2DMuonCountMap;module;sector;", 14, 0.5, 14.5, 16, 0.5, 16.5)
+            self.hist["2DMuonCountFor3Ch_Excl" + str(iDelta)] =  ROOT.TH2D("2DMuonCountFor3Ch_Excl" + str(iDelta),"2DMuonCountFor3Ch;module;sector;", 14, 0.5, 14.5, 16, 0.5, 16.5)
+            self.hist["2DMuonactiveregion_Excl" + str(iDelta)] =  ROOT.TH2D("2DMuonactiveregion_Excl" + str(iDelta),"2DMuonactiveregion;module;sector", 14, 0.5, 14.5, 16, 0.5, 16.5)
 
-            self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_MuoEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_MuoEvt","2DcountChannelsAboveNoiseFor3SigmaSectors_MuoEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
-#            self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_AllEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_AllEvt","2DcountChannelsAboveNoiseFor3SigmaSectors_AllEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
-            self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_RndEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_RndEvt","2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
+            self.hist["2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_MuoEvt"] =  ROOT.TH2D("2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_MuoEvt","2DcountChannelAboveNoiseFor3SigmaSectors_MuoEvt;module;sector;", 14, 0.5, 14.5, 16, 0.5, 16.5)
+            self.hist["2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_RndEvt"] =  ROOT.TH2D("2DcountChannelAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_RndEvt","2DcountChannelAboveNoiseFor3SigmaSectors_RndEvt;module;sector;", 14, 0.5, 14.5, 16, 0.5, 16.5)
 
-#            self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_AllEvt"] = ROOT.TH2D("2DSecRMSHot_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_AllEvt","2DSecRMSHot_Vs_SecRMSSecondHot_AllEvt",88, -2, 20, 88, -2, 20)
-#            self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_MuoEvt"] = ROOT.TH2D("2DSecRMSHot_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_MuoEvt","2DSecRMSHot_Vs_SecRMSSecondHot_MuoEvt",88, -2, 20, 88, -2, 20)
-#            self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_RndEvt"] = ROOT.TH2D("2DSecRMSHot_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_RndEvt","2DSecRMSHot_Vs_SecRMSSecondHot_RndEvt",88, -2, 20, 88, -2, 20)
+            self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_MuoEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_MuoEvt","2DcountChannelsAboveNoiseFor3SigmaSectors_MuoEvt;module;sector;", 14, -0.5, 13.5, 16, 0.5, 16.5)
+            self.hist["2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_RndEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseFor3SigmaSectors_Excl"+str(iDelta)+"_RndEvt","2DcountChannelsAboveNoiseFor3SigmaSectors_RndEvt;module;sector;", 14, -0.5, 13.5, 16, 0.5, 16.5)
 
-            self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_MuoEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_MuoEvt","2DDeltaSigma_Vs_SecRMSSecondHot_MuoEvt",88,-2,20, 88, -2, 20)
-#            self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_AllEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_AllEvt","2DDeltaSigma_Vs_SecRMSSecondHot_AllEvt",88,-2,20, 88, -2, 20)
-            self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_RndEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_RndEvt","2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt",88, -2, 20, 88,-2, 20)
+            self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_MuoEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_MuoEvt","2DDeltaSigma_Vs_SecRMSSecondHot_MuoEvt;#Delta#sigma;#sigma(second);",88,-2,20, 88, -2, 20)
+            self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_RndEvt"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_RndEvt","2DDeltaSigma_Vs_SecRMSSecondHot_RndEvt;#Delta#sigma;#sigma(second);",88, -2, 20, 88,-2, 20)
+            self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_MuoCand"] = ROOT.TH2D("2DDeltaSigma_Vs_SecRMSSecondHot_Excl"+str(iDelta)+"_MuoCand","2DDeltaSigma_Vs_SecRMSSecondHot_MuoCand;#Delta#sigma;#sigma(second);",88,-2,20, 88, -2, 20)
 
-        # self.hist["2DMuonNoTriggerCountMap"] =  ROOT.TH2D("2DMuonNoTriggerCountMap","2DMuonNoTriggerCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
-            self.hist["GoodMuonCountPerSec_Excl"+str(iDelta)] =  ROOT.TH1D("GoodMuonCountPerSec_Excl"+str(iDelta),"GoodMuonCountPerSec", 16, 0.5, 16.5)
-#            self.hist["RunsWithGoodMuons_Excl"+str(iDelta)] =  ROOT.TH1D("RunsWithGoodMuons_Excl"+str(iDelta),"RunsWithGoodMuons", 10000, 247000-0.5, 257000-0.5)
-            self.hist["DeltaSigma_Excl"+str(iDelta)+"_MuoEvt"] = ROOT.TH1D("DeltaSigma_Excl"+str(iDelta)+"_MuoEvt","DeltaSigma_MuoEvt",100, 0, 50)
-#            self.hist["DeltaSigma_Excl"+str(iDelta)+"_AllEvt"] = ROOT.TH1D("DeltaSigma_Excl"+str(iDelta)+"_AllEvt","DeltaSigma_AllEvt",100, 0, 50)
-            self.hist["DeltaSigma_Excl"+str(iDelta)+"_RndEvt"] = ROOT.TH1D("DeltaSigma_Excl"+str(iDelta)+"_RndEvt","DeltaSigma_RndEvt",100, 0, 50)
+            # self.hist["2DMuonNoTriggerCountMap"] =  ROOT.TH2D("2DMuonNoTriggerCountMap","2DMuonNoTriggerCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
+            self.hist["GoodMuonCountPerSec_Excl"+str(iDelta)] =  ROOT.TH1D("GoodMuonCountPerSec_Excl"+str(iDelta),"GoodMuonCountPerSec;sector;N_{muon};", 16, 0.5, 16.5)
+            #            self.hist["RunsWithGoodMuons_Excl"+str(iDelta)] =  ROOT.TH1D("RunsWithGoodMuons_Excl"+str(iDelta),"RunsWithGoodMuons", 10000, 247000-0.5, 257000-0.5)
+            self.hist["DeltaSigma_Excl"+str(iDelta)+"_MuoEvt"] = ROOT.TH1D("DeltaSigma_Excl"+str(iDelta)+"_MuoEvt","DeltaSigma_MuoEvt;#Delta#sigma;;",100, 0, 50)
+            self.hist["DeltaSigma_Excl"+str(iDelta)+"_RndEvt"] = ROOT.TH1D("DeltaSigma_Excl"+str(iDelta)+"_RndEvt","DeltaSigma_RndEvt;Delta#sigma;;",100, 0, 50)
+            self.hist["DeltaSigma_Excl"+str(iDelta)+"_MuoCand"] = ROOT.TH1D("DeltaSigma_Excl"+str(iDelta)+"_MuoCand","DeltaSigma_MuoCand;#Delta#sigma;;",100, 0, 50)
+
 
             for isec in xrange(0,16):
 
                 henergy= 'MuonSignalSec_energy_Excl'+str(iDelta)+'_sec_{sec}'.format(sec=str(isec+1))
-                self.hist[henergy] = ROOT.TH1D( henergy, henergy, 50, 0, 400)      
+                self.hist[henergy] = ROOT.TH1D( henergy, henergy+";Energy;;", 100, 0, 1000)
 
                 for imod in xrange(0,14):
                     hname = 'MuonSignalSecCh_Excl'+str(iDelta)+'_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))               
-#                    hwithouttrigger = 'MuonSignalSecCh_Excl'+str(iDelta)+'_withoutrigger_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
-                    self.hist[hname] = ROOT.TH1D( hname, hname, 50, -100, 400)
- #                   self.hist[hwithouttrigger] = ROOT.TH1D(hwithouttrigger, hwithouttrigger, 50, -100, 400)
+                    self.hist[hname] = ROOT.TH1D( hname, hname+";Energy;;", 50, -100, 400)
 
                     if DATASOURCE == "TOYMC":
                         hMC1D = '1DSignalMCCh_Excl'+str(iDelta)+'_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
-                        self.hist[hMC1D] = ROOT.TH1D(hMC1D,hMC1D,100, -10, 90)
-
+                        self.hist[hMC1D] = ROOT.TH1D(hMC1D,hMC1D+";Energy;;",100, -10, 90)
+                        
                         # I have 10000 events and 10000/1000 i need to have 10 histograms
                         for iRep in xrange(NBRHIST): 
                             hname_MC = 'MuonSignalMCCh_Excl'+str(iDelta)+'_mod_{mod}_sec_{sec}_number_{number}'.format(mod=str(imod+1), sec=str(isec+1), number=str(iRep))
@@ -170,11 +167,15 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
             hnameAllsec= 'MuonSignalAllSec_Excl'+str(iDelta)+'_energy'
-            self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec,50, 0, 400)
+            self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec+";Energy;;", 100, 0, 1000)
 
 
             histMuonSignalMean = "1DMuonsignalMean_Excl"+str(iDelta)
-            self.hist[histMuonSignalMean] = ROOT.TH1D(histMuonSignalMean,histMuonSignalMean,224,-0.5,223.5)
+            self.hist[histMuonSignalMean] = ROOT.TH1D(histMuonSignalMean,histMuonSignalMean+";channel;<Energy>;",224,-0.5,223.5)
+
+            histMuonFluct = "MuonFluctuations_Excl"+str(iDelta)
+            self.hist[histMuonFluct] = ROOT.TH2D(histMuonFluct, histMuonFluct+";E_{sector};E_{channel}^{max};", 50,0,1000,70,0,400)
+
 
 
 
@@ -183,16 +184,13 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
         
         self.hist["2DcountChannelAboveNoise_MuoEvt"] =  ROOT.TH2D("2DcountChannelAboveNoise_MuoEvt","2DcountChannelAboveNoise_MuoEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
-#        self.hist["2DcountChannelAboveNoise_AllEvt"] =  ROOT.TH2D("2DcountChannelAboveNoise_AllEvt","2DcountChannelAboveNoise_AllEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
         self.hist["2DcountChannelAboveNoise_RndEvt"] =  ROOT.TH2D("2DcountChannelAboveNoise_RndEvt","2DcountChannelAboveNoise_RndEvt", 14, 0.5, 14.5, 16, 0.5, 16.5)
 
         self.hist["2DcountChannelsAboveNoiseForAllSectors_MuoEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForAllSectors_MuoEvt","2DcountChannelsAboveNoiseForAllSectors_MuoEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
-#        self.hist["2DcountChannelsAboveNoiseForAllSectors_AllEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForAllSectors_AllEvt","2DcountChannelsAboveNoiseForAllSectors_AllEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
         self.hist["2DcountChannelsAboveNoiseForAllSectors_RndEvt"] = ROOT.TH2D("2DcountChannelsAboveNoiseForAllSectors_RndEvt","2DcountChannelsAboveNoiseForAllSectors_RndEvt", 14, -0.5, 13.5, 16, 0.5, 16.5)
 
 
         self.hist["2DcountSectorRMS_MuoEvt"] =  ROOT.TH2D("2DcountSectorRMS_MuoEvt","2DcountSectorRMS_MuoEvt", 88, -2, 20, 16, 0.5, 16.5)
-#        self.hist["2DcountSectorRMS_AllEvt"] =  ROOT.TH2D("2DcountSectorRMS_AllEvt","2DcountSectorRMS_AllEvt", 88, -2, 20, 16, 0.5, 16.5)
         self.hist["2DcountSectorRMS_RndEvt"] =  ROOT.TH2D("2DcountSectorRMS_RndEvt","2DcountSectorRMS_RndEvt", 88, -2, 20, 16, 0.5, 16.5)
                             
 
@@ -294,9 +292,10 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         return listSigmaSector
 
 
-
-    # find all channel sigma values, and 
-    # count channels above noise-cut in sectors
+    ##############################################
+    # find all channel sigma values, and         #
+    # count channels above noise-cut in sectors  #
+    ##############################################
     def getListSigmaChannel(self, energy_ch, sigma_cut, badChannelsSecMod):
         listSigmaChannel = [[0 for _ in xrange(14)] for _ in xrange(16)]
         listAllChannelsAboveNoise = [[] for _ in xrange(16)]
@@ -306,7 +305,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 # print "RMS mod {mod} sec {sec}: {rms}".format(mod=str(imod),sec=str(isec),rms=self.ch_RMS[isec][imod])
                 if [isec+1,imod+1] in badChannelsSecMod:
                     listSigmaChannel[isec][imod] = None
-                    #print "skipping channel", imod, isec
+                    # print "skipping channel", imod, isec
                     continue
                 
                 sigma = 0
@@ -454,8 +453,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
         ch_energy = [[0.0 for _ in xrange(14)] for _ in xrange(16)]
-#        sec_energy = [0.0] * 16
-#        sec_front_energy = [0.0] * 16
+        sec_energy = [0.0] * 16
 
         if self.fChain.CastorRecHitEnergy.size() != 224:
             return 0
@@ -491,8 +489,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             ich_energy = calibration * rh_energy
             ch_energy[isec][imod] = ich_energy
 
-#            if [isec+1, imod+1] not in badChannelsSecMod:
-#                sec_energy[isec] += ich_energy
+            if [isec+1, imod+1] not in badChannelsSecMod:
+                sec_energy[isec] += ich_energy
 #                if imod < 5: sec_front_energy[isec] += ich_energy
 
 #            if isRandom:
@@ -511,6 +509,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         ######################
         # Setup muon trigger #
         ######################
+
         hasMuonTrigger = (trgCastorHaloMuon or trgl1L1GTAlgo102) # RU CHECK: why is this not the same ?????
         # if not hasMuonTrigger: return 1
         if hasMuonTrigger: self.hist["EventCount"].Fill("muon trg",1)
@@ -543,8 +542,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     self.hist["2DcountChannelAboveNoise_MuoEvt"].Fill(imod+1,isec+1)
 
         
-#        listSigmaSector = self.getListSigmaSector(sec_energy)                  # Melike
-        listSigmaSector = self.getListSigmaSectorFromChannels(listSigmaChannel) # ->  Ralf
+        listSigmaSector = self.getListSigmaSector(sec_energy)                  # Melike
+#        listSigmaSector = self.getListSigmaSectorFromChannels(listSigmaChannel) # ->  Ralf
 
 
 
@@ -578,7 +577,12 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
         ###############################################
-        # the main muon selection loop starts here
+        # the main muon selection loop starts here    #
+        ###############################################
+        
+        
+        num_muons = [0] * (self.iDeltaEnd-self.iDeltaStart)
+        num_muons_rnd = [0] * (self.iDeltaEnd-self.iDeltaStart)
         
         for iSectorTest in xrange(16):
             for iDeltaSector in xrange(self.iDeltaStart,self.iDeltaEnd): # exclusivity sectors next to muon: 1 ... 8
@@ -617,8 +621,10 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     break # this sector cannot be a muon candidate for iDeltaSector (or larger) -> next sector
 
 
-                ################################################################################
-                # we found a muon candidate in iSectorTest with exclusivity iDeltaSector !!!
+
+                ######################################################################################
+                # we found a POSSIBLE muon candidate in iSectorTest with exclusivity iDeltaSector    #
+                ######################################################################################
                                 
                 DeltaSigma = (SigmaHottestSector - SigmaSecHottestSector)
 #                self.hist["2DSecRMSHot_Vs_SecRMSSecondHot_Excl" + str(iDeltaSector) + "_AllEvt"].Fill(SigmaHottestSector,SigmaSecHottestSector)
@@ -641,7 +647,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 ################################
                 # cut on muon candidate sector #
                 ################################
-                if SigmaSecHottestSector > 2.5: # WARNING: CUT VALUE ON NOISE HARDCODED HERE !!!!
+                if SigmaSecHottestSector > 3: # WARNING: CUT VALUE ON NOISE HARDCODED HERE !!!! Melike: 2.5
 #                    return 0
                     continue
 
@@ -740,9 +746,14 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 #                            if hasMuonTrigger:
 #                                goodMuonEvent = True
 
-                #found an interesting event. now fill histograms for channels above noise
+
+
+                ################################################################################
+                # found an interesting event: MUON CANDIDATE                                   #
+                ################################################################################
+
                 if goodMuonEventWithoutAnyTriggerSelection:
-# RU was: if goodMuonEvent:                    
+                    # RU was: if goodMuonEvent:                    
                     # print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
 
 
@@ -750,6 +761,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
                     if isRandom:
                        self.hist["EventCount_Excl" + str(iDeltaSector)].Fill("good muon (rnd)",1)
+                       num_muons_rnd[iDeltaSector-self.iDeltaStart] += 1
 
                     if hasMuonTrigger:
                        self.hist["EventCount_Excl" + str(iDeltaSector)].Fill("good muon (muo)",1)
@@ -774,14 +786,24 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
 
+
                     if hasMuonTrigger:
+
+                        
+                        self.hist["DeltaSigma_Excl" + str(iDeltaSector) + "_MuoCand"].Fill(DeltaSigma)
+                        self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_Excl" + str(iDeltaSector) + "_MuoCand"].Fill(DeltaSigma,SigmaSecHottestSector)
+
+                        num_muons[iDeltaSector-self.iDeltaStart] += 1
                        
                         energy_secsum = [0.0] * 16
+                        max_channel = [0.0] * 16
                         for isec in xrange(16):
                             for imod in xrange(14):
                                 if [isec+1,imod+1] in badChannelsSecMod:
                                     continue
                                 energy_secsum[isec] += ch_energy[isec][imod]
+                                if (ch_energy[isec][imod] > max_channel[isec]):
+                                    max_channel[isec] = ch_energy[isec][imod]
                                 
                                 
                         henergy = 'MuonSignalSec_energy_Excl' + str(iDeltaSector) + '_sec_{sec}'.format(sec=str(muonSec+1))
@@ -795,9 +817,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                                 # mean_mc= self.hist[hname_MC].GetMean()
 
 
-                        hnameAllsec ='MuonSignalAllSec_Excl' + str(iDeltaSector) + '_energy'
-                        self.hist[hnameAllsec].Fill(energy_secsum[muonSec])
-
+                        self.hist['MuonSignalAllSec_Excl' + str(iDeltaSector) + '_energy'].Fill(energy_secsum[muonSec])
+                        self.hist["MuonFluctuations_Excl"+str(iDeltaSector)].Fill(energy_secsum[muonSec], max_channel[muonSec])
 
 #                        self.hist["RunsWithGoodMuons_Excl" + str(iDeltaSector)].Fill(self.fChain.run)
 
@@ -811,6 +832,13 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                             self.hist["2DMuonCountMap_Excl" + str(iDeltaSector)].Fill(imod+1,muonSec+1)
 
                         #self.tree["nt"].Fill()
+
+
+            for iDeltaSector in xrange(self.iDeltaStart,self.iDeltaEnd): 
+                
+                self.hist["MuonCount_Muo_Excl" + str(iDeltaSector)].Fill(num_muons[iDeltaSector-self.iDeltaStart])
+                self.hist["MuonCount_Rnd_Excl" + str(iDeltaSector)].Fill(num_muons_rnd[iDeltaSector-self.iDeltaStart])
+
 
 
         return 1
@@ -966,12 +994,28 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 2 :
-        print ("ERROR: SPECIFY iDeltaStart as command line argument !!!! Try again.  ")
+    if len(sys.argv) != 4 :
+        print ("ERROR: SPECIFY iDeltaStart, iDeltaEnd, dataset.  ")
+        print ("       iDeltaStart: minimal muon exclusivity (number of empty sectors next to muon)")
+        print ("       iDeltaEnd: maximal muon exclusivity around muon")
+        print ("       dataset: data_MinimumBias_MuonHLTSkim_Run2015A or data_MinimumBias_Run2015A")
+        print ("Try again!!")
         sys.exit(1)
-
+    
     iDeltaStart = int(sys.argv[1])    # min 1
-    iDeltaEnd = iDeltaStart+1         # max 9
+#    iDeltaEnd = iDeltaStart+1         # max 9
+    
+#    if len(sys.argv) == 3:
+    iDeltaEnd = int(sys.argv[2]) + 1
+    
+    if iDeltaStart<1 or iDeltaStart>9 or iDeltaEnd<1 or iDeltaEnd>9 or iDeltaEnd<iDeltaStart+1:
+        print ("start and end must be between 1 and 8, and start<end")
+        sys.exit(1)
+        
+    datasetname = str(sys.argv[3])
+    if datasetname != "data_MinimumBias_MuonHLTSkim_Run2015A" and datasetname != "data_MinimumBias_Run2015A" :
+        print ("dataset must be either: data_MinimumBias_MuonHLTSkim_Run2015A or data_MinimumBias_Run2015A")
+        sys.exit(1)
 
 
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
@@ -983,8 +1027,10 @@ if __name__ == "__main__":
     # debug config:
     # Run printTTree.py alone to get the samples list
     sampleList = []
-    sampleList.append("data_MinimumBias_Run2015A")
-    
+#    sampleList.append("data_MinimumBias_Run2015A") # all triggers, 18MEvents
+#    sampleList.append("data_MinimumBias_MuonHLTSkim_Run2015A") # only the muon triggers 
+    sampleList.append(datasetname) 
+
     
 
     slaveParams = {}
