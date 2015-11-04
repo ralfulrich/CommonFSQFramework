@@ -13,7 +13,6 @@ def get(todo):
         ZeroBias = cms.vstring("HLT_ZeroBias_part*")
     )
 
-<<<<<<< HEAD
     defs["CastorSpecialMuonTriggerResultsView"]  = cms.PSet(
         miniView = cms.string("TriggerResultsView"),
         branchPrefix = cms.untracked.string("trg"),
@@ -36,7 +35,6 @@ def get(todo):
         CastorHaloMuon = cms.vstring("HLT_PAL1Tech63_CASTORHaloMuon*")
     )
 
-=======
     defs["ZeroBiasTriggerResultsViewWithPS"]  = cms.PSet(
         miniView = cms.string("TriggerResultsView"),
         branchPrefix = cms.untracked.string("trg"),
@@ -47,7 +45,6 @@ def get(todo):
     )
 
     # L1 trigger configuration - please do not edit this
->>>>>>> CFFmain/master
     defs["L1GTriggerResultsView"] = cms.PSet(
         miniView = cms.string("TriggerResultsView"),
         branchPrefix = cms.untracked.string("trgl1"),
