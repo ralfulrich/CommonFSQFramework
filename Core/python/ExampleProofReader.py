@@ -74,11 +74,11 @@ class ExampleProofReader( ROOT.TPySelector ):
             sys.stdout.flush()
             raise Exception(err)
         return spl[0]
-
+    
     def getVariables(self):
         #self.dsName = ROOT.gSystem.Getenv("TMFDatasetName")
         variablesToFetch = ROOT.gSystem.Getenv(self.encodeEnvString("VariablesToFetch") )
-        #print variablesToFetch
+
         split = variablesToFetch.split(",")
 	print " "
         for s in split:
@@ -110,11 +110,9 @@ class ExampleProofReader( ROOT.TPySelector ):
 
 
     def Begin( self ):
-        #print 'py: beginning'
         self.getVariables()
 
     def SlaveBegin( self, tree ):
-        #print 'py: slave beginning'
         try:
             self.getVariables() # needed for
         except:
@@ -187,9 +185,9 @@ class ExampleProofReader( ROOT.TPySelector ):
         #run = self.fChain.run
         #lumi = self.fChain.lumi
         #print event
-
+        
         weight = 1. # calculate your event weight here
-
+        
         leadJetPtFromFloatBranch = self.fChain.leadJetPt
 
         pfJetsMomenta = self.fChain.pfJets
@@ -305,7 +303,6 @@ class ExampleProofReader( ROOT.TPySelector ):
 
 
 
-        #print 'py: terminating'
         olist =  self.GetOutputList()
 
         if not self.useProofOFile:
@@ -366,6 +363,8 @@ class ExampleProofReader( ROOT.TPySelector ):
             dataset = ROOT.TDSet( 'TTree', 'data', treeName) # the last name is the directory name inside the root file
             for file in treeFilesAndNormalizations[t]["files"]:
                 dataset.Add(file)
+#            dataset = ROOT.TDSet( 'TTree', 'data', 'data_MinimumBias_Run2015A') # the last name is the directory name inside the root file
+#            dataset.Add('/afs/cern.ch/user/u/ulrich/scratch0/CMSSW_7_4_7/src/CommonFSQFramework/Core/test/HaloMuonAna/preselect.v2.root')
 
             slaveParameters["datasetName"] = t
             slaveParameters["isData"] = sampleListFullInfo[t]["isData"]
@@ -406,7 +405,6 @@ class ExampleProofReader( ROOT.TPySelector ):
                     proof = ROOT.TProof.Open('workers='+str(nWorkers))
             else:
                 proof = ROOT.TProof.Open(proofConnectionString)
-
 
             proof.Exec( 'gSystem->Setenv("PYTHONPATH",gSystem->Getenv("PATH2"));') # for some reason cannot use method below for python path
             #proof.Exec( 'gSystem->Setenv("PATH", "'+ROOT.gSystem.Getenv("PATH") + '");')
