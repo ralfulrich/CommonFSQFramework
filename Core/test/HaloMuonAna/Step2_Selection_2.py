@@ -66,9 +66,6 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         if firstRun:
             inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
             inputFile_noise = ROOT.TFile(join(outfolder,"Histograms_StatFitInformationPedNoise.root"))
-            
-
-
         else:
             inputFile = ROOT.TFile(join(outfolder,"plotsMuonselectioncuts_2_{n:04d}.root".format(n=self.maxFileNo)))
             # check naming if rerunning step1 again
@@ -85,14 +82,21 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         # tree.Branch('ch_energy', ch_energy, 'ch_energy')
 
 
-        hist_sec_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_Mean")
-        hist_sec_RMS = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_RMS")
+        # hist_sec_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_Mean")
+        # hist_sec_RMS = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_RMS")
+
+        # #Getting channel RMS and Mean
+        # hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
+        # hist_ch_RMS =  inputFile.Get("data_MinimumBias_Run2015A/hist_ch_RMS")
+
+        hist_sec_Mean = inputFile.Get("data_MinimumBias/hSector_Mean")
+        hist_sec_RMS = inputFile.Get("data_MinimumBias/hSector_RMS")
 
         #Getting channel RMS and Mean
-        hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
-        hist_ch_RMS =  inputFile.Get("data_MinimumBias_Run2015A/hist_ch_RMS")
+        hist_ch_Mean = inputFile.Get("data_MinimumBias/hist_ch_Mean")
+        hist_ch_RMS =  inputFile.Get("data_MinimumBias/hist_ch_RMS")
 
-#        print "Pointer Address of Noise level hist:", hist_sec_Mean
+        # print "Pointer Address of Noise level hist:", hist_sec_Mean
 
         # we need a set of histogramms for different exclusivity selections around the muon
         for iDelta in xrange(self.iDeltaStart,self.iDeltaEnd):
@@ -151,7 +155,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
                 henergy= 'MuonSignalSec_energy_Excl'+str(iDelta)+'_sec_{sec}'.format(sec=str(isec+1))
                 self.hist[henergy] = ROOT.TH1D( henergy, henergy+";Energy;;", 100, 0, 1000)
-
+               
                 for imod in xrange(0,14):
                     hname = 'MuonSignalSecCh_Excl'+str(iDelta)+'_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))               
                     self.hist[hname] = ROOT.TH1D( hname, hname+";Energy;;", 50, -100, 400)
@@ -168,7 +172,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
             hnameAllsec= 'MuonSignalAllSec_Excl'+str(iDelta)+'_energy'
             self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec+";Energy;;", 100, 0, 1000)
-
+            
+            henergyGeV='MuonSignalAllSec_GeV_Excl'+str(iDelta)+'_energy'
+            self.hist[henergyGeV] = ROOT.TH1D(henergyGeV, henergyGeV+";Energy;;", 100, 0, 100) 
 
             histMuonSignalMean = "1DMuonsignalMean_Excl"+str(iDelta)
             self.hist[histMuonSignalMean] = ROOT.TH1D(histMuonSignalMean,histMuonSignalMean+";channel;<Energy>;",224,-0.5,223.5)
@@ -258,6 +264,40 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             self.GetOutputList().Add(self.hist[h])
 
 
+        self.TranspositionFactor = [[17.8879, 13.2482, 14.0743, 13.3278, 2.12091, 2.12543, 3.21527, 2.98481, 2.11992, 2.06513, 2.10157, 4.18052, 2.10157, 2.10157],
+                    [15.5813, 14.3688, 13.9962, 15.8174, 2.14671, 2.16158, 2.94851, 3.03287, 2.07367, 2.09709, 2.02886, 5.6682, 2.10157, 2.10157],
+                    [17.1485, 14.2758, 13.6352, 13.7265, 2.19081, 2.16161, 3.12191, 3.12444, 2.11671, 2.14295, 1.68227, 2.62755, 2.90551, 2.25366], 
+                    [25.4937, 15.0353, 13.5396, 14.5396, 2.00951, 2.01052, 2.94567, 3.10935, 2.10436, 2.10581, 1.9966, 2.14238, 1.67304, 2.10112], 
+                    [22.6664, 14.0919, 14.2022, 13.6725, 2.14257, 2.13443, 3.07885, 3.15034, 2.12721, 2.111, 2.12661, 2.04572, 2.1345, 2.23077], 
+                    [13.8189, 13.0366, 12.7392, 14.4154, 2.14965, 2.13784, 2.99889, 3.00984, 2.09463, 2.09944, 2.10157, 0.507937, 2.24675, 2.14433],
+                    [14.1375, 14.3402, 12.6179, 14.1134, 2.14431, 2.11088, 2.99728, 3.23413, 2.10955, 2.10675, 2.0835, 6.92593, 1.99355, 2.31884], 
+                    [13.8083, 13.8735, 13.0352, 13.8626, 2.00958, 2.13991, 3.18717, 3.15437, 2.09151, 2.11572, 2.21586, 2.13531, 2.51007, 2.03081],
+                    [15.0498, 14.8564, 12.6001, 13.3532, 2.00998, 2.16025, 3.17426, 3.14376, 2.0985, 2.09938, 2.12139, 2.10157, 2.10157, 1.72961],
+                    [13.4029, 14.6153, 13.4451, 13.2316, 2.12537, 2.11262, 3.21792, 3.06312, 2.16952, 2.08848, 2.10157, 1.15108, 2.10157, 1.96429], 
+                    [13.8487, 14.6547, 13.9845, 14.004, 2.16241, 1.98043, 3.01777, 3.02263, 2.12504, 2.16387, 1.9798, 2.0, 2.21538, 2.10157], 
+                    [13.5454, 14.1516, 11.5071, 14.1275, 2.08736, 2.11662, 3.24957, 3.10665, 2.13867, 2.04457, 2.22083, 2.04405, 1.98608, 1.98802], 
+                    [13.3621, 14.021, 13.4167, 11.0612, 2.15244, 2.09452, 3.13056, 3.04276, 2.04811, 2.10842, 2.125, 3.80645, 1.75349, 5.33108],
+                    [13.4709, 14.0436, 13.4366, 14.2121, 2.12454, 2.12266, 2.99075, 3.13996, 2.06635, 2.07508, 2.31579, 2.23828, 2.27638, 2.10157],
+                    [13.2229, 13.5576, 13.6674, 14.794, 2.00953, 2.02293, 3.12361, 3.20957, 2.08386, 2.10041, 0.850949, 2.31136, 4.57522, 2.21341],
+                    [13.4984, 13.0597, 13.3461, 13.7108, 2.1543, 2.14047, 2.89888, 3.05443, 2.07617, 2.12138, 2.25668, 2.10459, 2.3318, 2.07519]]
+
+
+        self.Absolutecalibration2015 = [[0.016874, 0.016531, 0.02974, 0.015972, 0.004336, 0.005311, 0.005042, 0.005669, 0.00246, 0.003017, 0.00382, 0.006415, 0.008673, 0.004469], 
+                    [0.019528, 0.013637, 0.039159, 0.017504, 0.005906, 0.004969, 0.0, 0.004563, 0.002357, 0.0, 0.002439, 0.005647, 0.00515, 0.004313], 
+                    [0.018033, 0.015976, 0.032389, 0.016185, 0.003734, 0.00437, 0.005185, 0.0, 0.001718, 0.002401, 0.0, 0.004594, 0.008272, 0.005952],
+                    [0.029058, 0.014194, 0.033104, 0.016516, 0.003732, 0.005391, 0.006832, 0.006688, 0.002633, 0.003109, 0.003426, 0.003281, 0.003259, 0.008384], 
+                    [0.019439, 0.01289, 0.029525,  0.0, 0.002122, 0.002438, 0.003519, 0.004777, 0.001497, 0.002614, 0.00131, 0.001461, 0.003673, 0.002588], 
+                    [0.020009, 0.014693, 0.032381, 0.015669, 0.002941, 0.002977, 0.005145, 0.005011, 0.0021, 0.003598, 0.001715, 0.0005, 0.006963, 0.003981],
+                    [0.011084, 0.016251, 0.020354, 0.017343, 0.0, 0.013322, 0.007125, 0.004629, 0.005993, 0.021396, 0.013318, 0.023119, 0.024841, 0.057863], 
+                    [0.012645, 0.011933, 0.025745, 0.016747, 0.003168, 0.006409, 0.005631, 0.0, 0.00398, 0.020326, 0.012471, 0.00766, 0.02901, 0.008533], 
+                    [0.017433, 0.02335, 0.022966, 0.0272, 0.002624, 0.009199, 0.00517, 0.003675, 0.001882, 0.002163, 0.001921, 0.002456, 0.003948, 0.003556], 
+                    [0.016628, 0.021822, 0.038431, 0.02047, 0.003518, 0.011943, 0.004984, 0.004376, 0.002686, 0.002735, 0.002116, 0.001831, 0.00444, 0.005347], 
+                    [0.022451, 0.019186, 0.029669, 0.024445, 0.005458, 0.002917, 0.007484, 0.008021, 0.003736, 0.002226, 0.008541, 0.007556, 0.0187, 0.01019], 
+                    [0.024777, 0.019928, 0.028925, 0.032663, 0.004808, 0.005331, 0.006216, 0.008464, 0.003521, 0.002246, 0.005665, 0.0, 0.005555, 0.007251], 
+                    [0.01675, 0.017174, 0.039164, 0.017898, 0.004786, 0.024493, 0.007055, 0.006875, 0.003386, 0.003246, 0.011542, 0.014695, 0.015738, 0.031568],
+                    [0.013626, 0.026727, 0.034807, 0.026609, 0.004608, 0.015818, 0.006961, 0.0, 0.002699, 0.002787, 0.009467, 0.005394, 0.013983, 0.121789],
+                    [0.014901, 0.017273, 0.035037, 0.071443, 0.002436, 0.008082, 0.005174, 0.004774, 0.002453, 0.001865, 0.000842, 0.003679, 0.011773, 0.00654], 
+                    [0.014908, 0.01537, 0.033796, 0.078791, 0.002585, 0.014259, 0.005098, 0.005297, 0.002803, 0.002401, 0.002467, 0.002542, 0.006237, 0.004821]]
 
 
 
@@ -796,19 +836,23 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                         num_muons[iDeltaSector-self.iDeltaStart] += 1
                        
                         energy_secsum = [0.0] * 16
+                        energyGeV_secsum = [0.0] * 16
                         max_channel = [0.0] * 16
                         for isec in xrange(16):
                             for imod in xrange(14):
                                 if [isec+1,imod+1] in badChannelsSecMod:
                                     continue
                                 energy_secsum[isec] += ch_energy[isec][imod]
+                                trpvalues = self.TranspositionFactor[isec][imod]
+                                absintercalibvalues = self.Absolutecalibration2015[isec][imod]
+                                energyGeV_secsum [isec] += ch_energy[isec][imod] * absintercalibvalues / trpvalues
                                 if (ch_energy[isec][imod] > max_channel[isec]):
                                     max_channel[isec] = ch_energy[isec][imod]
                                 
                                 
                         henergy = 'MuonSignalSec_energy_Excl' + str(iDeltaSector) + '_sec_{sec}'.format(sec=str(muonSec+1))
                         self.hist[henergy].Fill(energy_secsum[muonSec])
-
+                        
 
                         if DATASOURCE == "TOYMC":
                             for imod in xrange(14):
@@ -818,6 +862,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
                         self.hist['MuonSignalAllSec_Excl' + str(iDeltaSector) + '_energy'].Fill(energy_secsum[muonSec])
+                        self.hist['MuonSignalAllSec_GeV_Excl' + str(iDeltaSector) + '_energy'].Fill(energyGeV_secsum[muonSec])
+                        
                         self.hist["MuonFluctuations_Excl"+str(iDeltaSector)].Fill(energy_secsum[muonSec], max_channel[muonSec])
 
 #                        self.hist["RunsWithGoodMuons_Excl" + str(iDeltaSector)].Fill(self.fChain.run)
@@ -843,17 +889,11 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
         return 1
 
-
-
-
-
     def finalize(self):
         print "Finalize:"
 
-
-
-
     def finalizeWhenMerged(self):
+        # print "Finalize when merged"
         olist = self.GetOutputList()
         histos = {}
         for o in olist:
@@ -869,10 +909,10 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         for isec in xrange(0,16):
             for imod in xrange(0,14):
 
-#                hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))  
- #               binnumber = histos["EventCount"].GetXaxis().FindBin("rnd trg")
- #               if not histos["EventCount"].GetBinContent(binnumber) == 0:
-  #                  histos[hnoise_randomtrg].Scale( 1./histos["EventCount"].GetBinContent(binnumber) )
+               # hnoise_randomtrg = 'CastorNoise_randomtrg_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))  
+               # binnumber = histos["EventCount"].GetXaxis().FindBin("rnd trg")
+               # if not histos["EventCount"].GetBinContent(binnumber) == 0:
+               #     histos[hnoise_randomtrg].Scale( 1./histos["EventCount"].GetBinContent(binnumber) )
 
                 # scale muon energy distributions by number of muons
                 for iDeltaSector in xrange(self.iDeltaStart,self.iDeltaEnd):
@@ -885,8 +925,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
 
-#       inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
-#       hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
+        # inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
+        # hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
 
         for iDeltaSector in xrange(self.iDeltaStart,self.iDeltaEnd):
 
