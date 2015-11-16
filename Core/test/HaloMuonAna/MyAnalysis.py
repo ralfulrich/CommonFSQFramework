@@ -11,8 +11,8 @@ ROOTPrefix="root://cms-xrd-global.cern.ch/" # Global
 #TTreeBasePATH=""
 #ROOTPrefix="root://eoscms//eos/cms/"
 
-# for local:
-#PATbasePATH="/afs/cern.ch/work/m/makbiyik/public/"
-#TTreeBasePATH="/afs/cern.ch/work/m/makbiyik/public/"
-#ROOTPrefix=""
+#for local:
+# PATbasePATH="/afs/cern.ch/work/m/makbiyik/public/"
+# TTreeBasePATH="/afs/cern.ch/work/m/makbiyik/public/"
+# ROOTPrefix=""
 

@@ -5,7 +5,7 @@
 
 double GetTrasposeValues(int isec, int imod)
 {
-  double gain[16][14] ={{17.8879, 13.2482, 14.0743, 13.3278, 2.12091, 2.12543, 3.21527, 2.98481, 2.11992, 2.06513, 2.10162, 4.18052, 2.10162, 2.10162}
+  double gain[16][14] = {{17.8879, 13.2482, 14.0743, 13.3278, 2.12091, 2.12543, 3.21527, 2.98481, 2.11992, 2.06513, 2.10162, 4.18052, 2.10162, 2.10162}
                         {15.5813, 14.3688, 13.9962, 15.8174, 2.14671, 2.16158, 2.94851, 3.03287, 2.07367, 2.09709, 2.02886, 5.6682, 2.10162, 2.10162}
                         {17.1485, 14.2758, 13.6352, 13.7265, 2.19081, 2.16161, 3.12191, 3.12444, 2.11671, 2.14295, 1.68227, 2.62755, 2.90551, 2.25366}
                         {25.4937, 15.0353, 13.5396, 14.5396, 2.00951, 2.01052, 2.94567, 3.10935, 2.10436, 2.10581, 1.9966, 2.14238, 1.67304, 2.10112}
@@ -43,7 +43,6 @@ double GetTrasposeErrors(int isec, int imod)
                                 {0.168528, 0.173265, 0.146743, 0.202867, 0.00571115, 0.0171372, 0.0177893, 0.0232495, 0.00932107, 0.00953935, 0.22871, 0.108933, 0.174756, 0.0500715}
                                 {0.183391, 0.137414, 0.124799, 0.168779, 0.0485851, 0.0178448, 0.0183694, 0.0220257, 0.00824439, 0.00902181, 0.0328126, 0.138288, 0.112013, 0.173584}
                                 {0.257366, 0.167887, 0.272659, 0.184186, 0.00944811, 0.0255283, 0.0476646, 0.0224154, 0.00838952, 0.0083331, 0.13013, 0.0684296, 0.156254, 0.13299}};
-
   return gain_error[isec][imod];
 }
 
@@ -90,8 +89,57 @@ double GetLEDError1800V(int isec, int imod)
   return gain_error[isec][imod];
 }
 
+//Igor's LED 2013 values//
+double GetLEDIgor2013(int isec, int imod) 
+{ 
+  double gain[16][14]=  {{1.000425, 0.931195, 1.722751, 0.0, 0.249538, 0.394333, 0.0, 0.155133, 0.123307, 0.264286, 0.217681, 0.125848, 0.234006, 0.075464}, 
+                        {1.28372, 1.08159, 1.974339, 0.851123, 0.352999, 0.377796, 0.0, 0.246074, 0.191197, 0.263945, 0.289805, 0.120486, 0.298206, 0.076201},
+                        {1.252213, 0.925163, 1.754341, 0.803017, 0.209004, 0.424808, 0.0, 0.0, 0.0, 0.221043, 0.0, 0.249512, 0.269058, 0.15739}, 
+                        {1.100644, 0.966124, 1.63636, 1.019983, 0.264205, 0.492828, 0.0, 0.0, 0.0, 0.240881, 0.0, 0.168351, 0.0,0.128583}, 
+                        {1.000826, 0.0, 1.293415, 0.86196, 0.295809, 0.475899, 0.0, 0.0, 0.0, 0.314342, 0.20608, 0.164808, 0.271375, 0.156374},
+                        {0.722059, 0.780461, 1.995963, 0.661209, 0.259085, 0.487429, 0.0, 0.0, 0.0, 0.377144, 0.26507, 0.206327, 0.336299, 0.199795}, 
+                        {1.096988, 1.218608, 1.745835, 0.888802, 0.225927, 0.45836, 0.0, 0.020096, 0.142001, 0.385257, 0.256415, 0.189381, 0.376582, 0.299507},
+                        {1.091334, 1.025778, 2.106153, 1.199047, 0.337598, 0.58613, 0.0, 0.0, 0.154015, 0.424145, 0.292679, 0.204659, 0.404868, 0.113908}, 
+                        {1.054333, 1.474295, 1.124023, 1.0, 0.315433, 1.090999, 0.0, 0.166044, 0.154629, 0.215142, 0.154745, 0.230574, 0.0, 0.188459}, 
+                        {1.282433, 1.126571, 2.271284, 1.148607, 0.315623, 1.124756, 0.0, 0.076184, 0.150419, 0.244338, 0.149832, 0.202471, 0.158535, 0.221797}, 
+                        {1.207038, 1.494127, 1.223583, 0.99518, 0.282358, 0.342161, 0.0, 0.0, 0.158282, 0.160647, 0.317039, 0.414463, 0.45517, 0.183079},
+                        {1.634185, 1.708066, 2.259616, 1.518867, 0.310965, 0.90365, 0.0, 0.0, 0.104076, 0.191959, 0.281285, 0.261916, 0.120645, 0.158001}, 
+                        {1.528451, 1.548834, 2.212892, 1.048122, 0.276433, 0.0, 0.0, 0.0, 0.072358,0.188554, 0.254051, 0.237827, 0.082658, 0.146762}, 
+                        {1.335749, 1.727109, 2.040581, 1.309911, 0.245352, 1.458605, 0.0, 0.0, 0.10903, 0.278077, 0.327009, 0.203752, 0.221086, 0.162093}, 
+                        {1.215644, 1.620683, 2.06946, 1.029579, 0.269562, 1.893122, 0.0, 0.0, 0.176633, 0.0, 0.146783, 0.183976, 0.177801, 0.265278},
+                        {1.282735, 1.439203, 1.96242, 0.842085, 0.197566, 0.0, 0.0, 0.117696, 0.18644, 0.191907, 0.127682, 0.134317, 0.216069, 0.14071}};
+
+  return gain[isec][imod];
+
+}
+
+//KAterina
+double GetKaterina2013(int isec, int imod) 
+ {
+
+  double gain[16][14] = {{0.7510, 0.8700, 2.7370, 0.0000, 0.3630, 0.6430, 0.0000, 0.3100, 0.2120, 0.2740, 0.3030, 0.1690, 0.2650, 0.1550}, 
+                    {0.6190, 0.6160, 1.8130, 0.8690, 0.1820, 0.6280, 0.0000, 0.5070, 0.1680, 0.2910, 0.3380, 0.1460, 0.2490, 0.1250}, 
+                    {1.0700, 0.6510, 1.4250, 0.7660, 0.3040, 0.1930, 8.2170, 13.2900, 0.4650, 0.2350, 0.0000, 0.2950, 0.3430, 0.3510}, 
+                    {0.5310, 0.3300, 0.8910, 0.8260, 0.1170, 0.3300, 0.0000, 0.0000, 0.0000, 0.6390, 0.0000, 0.3170, 0.0000, 0.4580}, 
+                    {0.6120, 0.0000, 1.3410, 0.7020, 0.1560, 0.5690, 0.8360, 0.0000, 0.0000, 0.5230, 0.2360, 0.3290, 0.3990, 0.3420}, 
+                    {1.3130, 0.4870, 1.4000, 0.6320, 0.1990, 0.7950, 1.2090, 0.0000, 0.5100, 0.7060, 0.2330, 0.2800, 0.4830, 0.4410}, 
+                    {0.4160, 0.2820, 1.0430, 0.3130, 0.1140, 0.0860, 250.6690, 0.1950, 0.4200, 6.9160, 3.4790, 1.5110, 4.8590, 3.5340}, 
+                    {0.3420, 0.2950, 1.1980, 1.4030, 0.2130, 1.0730, 0.0000, 0.2060, 0.6350, 27.2690, 9.4210, 3.3400, 3.4880, 1.0100}, 
+                    {0.3030, 0.8460, 1.4120, 1.0000, 0.2180, 0.8830, 0.0000, 0.1320, 0.1950, 0.2490, 0.2250, 0.2270, 0.2990, 0.2780}, 
+                    {0.9040, 1.4030, 2.6580, 1.1900, 0.2350, 1.5570, 0.0000, 0.3160, 0.1990, 0.3100, 0.1790, 0.2510, 0.2510, 0.2520}, 
+                    {1.0160, 0.9930, 1.6950, 0.8870, 0.2850, 0.6230, 0.0000, 10.0790, 0.3730, 0.2440, 9.6350, 0.5240, 0.6990, 0.3790}, 
+                    {1.1690, 1.1300, 2.1400, 1.3920, 0.2630, 1.2470, 0.0000, 0.0000, 0.5670, 0.3030, 99.3510, 0.3510, 0.1980, 0.3560}, 
+                    {0.9160, 1.2700, 1.6430, 0.8070, 0.2310, 2.3020, 0.0000, 0.0000, 0.3230, 0.2910, 0.0000, 0.3430, 0.1280, 0.3080}, 
+                    {0.6010, 0.9840, 2.1400, 0.8210, 0.1770, 1.0970, 0.0000, 0.0000, 0.2030, 0.2920, 16.6350, 0.3020, 0.3510, 0.3680}, 
+                    {0.7590, 1.3650, 2.9620, 1.1740, 0.3800, 2.3370, 0.0000, 517.2540, 0.2690, 0.0000, 0.1940, 0.2740, 0.2800, 0.4100}, 
+                    {0.7420, 0.9720, 2.4600, 0.9240, 0.2200, 0.1630, 3.9070, 0.1970, 0.2700, 0.2580, 0.1510, 0.1340, 0.2790, 0.2620}}; 
+
+  return gain[isec][imod];
+
+ }
+
 // magnetic field correction 2013 katerinas values//LED data, r238434(B=3.8T) to r238342(B=0T), HV ~ 1800V, average amplitude w/o ZS)
-double Getcorr0Tto38Tmagnetic(int isec, int imod) 
+double Getcorr0Tto38TKaterina2013(int isec, int imod) 
  {
 
   double gain[16][14] =  
@@ -119,13 +167,18 @@ double Getcorr0Tto38Tmagnetic(int isec, int imod)
 
 
 
+
+
+
 bool IsBasChannel(int isec, int imod)
 {
   bool bad = false;
 
-  int badChannelsSecMod[6][2] = {{2,10},{3,11},{12,12},{5,4},{3,8},{7,5}};//2015
+  //int badChannelsSecMod[6][2] = {{2,10},{3,11},{12,12},{5,4},{3,8},{7,5}};//2015
+  int badChannelsSecMod[10][2] = {{2,10},{3,11},{12,12},{5,4},{3,8},{7,5},{8,8},{4,11}  ,{1,4},{5,2}} ;//2013
 
-  for(int ipair=0; ipair<6; ipair++) {
+
+  for(int ipair=0; ipair<10; ipair++) {
     if( isec+1 == badChannelsSecMod[ipair][0] && 
         imod+1 == badChannelsSecMod[ipair][1])
       bad = true;
@@ -133,6 +186,7 @@ bool IsBasChannel(int isec, int imod)
 
   return bad;
 }
+
 
 void GetMuonSignalHist(TH1F* h[16][14],TFile* file)
 {
@@ -190,24 +244,21 @@ void PrintHistMap(TH2* h)
   }
 }
 
-void WriteHistMapIntoFile(TH2* h,const char* fname,bool docsv = false)
+void WriteHistMapIntoFile(TH2* h,const char* fname)
 {
   FILE* pf = fopen(fname,"w");
-
-  if(docsv) fprintf(pf,"sec,mod,corr,\n");
 
   for(int isec=0; isec<16; isec++) {
     for(int imod=0; imod<14; imod++) {
       double intval = h->GetBinContent(imod+1,isec+1);
-      if(docsv) fprintf(pf,"%d,%d,%f,\n",isec+1,imod+1,intval*0.02);
-      else fprintf(pf,"sec %d mod %d value %f\n",isec+1,imod+1,intval);
+      fprintf(pf,"sec %d mod %d value %f\n",isec+1,imod+1,intval);
     }
   }
 
   fclose(pf);
 }
 
-void draw_tool_2015(bool sigma_with_toymc = true)
+void draw_tool(bool sigma_with_toymc = true) //if you want to add the sigma_with_toymc in the error propagation formul
 {
   
   gStyle->SetOptStat(0);
@@ -237,6 +288,13 @@ void draw_tool_2015(bool sigma_with_toymc = true)
   double led[16][14];
   double sigma_led[16][14];
 
+  double led2013[16][14];
+  double sigma_led2013[16][14];
+
+  double Kat2013[16][14];
+  
+  double sigma_Kat2013[16][14];
+
   GetMeanAndSigma(hMuonSignal,mean,RMS,Nent);//if you want to apply the doEMcorrection add false or true
 
   TH2F* hMuonSignalMap = new TH2F("hMuonSignalMap","hMuonSignalMap",
@@ -262,15 +320,17 @@ void draw_tool_2015(bool sigma_with_toymc = true)
   TH1F* hRelativeSigmaDist = new TH1F("hRelativeSigmaDist","hRelativeSigmaDist",20,0,2);
 
   TH1F* hPullLEDMuon = new TH1F("hPullLEDMuon","hPullLEDMuon",30,-3,3);
+ 
+  TH1F* hPullLEDMuon2013 = new TH1F("hPullLEDMuon2013","hPullLEDMuon2013",30,-5,5);
+  TH1F* hPullKatMuon2013 = new TH1F("hPullKatMuon2013","hPullKatMuon2013",30,-5,5);
+  TH1F* hPullToyMCData = new TH1F("hPullToyMCData","hPullToyMCData",30,-5,5);
+  TH1F* hRatioKatMelMuon = new TH1F("hRatioKatMelMuon","hRatioKatMelMuon",30,0,10);
+  TH1F* hRatioigorLEDMelMuon2013 = new TH1F("hRatioigorLEDMelMuon2013","hRatioigorLEDMelMuon2013",30,0,10);
 
 
-
-  TH2F* hToyMC_Mean = new TH2F("hToyMC_Mean","hToyMC_Mean",
-                                14,0.5,14.5,16,0.5,16.5);
-  TH2F* hToyMC_RMS = new TH2F("hToyMC_RMS","hToyMC_RMS",
-                                14,0.5,14.5,16,0.5,16.5);
-
-  TH1F* hPullToyMCData = new TH1F("hPullToyMCData","hPullToyMCData",30,-3,3);
+  TH2F* hToyMC_Mean = new TH2F("hToyMC_Mean","hToyMC_Mean",14,0.5,14.5,16,0.5,16.5);
+  TH2F* hToyMC_RMS = new TH2F("hToyMC_RMS","hToyMC_RMS",14,0.5,14.5,16,0.5,16.5);
+ 
 
 
   double refmean_pHV = 0;
@@ -284,7 +344,7 @@ void draw_tool_2015(bool sigma_with_toymc = true)
       double sigma = 0;
       double newsigma = 0;
       if(Nent[isec][imod] != 0) {
-        sigma = RMS[isec][imod]/sqrt(Nent[isec][imod]); // + ToyMC_RMS AND not Divide by N zou did not add RMS from ToyMc
+        sigma = RMS[isec][imod]/sqrt(Nent[isec][imod]); // + ToyMC_RMS AND not Divide by N
         newsigma = hMuonDist[isec][imod]->GetRMS();
       }
 
@@ -295,9 +355,8 @@ void draw_tool_2015(bool sigma_with_toymc = true)
 
       double inv_trpval = GetTrasposeValues(isec,imod);
       double inv_trperr = GetTrasposeErrors(isec,imod);
+
       double mean_pHV = mean[isec][imod] / inv_trpval;
-      
-      
       double sigma_pHV= mean_pHV * sqrt( (used_sigma/mean[isec][imod])*(used_sigma/mean[isec][imod]) + 
                                          (inv_trperr/inv_trpval)*(inv_trperr/inv_trpval) );
       hMuonMeanPHVMap->Fill(imod+1,isec+1,mean_pHV);
@@ -313,6 +372,31 @@ void draw_tool_2015(bool sigma_with_toymc = true)
         sqrt( GetLEDError1800V(8,3)*GetLEDError1800V(8,3) +
               GetLEDError1800V(isec,imod)*GetLEDError1800V(isec,imod) );
 
+      //Led from igors values
+      
+      //Printf("%d %d %f",isec,imod, GetLEDIgor2013(isec,imod) );
+
+      led2013[isec][imod]= GetLEDIgor2013(8,3)/GetLEDIgor2013(isec, imod);
+      sigma_led2013[isec][imod] = led2013[isec][imod] *
+        sqrt( GetLEDIgor2013(8,3)*(0.2)*GetLEDIgor2013(8,3) +
+              GetLEDIgor2013(isec,imod)*(0.2)*GetLEDIgor2013(isec,imod) );
+
+      //Katerina intercalibration constnats
+
+
+      //Printf("%d %d %f",isec,imod, GetKaterina2013(isec,imod));
+     
+      double Kat2013corr0Tto38T = Getcorr0Tto38TKaterina2013(isec,imod);
+      Kat2013[isec][imod]= GetKaterina2013(isec,imod) * Kat2013corr0Tto38T;
+
+      //Kat2013[isec][imod]= GetKaterina2013(8,3)/GetKaterina2013(isec, imod);
+
+
+      sigma_Kat2013[isec][imod] = Kat2013[isec][imod] *
+        sqrt( GetKaterina2013(8,3)*(0.2)*GetKaterina2013(8,3) +
+              GetKaterina2013(isec,imod)*(0.2)*GetKaterina2013(isec,imod) );
+
+
 
       hToyMC_Mean->Fill(imod+1,isec+1,hMuonDist[isec][imod]->GetMean());
       hToyMC_RMS->Fill(imod+1,isec+1,hMuonDist[isec][imod]->GetRMS());
@@ -325,8 +409,9 @@ void draw_tool_2015(bool sigma_with_toymc = true)
   }
 
   double Meancalib_pHV=0;
+  double MeanKat2013=0;
   for(int isec=0; isec<16; isec++) {
-    for(int imod=0; imod<14; imod++) {
+    for(int imod=0; imod<5; imod++) {
       double mean_pHV = hMuonMeanPHVMap->GetBinContent(imod+1,isec+1);
       double sigma_pHV = hMuonSigmaPHVMap->GetBinContent(imod+1,isec+1);
 
@@ -335,42 +420,55 @@ void draw_tool_2015(bool sigma_with_toymc = true)
 
       // Printf("%d %d %d",isec,imod,int(IsBasChannel(isec,imod)));
       if( IsBasChannel(isec,imod) ) continue;
-      double ratio_KAt_Mel = 1.36; //old 1.41;
-      double calib_pHV = refmean_pHV/mean_pHV;
-      calib_pHV = ratio_KAt_Mel *calib_pHV;
-      Meancalib_pHV += calib_pHV;
-      
-      double magneticcorrection = Getcorr0Tto38Tmagnetic(isec,imod);
-      // Meancalib_pHV= Meancalib_pHV[isec][imod] / magneticcorrection;
-      if (magneticcorrection < 0.01) calib_pHV = 0.0;
-      else calib_pHV = calib_pHV / magneticcorrection;
 
-      Printf(" Meancalib_pHV  =%4.2f, sec=%d, mod=%d ", Meancalib_pHV, isec, imod);
+      double calib_pHV = refmean_pHV/mean_pHV;
+      Meancalib_pHV += calib_pHV;
+      MeanKat2013 += Kat2013[isec][imod];
+      Printf(" 1 MeanKat2013 =%4.2f, sec=%d, mod=%d ", MeanKat2013, isec, imod);
       double sigma_calib_pHV = calib_pHV *
         sqrt( (refsigma_pHV/refmean_pHV)*(refsigma_pHV/refmean_pHV) + 
               (sigma_pHV/mean_pHV)*(sigma_pHV/mean_pHV) );
 
+    
       hCalibPHVMap->Fill(imod+1,isec+1,calib_pHV);
       hSigmaCalibPHVMap->Fill(imod+1,isec+1,sigma_calib_pHV);
       hRelativeSigmaCalibPHVMap->Fill(imod+1,isec+1,sigma_calib_pHV/calib_pHV);
       hRelativeSigmaDist->Fill(sigma_calib_pHV/calib_pHV);
 
-      double pull_val = (calib_pHV-led[isec][imod]) / ( sigma_calib_pHV*sigma_calib_pHV + sigma_led[isec][imod]*sigma_led[isec][imod] );
-
+      double ratio_igor_Mel =  (led2013[isec][imod]) / (calib_pHV);
+      double pull_val = (calib_pHV-led[isec][imod]); // ( sigma_calib_pHV*sigma_calib_pHV + sigma_led[isec][imod]*sigma_led[isec][imod] );
+      double pull_val2013 = (calib_pHV-led2013[isec][imod]); //( sigma_calib_pHV*sigma_calib_pHV + sigma_led2013[isec][imod]*sigma_led2013[isec][imod] );
+      // double pull_val2013 = (calib_pHV-led2013[isec][imod]);
+      
+      hRatioigorLEDMelMuon2013->Fill(ratio_igor_Mel);
       hPullLEDMuon->Fill(pull_val);
-
-
-      double pullToyMCData = (calib_pHV-hToyMC_Mean->GetBinContent(imod+1,isec+1)) / 
-        (sigma_calib_pHV*sigma_calib_pHV + 
-          hToyMC_RMS->GetBinContent(imod+1,isec+1)*hToyMC_RMS->GetBinContent(imod+1,isec+1) );
+      hPullLEDMuon2013->Fill(pull_val2013);
+      double pullToyMCData = (calib_pHV-hToyMC_Mean->GetBinContent(imod+1,isec+1)) ;
+        //(sigma_calib_pHV*sigma_calib_pHV + 
+         // hToyMC_RMS->GetBinContent(imod+1,isec+1)*hToyMC_RMS->GetBinContent(imod+1,isec+1) );
 
       hPullToyMCData->Fill(pullToyMCData);
+
+
+
+      
     }
   }
  
-  Meancalib_pHV= Meancalib_pHV / 224.;
-  Printf("Meancalib_pHV = %4.2f", Meancalib_pHV);
+  MeanKat2013= MeanKat2013/76.; // /76.;
+  Meancalib_pHV= Meancalib_pHV/76.; // /76.;
 
+  Printf("MeanKat2013 =%4.2f ", MeanKat2013);
+  Printf("Meancalib_pHV = %4.2f", Meancalib_pHV);
+ 
+  double pull_Katerina = (MeanKat2013-Meancalib_pHV); // ( sigma_calib_pHV*sigma_calib_pHV + sigma_Kat2013[isec][imod]*sigma_Kat2013[isec][imod] );
+  double ratio_KAt_Mel = (MeanKat2013)/(Meancalib_pHV);
+  Printf("ratio_KAt_Mel = %4.2f",ratio_KAt_Mel);
+
+  hPullKatMuon2013->Fill(pull_Katerina);
+  hRatioKatMelMuon->Fill(ratio_KAt_Mel);
+      
+  
   hCalibPHVMap->GetXaxis()->SetTitle("Module");
   hCalibPHVMap->GetYaxis()->SetTitle("Sector");
   hCalibPHVMap->SetXTitle("Calibration constants PHVMap");
@@ -381,7 +479,7 @@ void draw_tool_2015(bool sigma_with_toymc = true)
 
   TCanvas * c3 = new TCanvas("c3","Muon Signal Physics HV",1000,500);
   c3->Divide(2,1); 
-  c3->cd(1)/*->SetLogz()*/; hCalibPHVMap->Draw("colz text");
+  c3->cd(1)->SetLogz(); hCalibPHVMap->Draw("colz text");
   c3->cd(2)->SetLogz(); hSigmaCalibPHVMap->Draw("colz text");
 
   hRelativeSigmaCalibPHVMap->SetTitle("Relative Err. on CalibConst. (Physics HV);Module;Sector");
@@ -394,14 +492,49 @@ void draw_tool_2015(bool sigma_with_toymc = true)
   c31->cd(1); hRelativeSigmaCalibPHVMap->Draw("colz text");
   c31->cd(2); hRelativeSigmaDist->Draw();
 
-  TCanvas * c4 = new TCanvas("c4","Pull Distribution MuonInterCalib. LED");
+  TCanvas * c4 = new TCanvas("c4","Pull Dist.withoutError MuonInterCalib. LED");
   c4->cd(); hPullLEDMuon->Draw();
   hPullLEDMuon->Fit("gaus");
-  hPullLEDMuon->SetXTitle("Pull Distribution MuonInterCalib. LED");
+  hPullLEDMuon->SetXTitle("Pull Dist.withoutError MuonInterCalib. LED");
   Printf("Mean Pull = %4.2f, RMS Pull = %4.2f",hPullLEDMuon->GetMean(),hPullLEDMuon->GetRMS());
 
-  TCanvas * c5 = new TCanvas("c5","ToyMC Mean & RMS",1000,500);
+ 
+
+  hPullLEDMuon2013->GetYaxis()->SetTitle("N");
+  hPullLEDMuon2013->GetXaxis()->SetTitle("mean2015- Igor2013, 5 modules");   
+ 
+  hRatioigorLEDMelMuon2013->GetYaxis()->SetTitle("N");
+  hRatioigorLEDMelMuon2013->GetXaxis()->SetTitle("(R: 2015/Igor2013,5 modules)");
+ 
+  TCanvas * c7 = new TCanvas("c7","withoutError MuonInterCalibration2015-2013 IgorLED", 1000,500);
+  c7->Divide(2,1);
+  c7->cd(1); hPullLEDMuon2013->Draw();
+  hPullLEDMuon2013->Fit("gaus");
+ 
+  Printf("Mean Pull data -igor = %4.2f, RMS Pull data-igor = %4.2f",hPullLEDMuon2013->GetMean(),hPullLEDMuon2013->GetRMS());
+  c7->cd(2);
+  hRatioigorLEDMelMuon2013->Draw();
+  //hRatioigorLEDMelMuon2013-->SetXTitle("ratio MuonInterCalibration2015-2013 IgorLED");
+
   
+  hPullKatMuon2013->GetYaxis()->SetTitle("N");
+  hPullKatMuon2013->GetXaxis()->SetTitle("MeanKat2013-Meancalib , 5modules");
+
+  hRatioKatMelMuon->GetYaxis()->SetTitle("N");
+  hRatioKatMelMuon->GetXaxis()->SetTitle("(R: 2015 mean/Kat2013 mean,5 modules)");
+  TCanvas * c8 = new TCanvas("c8","MuonInterCalib2015- Kat2013 ",1000,500);
+  c8->Divide(2,1);
+  c8->cd(1); hPullKatMuon2013->Draw();
+  hPullKatMuon2013->Fit("gaus");
+ 
+  
+  Printf("Mean Pull data-kat = %4.2f, RMS Pull data-kat = %4.2f",hPullKatMuon2013->GetMean(),hPullKatMuon2013->GetRMS());
+  c8->cd(2);
+  hRatioKatMelMuon->Draw();
+  //hRatioKatMelMuon-->SetXTitle("ratio MuonInterCalibration2015-2013 KAt");
+
+
+  TCanvas * c5 = new TCanvas("c5","ToyMC Mean & RMS",1000,500);
   hToyMC_Mean->GetXaxis()->SetTitle("Module");
   hToyMC_Mean->GetYaxis()->SetTitle("Sector");
   hToyMC_Mean->SetXTitle(" Mean ToyMC");
@@ -421,6 +554,6 @@ void draw_tool_2015(bool sigma_with_toymc = true)
   hPullToyMCData->SetXTitle("Pull Distribution MuonInterCalib. ToyMC");
   Printf(" toy-data Mean Pull = %4.2f, RMS Pull = %4.2f",hPullToyMCData->GetMean(),hPullToyMCData->GetRMS());
 
-  //in function we have  absolute correction intval*0.02
-  WriteHistMapIntoFile(hCalibPHVMap,"InterCalibValues_2015_with_Ratio_KAt_Mel_newTransposition_factors.txt",true);
+
+  WriteHistMapIntoFile(hCalibPHVMap,"InterCalibValues.txt");
 }
