@@ -45,7 +45,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
     def init( self, maxEvents = None):
         #####
 #        self.flag_use_merjin_electronic_channel_noise = False # mine RMS
-        self.flag_use_merjin_electronic_channel_noise = True # RU CHECK: is this Gaussian fit ?? 
+        self.flag_use_merjin_electronic_channel_noise = True 
         #####
 
 
@@ -62,7 +62,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         
         #if not self.isData:
 
-        #Getting sector RMS and Mean
+        # Getting sector RMS and Mean
         if firstRun:
             inputFile = ROOT.TFile(join(outfolder,"mean_rms.root"))
             inputFile_noise = ROOT.TFile(join(outfolder,"Histograms_StatFitInformationPedNoise.root"))
@@ -76,13 +76,25 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         
 
 
+        #############################################################
+        # also write a ttree with the final muon events!            #
+        # in same format at CFF, but reduced content                #
+        # create the branches and assign the fill-variables to them #
+        #############################################################
+        
+        outTree = ROOT.TTree("muons", "selected muon events")
+        
+        self.OUTtrgl1L1GTTech = array( 'i', 103 * [0] )
+        self.OUTtrgRandom = array( 'i', [0] )
+        self.OUTtrgCastorHaloMuon = array( 'i', [0] )
+        self.OUTCastorRecHitEnergy = array( 'd', 224 * [0.0])
 
-        # create the branches and assign the fill-variables to them
-
-        # ftree = ROOT.TFile("tree.root", "recreate")
-        # tree = ROOT.TTree("nt", "nt")
-        # np= np.zeros(1, dtype=float)
-        # tree.Branch('ch_energy', ch_energy, 'ch_energy')
+        outTree.Branch('trgl1L1GTTech', self.OUTtrgl1L1GTTech, 'trgl1L1GTTech[103]/I' )
+        outTree.Branch('trgRandom', self.OUTtrgRandom, 'trgRandom/I')
+        outTree.Branch('trgCastorHaloMuon', self.OUTtrgCastorHaloMuon, 'trgCastorHaloMuon/I')
+        outTree.Branch('CastorRecHitEnergy', self.OUTCastorRecHitEnergy, 'CastorRecHitEnergy[224]/D')
+        setattr(self, "outTree", outTree)
+        self.addToOutput(self.outTree)
 
 
         hist_sec_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_Mean")
@@ -213,7 +225,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
                 
         # Getting electronic noise from in the Merijns file
-        hist_ch_noise_RMS= inputFile_noise.Get("SumHistoNoiseFit")
+        hist_ch_noise_RMS= inputFile_noise.Get("SumHistoNoiseFit")  # this is the Gaussian Fit !!
 
         #get channel energies from input file
         self.ch_mean = [[0 for _ in xrange(14)] for _ in xrange(16)]
@@ -579,7 +591,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         ###############################################
         # the main muon selection loop starts here    #
         ###############################################
-        
+
+        event_with_muon = False
         
         num_muons = [0] * (self.iDeltaEnd-self.iDeltaStart)
         num_muons_rnd = [0] * (self.iDeltaEnd-self.iDeltaStart)
@@ -648,7 +661,6 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 # cut on muon candidate sector #
                 ################################
                 if SigmaSecHottestSector > 3: # WARNING: CUT VALUE ON NOISE HARDCODED HERE !!!! Melike: 2.5
-#                    return 0
                     continue
 
                 muonSec = HottestSector
@@ -753,6 +765,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                 ################################################################################
 
                 if goodMuonEventWithoutAnyTriggerSelection:
+
+                    event_with_muon = True
+
                     # RU was: if goodMuonEvent:                    
                     # print "Good event in (sec,mod)", sec, mod, "Front,Mid,Back", Front_Module, Mid_Module, Rear_Module
 
@@ -834,13 +849,30 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                         #self.tree["nt"].Fill()
 
 
-            for iDeltaSector in xrange(self.iDeltaStart,self.iDeltaEnd): 
-                
-                self.hist["MuonCount_Muo_Excl" + str(iDeltaSector)].Fill(num_muons[iDeltaSector-self.iDeltaStart])
-                self.hist["MuonCount_Rnd_Excl" + str(iDeltaSector)].Fill(num_muons_rnd[iDeltaSector-self.iDeltaStart])
-
-
-
+                            
+        for iDeltaSector in xrange(self.iDeltaStart,self.iDeltaEnd): 
+            self.hist["MuonCount_Muo_Excl" + str(iDeltaSector)].Fill(num_muons[iDeltaSector-self.iDeltaStart])
+            self.hist["MuonCount_Rnd_Excl" + str(iDeltaSector)].Fill(num_muons_rnd[iDeltaSector-self.iDeltaStart])
+        
+        
+        if event_with_muon:
+            
+            for i in xrange(0, len(self.OUTtrgl1L1GTTech)):
+                if i<len(self.fChain.trgl1L1GTTech):
+                    self.OUTtrgl1L1GTTech[i] = self.fChain.trgl1L1GTTech[i]
+                else:
+                    self.OUTtrgl1L1GTTech[i] = 0
+            self.OUTtrgRandom = self.fChain.trgRandom
+            self.OUTtrgCastorHaloMuon = self.fChain.trgCastorHaloMuon
+            for i in xrange(0, len(self.OUTCastorRecHitEnergy)):
+                if i<len(self.fChain.CastorRecHitEnergy):
+                    self.OUTCastorRecHitEnergy[i] = self.fChain.CastorRecHitEnergy[i]
+                else:
+                    self.OUTCastorRecHitEnergy[i] = 0
+            self.outTree.Fill()
+            
+            
+            
         return 1
 
 
@@ -848,6 +880,10 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
     def finalize(self):
+        
+        if hasattr(self, 'outTree'):
+            self.outTree.AutoSave()
+        
         print "Finalize:"
 
 
