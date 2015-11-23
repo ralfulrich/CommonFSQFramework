@@ -64,7 +64,7 @@ for s in sampleListTodo:
   pycfgextra = []  
   pycfgextra.append("config.General.workArea='"+anaVersion+"'")
   pycfgextra.append("config.General.requestName='"+name+"'")
-  pycfgextra.append("config.Data.publishDataName='"+name+"'")
+  pycfgextra.append("config.Data.outputDatasetTag='"+name+"'")
   pycfgextra.append("config.Data.inputDataset='"+sampleList[s]["DS"]+"'")
   # customize when running on private datasets
   if "/USER" in sampleList[s]["DS"]: 
@@ -75,7 +75,7 @@ for s in sampleListTodo:
   if isData:
     print isData, sampleList[s]["json"]
     pycfgextra.append("config.Data.splitting='LumiBased'")
-    pycfgextra.append("config.Data.unitsPerJob=10")
+    pycfgextra.append("config.Data.unitsPerJob=25")
     jsonFile=edm.FileInPath(sampleList[s]["json"])
     pycfgextra.append("config.Data.lumiMask='"+jsonFile.fullPath()+"'")
     
