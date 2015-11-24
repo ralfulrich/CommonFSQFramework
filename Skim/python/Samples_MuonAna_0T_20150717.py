@@ -48,7 +48,7 @@ sam["data_Cosmics_MuonHLTSkim_Run2015E"]["json"]='CommonFSQFramework/Skim/lumi/C
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["lumiMinBias"]=-1
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["XS"]=-1
 # sam["data_Cosmics_MuonHLTSkim_Run2015E"]["pathPAT"]='/XXXTMFPAT/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/MinimumBias/MuonAna_0T_20150717_data_MinimumBias_Run2015A/151030_111657/0000//'
-sam["data_Cosmics_MuonHLTSkim_Run2015E"]["DS"]='/Cosmics/Run2015E-PromptReco-v1/RECO'
+sam["data_Cosmics_MuonHLTSkim_Run2015E"]["DS"]='/Cosmics/Run2015E-v1/RAW'
 
 
 def fixLocalPaths(sam):
