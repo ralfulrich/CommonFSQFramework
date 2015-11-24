@@ -13,7 +13,9 @@ else:
     if isData: print "Disabling MC-specific features for sample",s
 
 # for test purpose
-# isData = False
+# isData = True
+
+isRawData = True
 
 process = cms.Process("Treemaker")
 
@@ -30,8 +32,9 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('/store/user/hvanhaev/MinBias_TuneMonash13_13TeV-pythia8/RunIISpring15DR74-NoPU0T_MCRUN2_740TV0_step2-v2/150610_055012/0000/step2_RAW2DIGI_L1Reco_RECO_1.root')
     #fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/ReggeGribovPartonMC_13TeV-EPOS/GEN-SIM-RECO/NoPURawReco_castor_MCRUN2_74_V8B-v1/10000/BC62D29E-7707-E511-A6D9-AC853D9F5344.root')
     #fileNames = cms.untracked.vstring('/store/data/Run2015A/ZeroBias/RECO/PromptReco-v1/000/247/607/00000/52EA626D-9210-E511-843F-02163E01451D.root')
-    fileNames = cms.untracked.vstring('/store/data/Run2015A/MinimumBias/RECO/PromptReco-v1/000/247/403/00000/061A4C94-3B0F-E511-B492-02163E0140E0.root')
+    # fileNames = cms.untracked.vstring('/store/data/Run2015A/MinimumBias/RECO/PromptReco-v1/000/247/403/00000/061A4C94-3B0F-E511-B492-02163E0140E0.root')
     # fileNames = cms.untracked.vstring('/store/hidata/HIRun2013/PAMinBiasUPC/RECO/PromptReco-v1/000/209/948/00000/184CCE65-8C60-E211-B2D4-003048D2BE12.root')
+    fileNames = cms.untracked.vstring('root://cmsxrootd.fnal.gov//store/data/Run2015E/Cosmics/RAW/v1/000/261/657/00000/646B086D-0F8D-E511-9347-02163E011DDA.root')
 )
 
 # from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
@@ -41,7 +44,9 @@ process.source = cms.Source("PoolSource",
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-if isData: process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+if isData: 
+  # process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+  process.GlobalTag = GlobalTag(process.GlobalTag, '75X_dataRun2_Prompt_ppAt5TeV_v0', '')
 if not isData: process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -75,6 +80,48 @@ print process.GlobalTag.globaltag
 # process.PFClustersHF = cms.Path(process.particleFlowRecHitHF*process.particleFlowClusterHF)
 
 
+
+if isRawData:
+    ###############################################################################
+    ###############################################################################
+    # ## when running on raw data digis has to been unpacked 
+    # ## and RecHits need to be reconstruct
+    process.load('Configuration.StandardSequences.RawToDigi_cff')
+    process.rawtodigi = cms.Path(process.gtDigis)
+
+    process.castorDigis = cms.EDProducer("CastorRawToDigi",
+        # Optional filter to remove any digi with "data valid" off, "error" on, 
+        # or capids not rotating
+        FilterDataQuality = cms.bool(True),
+        # Number of the first CASTOR FED.  If this is not specified, the
+        # default from FEDNumbering is used.
+        CastorFirstFED = cms.int32(690),
+        # FED numbers to unpack.  If this is not specified, all FEDs from
+        # FEDNumbering will be unpacked.
+        FEDs = cms.untracked.vint32( 690, 691, 692 ),
+        # Do not complain about missing FEDs
+        ExceptionEmptyData = cms.untracked.bool(False),
+        # Do not complain about missing FEDs
+        ComplainEmptyData = cms.untracked.bool(False),
+        # At most ten samples can be put into a digi, if there are more
+        # than ten, firstSample and lastSample select which samples
+        # will be copied to the digi
+        firstSample = cms.int32(0),
+        lastSample = cms.int32(9),
+        # castor technical trigger processor
+        UnpackTTP = cms.bool(True),
+        # report errors
+        silent = cms.untracked.bool(False),
+        #
+        InputLabel = cms.InputTag("rawDataCollector"),
+        CastorCtdc = cms.bool(False),
+        UseNominalOrbitMessageTime = cms.bool(True),
+        ExpectedOrbitMessageTime = cms.int32(-1)
+    )
+
+    process.load('RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi')
+    process.castorlocalreco = cms.Path(process.castorDigis*process.castorreco)
+    ###############################################################################
 
 
 ###############################################################################
@@ -126,7 +173,8 @@ process.patJetsAK4Calo.useLegacyJetMCFlavour=True # Need to use legacy flavour s
 # HLT path filter
 process.hltcastormuon = cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring('HLT_L1CastorMuon_v1','HLT_L1Tech59_CASTORHaloMuon_v1'), # provide list of HLT paths (or patterns) you want
+     # HLTPaths = cms.vstring('HLT_L1CastorMuon_v1','HLT_L1Tech59_CASTORHaloMuon_v1'), # provide list of HLT paths (or patterns) you want
+     HLTPaths = cms.vstring('HLT_L1Tech59_CastorMuon_v1'), # provide list of HLT paths (or patterns) you want
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key #HLT_MinBiasBSC # HLT_L1Tech_BSC_minBias
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
      throw = cms.bool(False)    # throw exception on unknown path names
@@ -170,6 +218,11 @@ process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.T
 if not isData:
     process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.GenLevelViewsConfigs.get(["GenPartView"]))
     process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.GenLevelViewsConfigs.get(["ak4GenJetView"]))
+
+if isRawData:
+    process = CommonFSQFramework.Core.customizePAT.addPath(process, process.rawtodigi)
+    process = CommonFSQFramework.Core.customizePAT.addPath(process, process.castorlocalreco)
+
 
 # # add paths
 # if not isData:
