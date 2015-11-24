@@ -44,9 +44,7 @@ process.source = cms.Source("PoolSource",
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-if isData: 
-  # process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-  process.GlobalTag = GlobalTag(process.GlobalTag, '75X_dataRun2_Prompt_ppAt5TeV_v0', '')
+if isData: process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 if not isData: process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
