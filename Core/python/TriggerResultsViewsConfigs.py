@@ -20,7 +20,7 @@ def get(todo):
         ZeroBias = cms.vstring("HLT_ZeroBias*"),
         MinBias = cms.vstring("HLT_L1MinimumBias*"),
         Random = cms.vstring("HLT_Random*"),
-        CastorHaloMuon = cms.vstring("HLT_L1CastorMuon*","HLT_L1Tech59_CASTORHaloMuon*")
+        CastorHaloMuon = cms.vstring("HLT_L1CastorMuon*","HLT_L1Tech59_CASTORHaloMuon*","HLT_L1Tech59_CastorMuon*")
     )
 
     defs["CastorSpecialMuonTriggerResultsView_2013PA"]  = cms.PSet(
