@@ -15,12 +15,12 @@ config.Data.splitting = 'FileBased' # alt: LumiBased
 config.Data.unitsPerJob = 200000
 #config.Data.totalUnits = 1000 # havent worked last time, use lumi mask?
 #config.Data.totalUnits = 10000 # havent worked last time, use lumi mask?
-config.Data.lumiMask = "CommonFSQFramework/Skim/lumi/MinBias_CastorMuonRuns_v2.json"
+config.Data.lumiMask = "CommonFSQFramework/Skim/lumi/Cosmics_CastorMuonRuns.json"
 #config.Data.dbsUrl = "global"
 
 
 config.Data.publication = False
-config.Data.publishDataName = 'HW_CastorMuon'
+# config.Data.publishDataName = 'HW_CastorMuon'
 
 config.section_("Site")
 config.Site.storageSite = 'T2_CH_CERN'
