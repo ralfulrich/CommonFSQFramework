@@ -174,7 +174,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec+";Energy;;", 100, 0, 1000)
             
             henergyGeV='MuonSignalAllSec_GeV_Excl'+str(iDelta)+'_energy'
-            self.hist[henergyGeV] = ROOT.TH1D(henergyGeV, henergyGeV+";Energy;;", 100, 0, 100) 
+            self.hist[henergyGeV] = ROOT.TH1D(henergyGeV, henergyGeV+";Energy;;", 100, 0, 500) 
 
             histMuonSignalMean = "1DMuonsignalMean_Excl"+str(iDelta)
             self.hist[histMuonSignalMean] = ROOT.TH1D(histMuonSignalMean,histMuonSignalMean+";channel;<Energy>;",224,-0.5,223.5)
@@ -412,6 +412,15 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
     def analyze(self):
+        ##################################################   
+        ##################################################
+        ##################################################
+        ##################################################
+        # if self.fChain.run <= 247483: return 1
+        ##################################################
+        ##################################################
+        ##################################################
+        ##################################################
         weight = 1 # Ralf: what is this used for ? CFF internal?
         num = 0 # Ralf: what is this used for ? CFF internal?
                 
@@ -425,6 +434,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         #print "EventCount 1 :", self.hist["EventCount"].GetEntries()
 
 #        self.hist["RunsAllTrigger"].Fill(self.fChain.run)
+
+
 
 
         if DATASOURCE == "DATA":
