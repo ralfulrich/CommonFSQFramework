@@ -15,6 +15,7 @@ else:
 # for test purpose
 # isData = True
 
+# when isRawData = True the unpacker is used to create castor Digis and also RecHits
 isRawData = True
 
 process = cms.Process("Treemaker")
@@ -44,7 +45,7 @@ process.source = cms.Source("PoolSource",
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-if isData: process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+if isData: process.GlobalTag = GlobalTag(process.GlobalTag, '75X_dataRun2_Prompt_ppAt5TeV_v0', '')
 if not isData: process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -190,6 +191,9 @@ process = CommonFSQFramework.Core.customizePAT.customizeGT(process)
 # define treeproducer
 process.MuonCastorVTwo = cms.EDAnalyzer("CFFTreeProducer")
 
+# use this when HLT filter should be used to create tree
+# comment: filter has to be include with a star before the EDAnalyzer in a path
+#          so CMSSW knows that can not paralize event processing
 process.FiltererdTree = cms.Path(process.hltcastormuon*process.MuonCastorVTwo)
 
 import CommonFSQFramework.Core.VerticesViewsConfigs
@@ -217,6 +221,7 @@ if not isData:
     process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.GenLevelViewsConfigs.get(["GenPartView"]))
     process.MuonCastorVTwo._Parameterizable__setParameters(CommonFSQFramework.Core.GenLevelViewsConfigs.get(["ak4GenJetView"]))
 
+# steps which are needed for RecHit creation when run on RAW data
 if isRawData:
     process = CommonFSQFramework.Core.customizePAT.addPath(process, process.rawtodigi)
     process = CommonFSQFramework.Core.customizePAT.addPath(process, process.castorlocalreco)
@@ -227,5 +232,11 @@ if isRawData:
 #     process = CommonFSQFramework.Core.customizePAT.addPath(process, process.CastorReReco)
 
 # process = CommonFSQFramework.Core.customizePAT.addPath(process, process.PFClustersHF)
+
+###############################################################################
+# produce just CFF tree without any filters
 # process = CommonFSQFramework.Core.customizePAT.addTreeProducer(process, process.MuonCastorVTwo)
+
+###############################################################################
+# produce CFF tree whith filter
 process = CommonFSQFramework.Core.customizePAT.addPath(process, process.FiltererdTree)
