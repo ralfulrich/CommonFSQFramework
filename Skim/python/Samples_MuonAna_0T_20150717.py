@@ -38,16 +38,16 @@ sam["data_MinimumBias_MuonHLTSkim_Run2015A"]["DS"]='/MinimumBias/Run2015A-Prompt
 
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]={}
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["crabJobs"]=232
-sam["data_Cosmics_MuonHLTSkim_Run2015E"]["GT"]='GR_R_75_V5A'
+sam["data_Cosmics_MuonHLTSkim_Run2015E"]["GT"]='75X_dataRun2_Prompt_ppAt5TeV_v0'
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["name"]='data_Cosmics_MuonHLTSkim_Run2015E'
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["isData"]=True
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["numEvents"]=4486825
-sam["data_Cosmics_MuonHLTSkim_Run2015E"]["pathSE"]='srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_Run2015E/151124_172833/0000/'
-sam["data_Cosmics_MuonHLTSkim_Run2015E"]["pathTrees"]='/XXXTMFTTree/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_Run2015E/151124_172833/0000//'
+sam["data_Cosmics_MuonHLTSkim_Run2015E"]["pathSE"]='srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN=/pnfs/desy.de/cms/tier2/store/user/cwohrman/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_Run2015E/151126_133520/0000/'
+sam["data_Cosmics_MuonHLTSkim_Run2015E"]["pathTrees"]='/XXXTMFTTree/tier2/store/user/cwohrman/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_Run2015E/151126_133520/0000/'
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["json"]='CommonFSQFramework/Skim/lumi/Cosmics_CastorMuonRuns.json'
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["lumiMinBias"]=-1
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["XS"]=-1
-sam["data_Cosmics_MuonHLTSkim_Run2015E"]["pathPAT"]='/XXXTMFPAT/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_Run2015E/151124_172833/0000//'
+sam["data_Cosmics_MuonHLTSkim_Run2015E"]["pathPAT"]='/XXXTMFPAT/tier2/store/user/cwohrman/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_Run2015E/151126_133520/0000/store/group/phys_heavyions/cwohrman/CFF/CastorMuon/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_Run2015E/151124_172833/0000//'
 sam["data_Cosmics_MuonHLTSkim_Run2015E"]["DS"]='/Cosmics/Run2015E-v1/RAW'
 
 
