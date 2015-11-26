@@ -1,5 +1,7 @@
-PATbasePATH="root://eoscms.cern.ch//eos/cms/"
-TTreeBasePATH="root://eoscms.cern.ch//eos/cms/"
+TTreeBasePATH="/pnfs/desy/cms/"
+PATbasePATH="/pnfs/desy/cms/"
+# PATbasePATH="root://eoscms.cern.ch//eos/cms/"
+# TTreeBasePATH="root://eoscms.cern.ch//eos/cms/"
 # ROOTPrefix="root://xrootd.unl.edu/" # USA
 # ROOTPrefix=""
 #ROOTPrefix="root://xrootd-cms.infn.it" # Europe+Asia
