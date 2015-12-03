@@ -35,7 +35,7 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('/store/data/Run2015A/ZeroBias/RECO/PromptReco-v1/000/247/607/00000/52EA626D-9210-E511-843F-02163E01451D.root')
     # fileNames = cms.untracked.vstring('/store/data/Run2015A/MinimumBias/RECO/PromptReco-v1/000/247/403/00000/061A4C94-3B0F-E511-B492-02163E0140E0.root')
     # fileNames = cms.untracked.vstring('/store/hidata/HIRun2013/PAMinBiasUPC/RECO/PromptReco-v1/000/209/948/00000/184CCE65-8C60-E211-B2D4-003048D2BE12.root')
-    fileNames = cms.untracked.vstring('root://cmsxrootd.fnal.gov//store/data/Run2015E/Cosmics/RAW/v1/000/261/657/00000/646B086D-0F8D-E511-9347-02163E011DDA.root')
+    fileNames = cms.untracked.vstring('/store/hidata/HIRun2015/Cosmics/RAW/v1/000/262/611/00000/AE2C3478-B793-E511-957C-02163E011B19.root')
 )
 
 # from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
