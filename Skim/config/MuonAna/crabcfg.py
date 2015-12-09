@@ -24,4 +24,5 @@ config.Data.publication = False
 
 config.section_("Site")
 config.Site.storageSite = 'T2_DE_DESY'
+config.Data.outLFNDirBase = '/store/user/cwohrman/CFF/CastorMuon'
 # config.Data.outLFNDirBase = '/store/group/phys_heavyions/cwohrman/CFF/CastorMuon'
