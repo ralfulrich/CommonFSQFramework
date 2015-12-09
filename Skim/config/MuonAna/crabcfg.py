@@ -15,7 +15,7 @@ config.Data.splitting = 'FileBased' # alt: LumiBased
 config.Data.unitsPerJob = 200000
 #config.Data.totalUnits = 1000 # havent worked last time, use lumi mask?
 #config.Data.totalUnits = 10000 # havent worked last time, use lumi mask?
-config.Data.lumiMask = "CommonFSQFramework/Skim/lumi/Cosmics_CastorMuonRuns.json"
+# config.Data.lumiMask = "CommonFSQFramework/Skim/lumi/Cosmics_CastorMuonRuns.json"
 #config.Data.dbsUrl = "global"
 
 
