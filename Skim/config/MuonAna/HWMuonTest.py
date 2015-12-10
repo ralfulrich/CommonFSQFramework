@@ -19,6 +19,7 @@ class HWMuonTest(CommonFSQFramework.Core.ExampleProofReader.ExampleProofReader):
 
         self.hist = {}
         self.hist["heventbx"] =  ROOT.TH1F("heventbx",   "heventbx",  3600, 0, 3600)
+        self.hist["hrun"] = ROOT.TH1F("hrun", "hrun", 3000, 0, 3000)
         self.hist["hcasenergy"] = ROOT.TH1F("hcasenergy", "hcasenergy", 10000, 0, 10000)
 
         # for i in range(100):
@@ -37,6 +38,7 @@ class HWMuonTest(CommonFSQFramework.Core.ExampleProofReader.ExampleProofReader):
     def analyze(self):
         weight = 1
         bx = self.fChain.bx
+        run = self.fChain.run
 
         if self.fChain.CastorRecHitEnergy.size() != 224:
             return -1
@@ -54,6 +56,7 @@ class HWMuonTest(CommonFSQFramework.Core.ExampleProofReader.ExampleProofReader):
         #print num
         #print self.maxEta # see slaveParams below
         self.hist["heventbx"].Fill(bx, weight)
+        self.hist["hrun"].Fill(run-261000, weight)
         self.hist["hcasenergy"].Fill(sumecas, weight)
 
         # gc.collect()
@@ -87,15 +90,16 @@ if __name__ == "__main__":
     # debug config:
     # Run printTTree.py alone to get the samples list
     sampleList = []
-    sampleList.append("data_Cosmics_MuonHLTSkim_Run2015E")
+    # sampleList.append("data_Cosmics_MuonHLTSkim_2015E_4T")
+    sampleList.append("data_Cosmics_MuonHLTSkim_HI2015E_4T")
     # maxFilesMC = 1
     # maxFilesData = 1
     # maxFilesData = 1
     nWorkers = 8
 
 
-    slaveParams = {}
-    slaveParams["maxEta"] = 2.
+    # slaveParams = {}
+    # slaveParams["maxEta"] = 2.
 
 
     # use printTTree.py <sampleName> to see what trees are avaliable inside the skim file
