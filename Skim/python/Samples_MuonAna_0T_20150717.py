@@ -64,6 +64,20 @@ sam["data_Cosmics_MuonHLTSkim_2015E_4T"]["XS"]=-1
 sam["data_Cosmics_MuonHLTSkim_2015E_4T"]["pathPAT"]='/XXXTMFPAT/tier2/store/user/cwohrman/CFF/CastorMuon/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_2015E_4T/151210_095015/0000//'
 sam["data_Cosmics_MuonHLTSkim_2015E_4T"]["DS"]='/Cosmics/Run2015E-v1/RAW'
 
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]={}
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["crabJobs"]=232
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["GT"]='75X_dataRun2_Prompt_ppAt5TeV_v0'
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["name"]='data_Cosmics_MuonHLTSkim_2015E_0T'
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["isData"]=True
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["numEvents"]=4486825
+# sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["pathSE"]='srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN=/pnfs/desy.de/cms/tier2/store/user/cwohrman/CFF/CastorMuon/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_2015E_4T/151210_095015/0000/'
+# sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["pathTrees"]='/XXXTMFTTree/tier2/store/user/cwohrman/CFF/CastorMuon/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_2015E_4T/151210_095015/0000//'
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["json"]='CommonFSQFramework/Skim/lumi/Cosmics_CastorMuonRuns_2015E_0T.json'
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["lumiMinBias"]=-1
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["XS"]=-1
+# sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["pathPAT"]='/XXXTMFPAT/tier2/store/user/cwohrman/CFF/CastorMuon/Cosmics/MuonAna_0T_20150717_data_Cosmics_MuonHLTSkim_2015E_4T/151210_095015/0000//'
+sam["data_Cosmics_MuonHLTSkim_2015E_0T"]["DS"]='/Cosmics/Run2015E-v1/RAW'
+
 sam["data_Cosmics_MuonHLTSkim_HI2015E_4T"]={}
 sam["data_Cosmics_MuonHLTSkim_HI2015E_4T"]["crabJobs"]=232
 sam["data_Cosmics_MuonHLTSkim_HI2015E_4T"]["GT"]='75X_dataRun2_Prompt_ppAt5TeV_v0'
