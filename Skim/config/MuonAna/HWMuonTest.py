@@ -91,7 +91,8 @@ if __name__ == "__main__":
     # Run printTTree.py alone to get the samples list
     sampleList = []
     # sampleList.append("data_Cosmics_MuonHLTSkim_2015E_4T")
-    sampleList.append("data_Cosmics_MuonHLTSkim_HI2015E_4T")
+    sampleList.append("data_Cosmics_MuonHLTSkim_2015E_0T")
+    # sampleList.append("data_Cosmics_MuonHLTSkim_HI2015E_4T")
     # maxFilesMC = 1
     # maxFilesData = 1
     # maxFilesData = 1
