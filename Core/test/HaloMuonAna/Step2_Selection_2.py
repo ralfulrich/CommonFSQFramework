@@ -94,19 +94,18 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.addToOutput(self.outTree)
 
 
-        # hist_sec_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_Mean")
-        # hist_sec_RMS = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_RMS")
+        
 
         # #Getting channel RMS and Mean
         # hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
         # hist_ch_RMS =  inputFile.Get("data_MinimumBias_Run2015A/hist_ch_RMS")
 
-        hist_sec_Mean = inputFile.Get("data_MinimumBias/hSector_Mean")
-        hist_sec_RMS = inputFile.Get("data_MinimumBias/hSector_RMS")
-
+        
+        hist_sec_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_Mean")
+        hist_sec_RMS = inputFile.Get("data_MinimumBias_Run2015A/hist_sec_RMS")
         #Getting channel RMS and Mean
-        hist_ch_Mean = inputFile.Get("data_MinimumBias/hist_ch_Mean")
-        hist_ch_RMS =  inputFile.Get("data_MinimumBias/hist_ch_RMS")
+        hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
+        hist_ch_RMS =  inputFile.Get("data_MinimumBias_Run2015A/hist_ch_RMS")
 
         # print "Pointer Address of Noise level hist:", hist_sec_Mean
 
@@ -124,7 +123,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
             if not firstRun:
-                self.hist[histcalibrationname] = inputFile.Get("data_MinimumBias_Run2015A/2DMuonSignalMap")
+                self.hist[histcalibrationname] = inputFile.Get("data_Cosmics_MuonHLTSkim_2015E_4T/2DMuonSignalMap")
                 print "Extracted histogram from file. Checking entries:",  self.hist[histcalibrationname].GetEntries()
 
             else: #first time running analyser the calibration constants are all set to 1
@@ -186,7 +185,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec+";Energy;;", 100, 0, 1000)
             
             henergyGeV='MuonSignalAllSec_GeV_Excl'+str(iDelta)+'_energy'
-            self.hist[henergyGeV] = ROOT.TH1D(henergyGeV, henergyGeV+";Energy;;", 100, 0, 100) 
+            self.hist[henergyGeV] = ROOT.TH1D(henergyGeV, henergyGeV+";Energy;;", 100, 0, 500) 
 
             histMuonSignalMean = "1DMuonsignalMean_Excl"+str(iDelta)
             self.hist[histMuonSignalMean] = ROOT.TH1D(histMuonSignalMean,histMuonSignalMean+";channel;<Energy>;",224,-0.5,223.5)
@@ -424,6 +423,15 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
     def analyze(self):
+        ##################################################   
+        ##################################################
+        ##################################################
+        ##################################################
+        # if self.fChain.run <= 247483: return 1
+        ##################################################
+        ##################################################
+        ##################################################
+        ##################################################
         weight = 1 # Ralf: what is this used for ? CFF internal?
         num = 0 # Ralf: what is this used for ? CFF internal?
                 
@@ -437,6 +445,8 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         #print "EventCount 1 :", self.hist["EventCount"].GetEntries()
 
 #        self.hist["RunsAllTrigger"].Fill(self.fChain.run)
+
+
 
 
         if DATASOURCE == "DATA":
@@ -1062,7 +1072,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
                     # if  meanRatio > 0:
                     #     histMuonSignalRatioLog.Fill(log10(meanRatio))
-               
+        pass
 
 
         
@@ -1073,7 +1083,7 @@ if __name__ == "__main__":
         print ("ERROR: SPECIFY iDeltaStart, iDeltaEnd, dataset.  ")
         print ("       iDeltaStart: minimal muon exclusivity (number of empty sectors next to muon)")
         print ("       iDeltaEnd: maximal muon exclusivity around muon")
-        print ("       dataset: data_MinimumBias_MuonHLTSkim_Run2015A or data_MinimumBias_Run2015A")
+        print ("       dataset: data_Cosmics_MuonHLTSkim_2015E_4T or data_MinimumBias_Run2015A")
         print ("Try again!!")
         sys.exit(1)
     
@@ -1088,8 +1098,8 @@ if __name__ == "__main__":
         sys.exit(1)
         
     datasetname = str(sys.argv[3])
-    if datasetname != "data_MinimumBias_MuonHLTSkim_Run2015A" and datasetname != "data_MinimumBias_Run2015A" :
-        print ("dataset must be either: data_MinimumBias_MuonHLTSkim_Run2015A or data_MinimumBias_Run2015A")
+    if datasetname != "data_Cosmics_MuonHLTSkim_2015E_4T" and datasetname != "data_MinimumBias_Run2015A" :
+        print ("dataset must be either: data_Cosmics_MuonHLTSkim_2015E_4T or data_MinimumBias_Run2015A")
         sys.exit(1)
 
 
@@ -1103,7 +1113,7 @@ if __name__ == "__main__":
     # Run printTTree.py alone to get the samples list
     sampleList = []
 #    sampleList.append("data_MinimumBias_Run2015A") # all triggers, 18MEvents
-#    sampleList.append("data_MinimumBias_MuonHLTSkim_Run2015A") # only the muon triggers 
+#    sampleList.append("data_Cosmics_MuonHLTSkim_2015E_4T") # only the muon triggers 
     sampleList.append(datasetname) 
 
     
