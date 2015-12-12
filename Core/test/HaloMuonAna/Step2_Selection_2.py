@@ -355,7 +355,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             for imod in xrange(14):
                 energy = energy_ch[isec][imod]
                 # print "RMS mod {mod} sec {sec}: {rms}".format(mod=str(imod),sec=str(isec),rms=self.ch_RMS[isec][imod])
-                if [isec+1,imod+1] in badChannelsSecMod:
+                if (isec+1,imod+1) in badChannelsSecMod:
                     listSigmaChannel[isec][imod] = None
                     # print "skipping channel", imod, isec
                     continue
@@ -404,7 +404,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         esecsum = [0] * 16
         for isec in xrange(0,16):
             for imod in xrange(0,14):
-                if [isec+1, imod+1] in badChannelsSecMod:
+                if (isec+1, imod+1) in badChannelsSecMod:
                     #print "skipping channel", imod, isec
                     continue
                 esecsum[isec] += ch_energy[isec][imod]
@@ -541,7 +541,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             ich_energy = calibration * rh_energy
             ch_energy[isec][imod] = ich_energy
 
-            if [isec+1, imod+1] not in badChannelsSecMod:
+            if (isec+1, imod+1) not in badChannelsSecMod:
                 sec_energy[isec] += ich_energy
 #                if imod < 5: sec_front_energy[isec] += ich_energy
 
@@ -843,7 +843,6 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
                     if hasMuonTrigger:
-
                         
                         self.hist["DeltaSigma_Excl" + str(iDeltaSector) + "_MuoCand"].Fill(DeltaSigma)
                         self.hist["2DDeltaSigma_Vs_SecRMSSecondHot_Excl" + str(iDeltaSector) + "_MuoCand"].Fill(DeltaSigma,SigmaSecHottestSector)
