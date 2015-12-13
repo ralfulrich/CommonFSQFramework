@@ -185,7 +185,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec+";Energy;;", 100, 0, 1000)
             
             henergyGeV='MuonSignalAllSec_GeV_Excl'+str(iDelta)+'_energy'
-            self.hist[henergyGeV] = ROOT.TH1D(henergyGeV, henergyGeV+";Energy;;", 100, 0, 500) 
+            self.hist[henergyGeV] = ROOT.TH1D(henergyGeV, henergyGeV+";Energy;;", 500, 0, 250)
 
             histMuonSignalMean = "1DMuonsignalMean_Excl"+str(iDelta)
             self.hist[histMuonSignalMean] = ROOT.TH1D(histMuonSignalMean,histMuonSignalMean+";channel;<Energy>;",224,-0.5,223.5)
@@ -227,16 +227,15 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
 
-        # TProfile for storing means and RMS. and when jobs are merged, the averge is taken
+        # TProfile for storing (means) and RMS
         self.hist['hist_sec_Mean'] = ROOT.TProfile('hist_sec_Mean','hist_sec_Mean',16,0.5,16.5)
         self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,0.5,16.5) #change later to hist_sec_mean
-        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,0.5,224.5)
         self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,0.5,224.5)
                 
                 
         # Getting electronic noise from in the Merijns file
         hist_ch_noise_RMS = inputFile_noise.Get("SumHistoNoiseFit")  # this is the Gaussian Fit !!
-
+        
         #get channel energies from input file
         self.ch_mean = [[0 for _ in xrange(14)] for _ in xrange(16)]
         self.ch_RMS = [[0 for _ in xrange(14)] for _ in xrange(16)]
@@ -252,6 +251,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             else:
                 self.ch_RMS[isec][imod] = hist_ch_RMS.GetBinContent(i+1) #+1 because of underflow
 
+            # and also remember for later reference
+            self.hist['hist_ch_RMS'].Fill(i+1, self.ch_RMS[isec][imod])
+
             #print i, "sec,mod", sec, mod, hist_ch_RMS.GetBinContent(i+1)
 
 
@@ -261,6 +263,10 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         for i in xrange(0,16):
             self.sec_mean[i] = hist_sec_Mean.GetBinContent(i+1) #+1 because of underflow
             self.sec_RMS[i] = hist_sec_RMS.GetBinContent(i+1) #+1 because of underflow
+
+            # and also remember for later reference
+            self.hist['hist_sec_RMS'].Fill(i+1, self.sec_RMS[i])
+            self.hist['hist_sec_Mean'].Fill(i+1, self.sec_mean[i])
 
         #these ones are needed to update mean and RMS for the new calibration constants
 #        self.new_ch_mean = [[0 for _ in xrange(14)] for _ in xrange(16)]
@@ -277,6 +283,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             self.GetOutputList().Add(self.hist[h])
 
 
+
+
+        # from Merijn using the characterization data
         self.TranspositionFactor = [[17.8879, 13.2482, 14.0743, 13.3278, 2.12091, 2.12543, 3.21527, 2.98481, 2.11992, 2.06513, 2.10157, 4.18052, 2.10157, 2.10157],
                     [15.5813, 14.3688, 13.9962, 15.8174, 2.14671, 2.16158, 2.94851, 3.03287, 2.07367, 2.09709, 2.02886, 5.6682, 2.10157, 2.10157],
                     [17.1485, 14.2758, 13.6352, 13.7265, 2.19081, 2.16161, 3.12191, 3.12444, 2.11671, 2.14295, 1.68227, 2.62755, 2.90551, 2.25366], 
@@ -295,6 +304,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     [13.4984, 13.0597, 13.3461, 13.7108, 2.1543, 2.14047, 2.89888, 3.05443, 2.07617, 2.12138, 2.25668, 2.10459, 2.3318, 2.07519]]
 
 
+        # from Melike using everything, also muon intercalib results
         self.Absolutecalibration2015 = [[0.016874, 0.016531, 0.02974, 0.015972, 0.004336, 0.005311, 0.005042, 0.005669, 0.00246, 0.003017, 0.00382, 0.006415, 0.008673, 0.004469], 
                     [0.019528, 0.013637, 0.039159, 0.017504, 0.005906, 0.004969, 0.0, 0.004563, 0.002357, 0.0, 0.002439, 0.005647, 0.00515, 0.004313], 
                     [0.018033, 0.015976, 0.032389, 0.016185, 0.003734, 0.00437, 0.005185, 0.0, 0.001718, 0.002401, 0.0, 0.004594, 0.008272, 0.005952],
@@ -311,6 +321,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     [0.013626, 0.026727, 0.034807, 0.026609, 0.004608, 0.015818, 0.006961, 0.0, 0.002699, 0.002787, 0.009467, 0.005394, 0.013983, 0.121789],
                     [0.014901, 0.017273, 0.035037, 0.071443, 0.002436, 0.008082, 0.005174, 0.004774, 0.002453, 0.001865, 0.000842, 0.003679, 0.011773, 0.00654], 
                     [0.014908, 0.01537, 0.033796, 0.078791, 0.002585, 0.014259, 0.005098, 0.005297, 0.002803, 0.002401, 0.002467, 0.002542, 0.006237, 0.004821]]
+
 
 
 
