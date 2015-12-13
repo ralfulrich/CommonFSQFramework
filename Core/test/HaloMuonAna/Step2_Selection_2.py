@@ -44,8 +44,8 @@ outfolder = os.environ["HaloMuonOutput"]
 class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofReader):
     def init( self, maxEvents = None):
         #####
-#        self.flag_use_merjin_electronic_channel_noise = False # mine RMS
-        self.flag_use_merjin_electronic_channel_noise = True 
+#        self.flag_use_merijn_electronic_channel_noise = False # mine RMS
+        self.flag_use_merijn_electronic_channel_noise = True 
         #####
 
 
@@ -156,7 +156,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
             # self.hist["2DMuonNoTriggerCountMap"] =  ROOT.TH2D("2DMuonNoTriggerCountMap","2DMuonNoTriggerCountMap", 14, -0.5, 13.5, 16, -0.5, 15.5)
             self.hist["GoodMuonCountPerSec_Excl"+str(iDelta)] =  ROOT.TH1D("GoodMuonCountPerSec_Excl"+str(iDelta),"GoodMuonCountPerSec;sector;N_{muon};", 16, 0.5, 16.5)
-            #            self.hist["RunsWithGoodMuons_Excl"+str(iDelta)] =  ROOT.TH1D("RunsWithGoodMuons_Excl"+str(iDelta),"RunsWithGoodMuons", 10000, 247000-0.5, 257000-0.5)
+            self.hist["RunsWithGoodMuons_Excl"+str(iDelta)] =  ROOT.TH1D("RunsWithGoodMuons_Excl"+str(iDelta), "RunsWithGoodMuons", 1, 1, 0)
             self.hist["DeltaSigma_Excl"+str(iDelta)+"_MuoEvt"] = ROOT.TH1D("DeltaSigma_Excl"+str(iDelta)+"_MuoEvt","DeltaSigma_MuoEvt;#Delta#sigma;;",100, 0, 50)
             self.hist["DeltaSigma_Excl"+str(iDelta)+"_RndEvt"] = ROOT.TH1D("DeltaSigma_Excl"+str(iDelta)+"_RndEvt","DeltaSigma_RndEvt;Delta#sigma;;",100, 0, 50)
             self.hist["DeltaSigma_Excl"+str(iDelta)+"_MuoCand"] = ROOT.TH1D("DeltaSigma_Excl"+str(iDelta)+"_MuoCand","DeltaSigma_MuoCand;#Delta#sigma;;",100, 0, 50)
@@ -226,11 +226,16 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
        #         self.hist[hnoise_randomtrg] = ROOT.TH1D(hnoise_randomtrg, hnoise_randomtrg, 50, -100, 400)
 
 
-                
 
+        # TProfile for storing means and RMS. and when jobs are merged, the averge is taken
+        self.hist['hist_sec_Mean'] = ROOT.TProfile('hist_sec_Mean','hist_sec_Mean',16,0.5,16.5)
+        self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,0.5,16.5) #change later to hist_sec_mean
+        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,0.5,224.5)
+        self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,0.5,224.5)
+                
                 
         # Getting electronic noise from in the Merijns file
-        hist_ch_noise_RMS= inputFile_noise.Get("SumHistoNoiseFit")  # this is the Gaussian Fit !!
+        hist_ch_noise_RMS = inputFile_noise.Get("SumHistoNoiseFit")  # this is the Gaussian Fit !!
 
         #get channel energies from input file
         self.ch_mean = [[0 for _ in xrange(14)] for _ in xrange(16)]
@@ -242,7 +247,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             #print sec, mod
             #i = sec*14+module   -> sec0 mod0 -> i=0   ; sec9 mod 4
             self.ch_mean[isec][imod] = hist_ch_Mean.GetBinContent(i+1) #+1 because of underflow
-            if self.flag_use_merjin_electronic_channel_noise:
+            if self.flag_use_merijn_electronic_channel_noise:
                 self.ch_RMS[isec][imod] = hist_ch_noise_RMS.GetBinContent(i+1) #+1 because of underflow
             else:
                 self.ch_RMS[isec][imod] = hist_ch_RMS.GetBinContent(i+1) #+1 because of underflow
@@ -263,13 +268,10 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 #        self.new_sec_mean = [0] * 16
 #        self.new_sec_RMS = [0] * 16
 
-        #TProfile for storing means and RMS. and when jobs are merged, the averge is taken
-        self.hist['hist_sec_Mean'] = ROOT.TProfile('hist_sec_Mean','hist_sec_Mean',16,0.5,16.5)
-        self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,0.5,16.5) #change later to hist_sec_mean
-        self.hist['hist_ch_Mean'] = ROOT.TProfile('hist_ch_Mean','hist_ch_Mean',224,0.5,224.5)
-        self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,0.5,224.5)
         
 
+        
+        
         for h in self.hist:
             self.hist[h].Sumw2()
             self.GetOutputList().Add(self.hist[h])
@@ -503,7 +505,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
         isZeroBias = isBptxminus and isBptxplus
 
-        # if self.flag_use_merjin_electronic_channel_noise:
+        # if self.flag_use_merijn_electronic_channel_noise:
 #        for isec in xrange(16):
  #           for imod in xrange(14):
   #              hnoise_electronic_RMS = 'CastorNoise_electronic_RMS_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(isec+1))
@@ -890,7 +892,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                         
                         self.hist["MuonFluctuations_Excl"+str(iDeltaSector)].Fill(energy_secsum[muonSec], max_channel[muonSec])
 
-#                        self.hist["RunsWithGoodMuons_Excl" + str(iDeltaSector)].Fill(self.fChain.run)
+                        self.hist["RunsWithGoodMuons_Excl" + str(iDeltaSector)].Fill(str(self.fChain.run), 1)
 
                         for imod in xrange(0,14):
                             hname = 'MuonSignalSecCh_Excl' + str(iDeltaSector) + '_mod_{mod}_sec_{sec}'.format(mod=str(imod+1), sec=str(muonSec+1))
