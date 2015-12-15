@@ -335,7 +335,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
         # eventually read additional json file for LS selection
-        json_file = open(join(outfolder,"../muon_2015_3.8T.json"))
+        json_file = open(join(outfolder,"../json_450GeV/muon_2015_3.8T.json"))
         self.JSON = json.loads(json_file.read())
         json_file.close()
 
