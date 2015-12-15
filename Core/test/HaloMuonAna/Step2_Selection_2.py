@@ -18,6 +18,7 @@ from ROOT import edm
 from math import sqrt, log10
 from array import *
 import copy
+import json
 # import time
 
 # from outsource_analzye_muon import *
@@ -85,17 +86,22 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.OUTtrgRandom = array( 'i', [0] )
         self.OUTtrgCastorHaloMuon = array( 'i', [0] )
         self.OUTCastorRecHitEnergy = array( 'd', 224 * [0.0])
+        self.OUTrun = array( 'i', [0] )
+        self.OUTlumi = array( 'i', [0] )
 
         outTree.Branch('trgl1L1GTTech', self.OUTtrgl1L1GTTech, 'trgl1L1GTTech[103]/I' )
         outTree.Branch('trgRandom', self.OUTtrgRandom, 'trgRandom/I')
         outTree.Branch('trgCastorHaloMuon', self.OUTtrgCastorHaloMuon, 'trgCastorHaloMuon/I')
         outTree.Branch('CastorRecHitEnergy', self.OUTCastorRecHitEnergy, 'CastorRecHitEnergy[224]/D')
+        outTree.Branch('run', self.OUTrun, 'run/I')
+        outTree.Branch('lumi', self.OUTlumi, 'lumi/I')
+
         setattr(self, "outTree", outTree)
         self.addToOutput(self.outTree)
-
-
         
-
+        
+        
+        
         # #Getting channel RMS and Mean
         # hist_ch_Mean = inputFile.Get("data_MinimumBias_Run2015A/hist_ch_Mean")
         # hist_ch_RMS =  inputFile.Get("data_MinimumBias_Run2015A/hist_ch_RMS")
@@ -182,10 +188,10 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
 
             hnameAllsec= 'MuonSignalAllSec_Excl'+str(iDelta)+'_energy'
-            self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec+";Energy;;", 100, 0, 1000)
+            self.hist[hnameAllsec] = ROOT.TH1D(hnameAllsec, hnameAllsec+";Energy;;", 150, 0, 2500)
             
             henergyGeV='MuonSignalAllSec_GeV_Excl'+str(iDelta)+'_energy'
-            self.hist[henergyGeV] = ROOT.TH1D(henergyGeV, henergyGeV+";Energy;;", 500, 0, 250)
+            self.hist[henergyGeV] = ROOT.TH1D(henergyGeV, henergyGeV+";Energy;;", 500, 0, 75)
 
             histMuonSignalMean = "1DMuonsignalMean_Excl"+str(iDelta)
             self.hist[histMuonSignalMean] = ROOT.TH1D(histMuonSignalMean,histMuonSignalMean+";channel;<Energy>;",224,-0.5,223.5)
@@ -231,6 +237,7 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         self.hist['hist_sec_Mean'] = ROOT.TProfile('hist_sec_Mean','hist_sec_Mean',16,0.5,16.5)
         self.hist['hist_sec_RMS'] = ROOT.TProfile('hist_sec_RMS','hist_sec_RMS',16,0.5,16.5) #change later to hist_sec_mean
         self.hist['hist_ch_RMS'] = ROOT.TProfile('hist_ch_RMS','hist_ch_RMS',224,0.5,224.5)
+        self.hist['hist_ch_good'] = ROOT.TProfile('hist_ch_good','hist_ch_good',224,0.5,224.5)
                 
                 
         # Getting electronic noise from in the Merijns file
@@ -253,6 +260,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
 
             # and also remember for later reference
             self.hist['hist_ch_RMS'].Fill(i+1, self.ch_RMS[isec][imod])
+            if [isec+1,imod+1] not in badChannelsSecMod:
+                self.hist['hist_ch_good'].Fill(i+1, 1)
+
 
             #print i, "sec,mod", sec, mod, hist_ch_RMS.GetBinContent(i+1)
 
@@ -321,6 +331,14 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     [0.013626, 0.026727, 0.034807, 0.026609, 0.004608, 0.015818, 0.006961, 0.0, 0.002699, 0.002787, 0.009467, 0.005394, 0.013983, 0.121789],
                     [0.014901, 0.017273, 0.035037, 0.071443, 0.002436, 0.008082, 0.005174, 0.004774, 0.002453, 0.001865, 0.000842, 0.003679, 0.011773, 0.00654], 
                     [0.014908, 0.01537, 0.033796, 0.078791, 0.002585, 0.014259, 0.005098, 0.005297, 0.002803, 0.002401, 0.002467, 0.002542, 0.006237, 0.004821]]
+
+
+
+        # eventually read additional json file for LS selection
+        json_file = open(join(outfolder,"../muon_2015_3.8T.json"))
+        self.JSON = json.loads(json_file.read())
+        json_file.close()
+
 
 
 
@@ -448,18 +466,20 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
         weight = 1 # Ralf: what is this used for ? CFF internal?
         num = 0 # Ralf: what is this used for ? CFF internal?
                 
-
-        # genTracks
-        #num = self.fChain.genTracks.size()
-        #print num
-        #print self.maxEta # see slaveParams below
         
         self.hist["EventCount"].Fill("all",1)
-        #print "EventCount 1 :", self.hist["EventCount"].GetEntries()
-
-#        self.hist["RunsAllTrigger"].Fill(self.fChain.run)
-
-
+        
+        
+        if self.JSON != None:
+            goodLS = False
+            if str(self.fChain.run) in self.JSON: 
+                for LS in self.JSON[str(self.fChain.run)]:
+                    if self.fChain.lumi>=LS[0] and self.fChain.lumi<=LS[1]:
+                        goodLS = True
+            if not goodLS:
+                return 0
+            self.hist["EventCount"].Fill("goodLS",1)
+            
 
 
         if DATASOURCE == "DATA":
@@ -937,11 +957,14 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
                     self.OUTCastorRecHitEnergy[i] = self.fChain.CastorRecHitEnergy[i]
                 else:
                     self.OUTCastorRecHitEnergy[i] = 0
+            self.OUTrun = self.fChain.run
+            self.OUTlumi = self.fChain.lumi
             self.outTree.Fill()
             
-            
-            
         return 1
+
+
+
 
     def finalize(self):
         
@@ -949,6 +972,9 @@ class Step2_Selection_2(CommonFSQFramework.Core.ExampleProofReader.ExampleProofR
             self.outTree.AutoSave()
         
         print "Finalize:"
+
+
+
 
     def finalizeWhenMerged(self):
         # print "Finalize when merged"
@@ -1131,11 +1157,15 @@ if __name__ == "__main__":
 
     
 
+#    print json.__class__.__name__
+#    sys.exit(1)
+
     slaveParams = {}
     
     slaveParams['iDeltaStart'] = iDeltaStart
     slaveParams['iDeltaEnd'] = iDeltaEnd
-    
+    # slaveParams['json'] = json
+
 
     if DATASOURCE == "DATA":
         #check which output files already exist

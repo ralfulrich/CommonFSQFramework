@@ -350,14 +350,14 @@ class ExampleProofReader( ROOT.TPySelector ):
 
         sampleListFullInfo = CommonFSQFramework.Core.Util.getAnaDefinition("sam")
         sampleCnt = 0
-        for t in todo:
+        for sample in todo:
             sampleCnt += 1
             print "#"*60
-            print "Next sample:", t, "("+str(sampleCnt)+"/"+str(len(todo))+")"
+            print "Next sample:", sample, "("+str(sampleCnt)+"/"+str(len(todo))+")"
             print "#"*60
-            if len(treeFilesAndNormalizations[t]["files"])==0:
-                print "Skipping, empty filelist for",t
-                skipped.append(t)
+            if len(treeFilesAndNormalizations[sample]["files"])==0:
+                print "Skipping, empty filelist for",sample
+                skipped.append(sample)
                 continue
 
             dataset = ROOT.TDSet( 'TTree', 'data', treeName) # the last name is the directory name inside the root file
@@ -366,9 +366,9 @@ class ExampleProofReader( ROOT.TPySelector ):
 #            dataset = ROOT.TDSet( 'TTree', 'data', 'data_MinimumBias_Run2015A') # the last name is the directory name inside the root file
 #            dataset.Add('/afs/cern.ch/user/u/ulrich/scratch0/CMSSW_7_4_7/src/CommonFSQFramework/Core/test/HaloMuonAna/preselect.v2.root')
 
-            slaveParameters["datasetName"] = t
-            slaveParameters["isData"] = sampleListFullInfo[t]["isData"]
-            slaveParameters["normalizationFactor"] =  treeFilesAndNormalizations[t]["normFactor"]
+            slaveParameters["datasetName"] = sample
+            slaveParameters["isData"] = sampleListFullInfo[sample]["isData"]
+            slaveParameters["normalizationFactor"] =  treeFilesAndNormalizations[sample]["normFactor"]
 
             ROOT.TProof.AddEnvVar("PATH2",ROOT.gSystem.Getenv("PYTHONPATH")+":"+os.getcwd())
 
@@ -408,17 +408,17 @@ class ExampleProofReader( ROOT.TPySelector ):
 
             proof.Exec( 'gSystem->Setenv("PYTHONPATH",gSystem->Getenv("PATH2"));') # for some reason cannot use method below for python path
             #proof.Exec( 'gSystem->Setenv("PATH", "'+ROOT.gSystem.Getenv("PATH") + '");')
-            for v in variablesToSetInProof:
+            for var in variablesToSetInProof:
                 # if you get better implemenation (GetParameter?) mail me
-                proof.Exec('gSystem->Setenv("'+v+'","'+variablesToSetInProof[v]+'");')
+                proof.Exec('gSystem->Setenv("'+var+'","'+variablesToSetInProof[var]+'");')
 	    	
             print dataset.Process( 'TPySelector',  cls.__name__, maxNevents) # with parameter to limit on number of events
 
             try:
                 print "Logs saved to:"
                 logs = proof.GetManager().GetSessionLogs().GetListOfLogs()
-                for l in logs:
-                    print l.GetTitle()
+                for log in logs:
+                    print log.GetTitle()
                 if len(logs) > 1:
                     with open(logs[1].GetTitle(),"r") as f:
                         if verbosity > 1:
@@ -449,19 +449,19 @@ class ExampleProofReader( ROOT.TPySelector ):
             curPath = ROOT.gDirectory.GetPath()
 
             if useProofOFile:
-                bigFileName = outFile.replace(".root","")+"_"+t+".root"
+                bigFileName = outFile.replace(".root","")+"_"+sample+".root"
                 of = ROOT.TFile(bigFileName,"UPDATE")
             else:
                 of = ROOT.TFile(outFile,"UPDATE")
 
             # Write norm value and other info
-            saveDir = of.Get(t)
+            saveDir = of.Get(sample)
             if not saveDir:
                 print "Cannot get directory from plot file"
                 continue
             saveDir.cd()
 
-            norm = treeFilesAndNormalizations[t]["normFactor"]
+            norm = treeFilesAndNormalizations[sample]["normFactor"]
             hist = ROOT.TH1D("norm", "norm", 1,0,1)
             hist.SetBinContent(1, norm)
             #saveDir.WriteObject(hist, hist.GetName())
