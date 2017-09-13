@@ -33,29 +33,41 @@ print "Submitting jobs for", anaVersion
 parser = OptionParser(usage="usage: %prog [options] filename",
                         version="%prog 1.0")
 
+parser.add_option("-c", "--cfg", action="store", type="string", dest="cfgInput", default="crabcfg.py" )
+parser.add_option("-d", "--dump", action="store_true", dest="dump", default=False )
 parser.add_option("-s", "--sample", action="store", type="string", dest="sample" )
+parser.add_option("-a", "--allsamples", action="store_true", dest="allsamples", default=False )
 #parser.add_option("-d", "--dataOnly", action="store", type="bool", dest="dataOnly" )
 (options, args) = parser.parse_args()
 
-if options.sample:
+if options.dump:
+    print ("")
+    print ("list of available samples: " + str(sampleList.keys()))
+    print ("")
+    sys.exit()
+
+elif options.sample:
     sampleListTodo = []
     samplesListFromCLI = options.sample.split(",")
     for s in samplesListFromCLI:
         sampleListTodo.append(s)
-else:
+elif options.allsamples:
     sampleListTodo = sampleList.keys()
+else: 
+    parser.print_help()
+    sys.exit()
 
-for s in sampleListTodo:
+for theSample in sampleListTodo:
 
   isData=False
-  if "isData" in sampleList[s]:
-    isData=sampleList[s]["isData"]
+  if "isData" in sampleList[theSample]:
+    isData=sampleList[theSample]["isData"]
 
-  name=anaVersion+"_"+s
+  name=anaVersion+"_"+theSample
 
   targetPath = anaVersion + "/" + "crab_" + name
   if os.path.exists(targetPath):
-    print "Path", name, "allready exists. Doing nothing"
+    print "Path", targetPath, "already exists. Doing nothing"
     continue    
 
  
@@ -65,19 +77,25 @@ for s in sampleListTodo:
   pycfgextra.append("config.General.workArea='"+anaVersion+"'")
   pycfgextra.append("config.General.requestName='"+name+"'")
   pycfgextra.append("config.Data.outputDatasetTag='"+name+"'")
-  pycfgextra.append("config.Data.inputDataset='"+sampleList[s]["DS"]+"'")
+  pycfgextra.append("config.Data.inputDataset='"+sampleList[theSample]["DS"]+"'")
   # customize when running on private datasets
-  if "/USER" in sampleList[s]["DS"]: 
+  if "/USER" in sampleList[theSample]["DS"]: 
       print "Submitting jobs with a private USER made input dataset"
       pycfgextra.append("config.Data.inputDBS = 'phys03'")
 
   
   if isData:
-    print isData, sampleList[s]["json"]
-    pycfgextra.append("config.Data.splitting='LumiBased'")
-    pycfgextra.append("config.Data.unitsPerJob=10")
-    jsonFile=edm.FileInPath(sampleList[s]["json"])
-    pycfgextra.append("config.Data.lumiMask='"+jsonFile.fullPath()+"'")
+    print isData, sampleList[theSample]["json"]
+#    pycfgextra.append("config.Data.splitting='LumiBased'")
+#    pycfgextra.append("config.Data.unitsPerJob=100")
+    if os.path.isfile(sampleList[theSample]["json"]):
+        jsonFile=os.path.abspath(sampleList[theSample]["json"])
+    else:
+        jsonFile=edm.FileInPath(sampleList[theSample]["json"]).fullPath()
+#    else:
+#        print ('\nError in json file path/name! fix!\n')
+#        sys.exit()
+    pycfgextra.append("config.Data.lumiMask='"+jsonFile+"'")
     
   else:
     pycfgextra.append("config.Data.splitting='EventAwareLumiBased'")
@@ -85,19 +103,22 @@ for s in sampleListTodo:
   
 
   # TODO save old value and set it at exit   
-  os.environ["TMFSampleName"]=s
+  os.environ["TMFSampleName"]=theSample
 
+  if not os.path.isfile(options.cfgInput):
+      print ("\nCan't find crabcfg.py. Please specif with -c option!\n")
+      sys.exit()
 
-  os.system("cp crabcfg.py  tmp.py")
+  os.system("cp " + options.cfgInput + " tmp.py")
   with open("tmp.py", "a") as myfile:
     for l in pycfgextra:
         myfile.write(l+"\n")
 
-  #os.system("./crab submit -c tmp.py")
   os.system("crab submit -c tmp.py")
+  shutil.copy("tmp.py", targetPath + "/crabcfg_submitted.py")
 
   cfgName = None
-  with open("crabcfg.py", "r") as cfg:
+  with open("tmp.py", "r") as cfg:
     for l in cfg:
         line = l.strip()
         #if "pset=" not in line: continue
