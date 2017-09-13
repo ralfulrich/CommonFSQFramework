@@ -6,7 +6,8 @@
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelStatus.h"
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
-#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+//#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h" // new versions of CMSSW
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
 CastorRecHitView::CastorRecHitView(const edm::ParameterSet& iConfig, TTree * tree):
 EventViewBase(iConfig,  tree)
