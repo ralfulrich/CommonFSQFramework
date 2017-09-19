@@ -5,8 +5,8 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 
 from ROOT import *
-ROOT.gSystem.Load("libFWCoreFWLite.so")
-AutoLibraryLoader.enable()
+#ROOT.gSystem.Load("libFWCoreFWLite.so")
+#AutoLibraryLoader.enable()
 import CommonFSQFramework.Core.Util
 import time
 from multiprocessing import Process, Queue
