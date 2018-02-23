@@ -202,13 +202,15 @@ void EventIdData::fillSpecific(const edm::Event& iEvent, const edm::EventSetup& 
     	if (localcount == 1) std::cout << " An exception was thrown when accessing the PileupSummaryInfo object. This means we are probably running on GEN-SIM samples that do not have this information." << std::endl;
     }
     
-    
     // get the first (primary?) simulated vertex from Geant4
     edm::Handle<edm::SimVertexContainer> simVertexCollection;
     iEvent.getByLabel("g4SimHits", simVertexCollection);
-    const SimVertex simPVh = *(simVertexCollection->begin());
-    setF("simvtxx",simPVh.position().x());
-    setF("simvtxy",simPVh.position().y());
-    setF("simvtxz",simPVh.position().z());
+    if (simVertexCollection->size() > 0) {
+      const SimVertex simPVh = *(simVertexCollection->begin());
+      setF("simvtxx", simPVh.position().x());
+      setF("simvtxy", simPVh.position().y());
+      setF("simvtxz", simPVh.position().z());
+    }// catch(...) {/* apparently this is not always filled*/}
+    
 
 }
