@@ -14,6 +14,85 @@ import subprocess
 import CommonFSQFramework.Core.Util
 
 
+def getFileListGfalLs(path):
+    ret = []
+    command = ["gfal-ls", path]
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE)
+    cnt = 0
+    for line in iter(proc.stdout.readline,''):
+        l = line.strip()
+        fname = l.split("/")[-1]
+        if ".root" not in fname: continue
+        srcFile = path + "/" + fname
+        #targetFile = targetDir + "/" + fname
+        ret.append(srcFile)
+
+    return ret
+
+def getFileListSrmLS(path):
+    maxResults = 500
+    offset = 0
+
+    ret = []
+    lastTime = 0
+    cnt = 0
+    while True: # handle maxResults results at a time
+        command = ["srmls", "-2", "--offset", str(offset), "--count", str(maxResults),  path]
+        retryCnt = 1
+        goodRootFiles = 0
+        # for current offset value obtain list of files.
+        #    Try couple of times to handle empty output of srmls for some calls
+        while True:
+            lineCnt = 0
+            print "Obtaining file list for", path, "- try", retryCnt, "offset", offset
+
+            curTime = time.time()
+            sinceLastSrmls= abs(curTime-lastTime)
+            if sinceLastSrmls < 15: # dont be too agressive
+                print "   Since last srmls", sinceLastSrmls,"- sleeping"
+                time.sleep( int(15 - sinceLastSrmls) )
+                print "   OK, back to work"
+            proc = subprocess.Popen(command, stdout=subprocess.PIPE)
+            lastTime = int(time.time())
+            for line in iter(proc.stdout.readline,''):
+                lineCnt += 1
+                #print "XAQ", line.rstrip()
+                l =  line.strip()
+                fname = l.split("/")[-1]
+                if not fname.endswith(".root"): continue
+                goodRootFiles += 1 # this is a bit risky, since we may have other files in dir then rootfiles. TODO
+                #print "Found", fname
+
+
+                srcFile = path + "/" + fname
+                #targetFile = targetDir + "/" + fname
+
+                #print srcFile, targetFile
+                cnt += 1
+
+                
+                #ret[srcFile]=targetFile
+                ret.append(srcFile)
+
+            if lineCnt <= 1:
+                if retryCnt == 10:
+                    err = "Cannot get filelist for  "+path+"\n"
+                    err += " - if  some files were copied allready this probably means some server related problems."
+                    err += " Please retry in couple of minutes. \n"  
+                    err += " - if none of the files were copied please check your certificate proxy.\n"
+                    raise Exception(err)
+
+                retryCnt += 1
+            else:
+                break
+
+        if goodRootFiles>0:
+            offset += maxResults
+        else:
+            break
+
+    return ret
+
 
 def checkRootFile(fp):
     while "//" in fp:
@@ -221,6 +300,7 @@ def main():
         cntCopy = 0
         cntRead = 0
         createdDirs = []
+
         for srcFile in flist:
             cntRead += 1
             cntReadSum += 1
