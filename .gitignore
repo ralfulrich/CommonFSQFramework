@@ -4,3 +4,7 @@
 __init__.py
 Core/__init__.py
 Skim/__init__.py
+**/*.pdf
+**/*.log
+**/log*
+**/*.root
