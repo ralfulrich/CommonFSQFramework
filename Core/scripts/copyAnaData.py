@@ -337,6 +337,7 @@ def main():
             targetFile = targetDir + "/" + subdir + fname
             cpCommand = ['gfal-copy', pathSE.rstrip('/') + '/' + srcFile, targetFile]            
 	    #cpCommand = ['lcg-ls', srcFile]
+
 	    #print "would be cpCommand: ", cpCommand
             
 	    if "eos/cms" not in targetDir and os.path.isfile(targetFile):

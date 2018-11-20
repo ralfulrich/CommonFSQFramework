@@ -18,5 +18,9 @@ class TriggerResultsView: public EventViewBase{
 
       HLTPrescaleProvider hltprovider_;
       bool isValidHLTConfig_;
+
+      bool isStage1_;
+
+      edm::EDGetTokenT<edm::TriggerResults> m_HLTtoken;
 };
 #endif
