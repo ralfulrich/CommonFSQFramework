@@ -48,13 +48,13 @@ class CastorPlots(CommonFSQFramework.Core.ExampleProofReader.ExampleProofReader)
         
         self.hist["castor_bits2D"] =  ROOT.TH2D("castor_bits2D", "castor_bits2D", 4000, 0, 4000, nL1, self.minL1, self.maxL1)
 
-        self.hist["corr_L1Muon_beam1_502"] =  ROOT.TH1D("corr_L1Muon_beam1_502", "corr_L1Muon_beam1", 101, -50, 50)
-        self.hist["corr_L1Muon_beam2_502"] =  ROOT.TH1D("corr_L1Muon_beam2_502", "corr_L1Muon_beam2", 101, -50, 50)
-        self.hist["corr_L1Muon_collision_502"] =  ROOT.TH1D("corr_L1Muon_collision", "corr_L1Muon_collision", 101, -50, 50)
+        self.hist["corr_L1Muon_beam1_502"] =  ROOT.TH1D("corr_L1Muon_beam1_502", "corr_L1Muon_beam1", 201, -100, 100)
+        self.hist["corr_L1Muon_beam2_502"] =  ROOT.TH1D("corr_L1Muon_beam2_502", "corr_L1Muon_beam2", 201, -100, 100)
+        self.hist["corr_L1Muon_collision_502"] =  ROOT.TH1D("corr_L1Muon_collision", "corr_L1Muon_collision", 201, -100, 100)
 
-        self.hist["corr_L1Muon_beam1_503"] =  ROOT.TH1D("corr_L1Muon_beam1_503", "corr_L1Muon_beam1", 101, -50, 50)
-        self.hist["corr_L1Muon_beam2_503"] =  ROOT.TH1D("corr_L1Muon_beam2_503", "corr_L1Muon_beam2", 101, -50, 50)
-        self.hist["corr_L1Muon_collision_503"] =  ROOT.TH1D("corr_L1Muon_collision_503", "corr_L1Muon_collision", 101, -50, 50)
+        self.hist["corr_L1Muon_beam1_503"] =  ROOT.TH1D("corr_L1Muon_beam1_503", "corr_L1Muon_beam1", 201, -100, 100)
+        self.hist["corr_L1Muon_beam2_503"] =  ROOT.TH1D("corr_L1Muon_beam2_503", "corr_L1Muon_beam2", 201, -100, 100)
+        self.hist["corr_L1Muon_collision_503"] =  ROOT.TH1D("corr_L1Muon_collision_503", "corr_L1Muon_collision", 201, -100, 100)
         
 #        for isec in xrange(0,16):
 #            henergy = 'MuonSignal_sec_{sec}'.format(sec=str(isec+1))
