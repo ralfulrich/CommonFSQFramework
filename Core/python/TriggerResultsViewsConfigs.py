@@ -8,7 +8,16 @@ def get(todo):
         miniView = cms.string("TriggerResultsView"),
         branchPrefix = cms.untracked.string("trgl1"),
         storePrescales = cms.bool(False),
-        triggers = cms.vstring("L1GTAlgo")
+        triggers = cms.vstring("L1GTAlgo"),
+        useGlobalReadoutRecord = cms.bool(False)
+        )
+
+    defs["L1GTriggerResultsViewAOD"] = cms.PSet(
+        miniView = cms.string("TriggerResultsView"),
+        branchPrefix = cms.untracked.string("trgl1"),
+        storePrescales = cms.bool(False),
+        triggers = cms.vstring("L1GTAlgo"),
+        useGlobalReadoutRecord = cms.bool(True)
         )
 
     defs["AK4CaloJetTriggerResultsView"]  = cms.PSet(

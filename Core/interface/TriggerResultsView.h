@@ -8,6 +8,7 @@
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include <memory>
 #include <utility>
@@ -30,10 +31,13 @@ class TriggerResultsView: public EventViewBase{
       
       edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1tStage2uGtToken; // input tag for L1 uGT DAQ readout record
       edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtToken; // input tag for L1 uGT DAQ readout record
+      edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GlobalReadoutRecordToken;
       edm::EDGetTokenT<edm::TriggerResults> m_HLTtoken;
 
       // To get the number of algorithms
       std::shared_ptr<l1t::L1TGlobalUtil> m_gtUtil;
       int m_numAlgs; // number of algorithms
+      bool m_useGlobalReadoutRecord; 
 };
+
 #endif

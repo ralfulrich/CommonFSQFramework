@@ -5,8 +5,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-
 
 TriggerResultsView::TriggerResultsView(const edm::ParameterSet& iConfig,
 				       TTree * tree,
@@ -15,17 +13,21 @@ TriggerResultsView::TriggerResultsView(const edm::ParameterSet& iConfig,
   EventViewBase(iConfig,  tree), hltprovider_(iConfig, iC, *module),
   m_l1tStage2uGtToken(iC.consumes<GlobalAlgBlkBxCollection>(edm::InputTag("gtStage2Digis",
 									  "",
-									  "Treemaker"))),
+									  "Treemaker"))), // 2018
   m_gtUtil(new l1t::L1TGlobalUtil(iConfig, iC, *module,
 				  edm::InputTag("gtStage2Digis", "", "Treemaker"), // 2018
-				  edm::InputTag("gtStage2Digis", "", "Treemaker"))), // 2018
-  m_numAlgs(0)
+				  edm::InputTag("gtStage2Digis", "", "Treemaker"))) // 2018
 {
     // fetch config data
     // m_process = iConfig.getParameter<std::string>("process");
     m_triggerNames = iConfig.getParameter<std::vector<std::string> >("triggers");
     m_storePrescales = iConfig.getParameter<bool>("storePrescales");
-    
+    m_useGlobalReadoutRecord = iConfig.getParameter<bool>("useGlobalReadoutRecord");
+
+    if (m_useGlobalReadoutRecord) {
+      m_l1GlobalReadoutRecordToken = iC.consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigis"));
+    }
+
     for (unsigned int i=0; i < m_triggerNames.size();++i){
         // check, if it's for L1GT readout
         if (m_triggerNames.at(i).find("L1GT") != std::string::npos) {
@@ -91,11 +93,14 @@ void TriggerResultsView::doBeginRun(const edm::Run& r, const edm::EventSetup& es
     bool changed = true;
     isValidHLTConfig_ = hltprovider_.init(r, es, "*", changed);
 
-    // Get the trigger menu information
-    m_gtUtil->retrieveL1Setup(es);
-    // Find the number of algos defined
-    m_numAlgs = static_cast<int>(m_gtUtil->decisionsInitial().size());
-    //edm::LogWarning("TriggerResultsView: number of L1 bits=") << m_numAlgs << std::endl;
+    if (m_useGlobalReadoutRecord) {
+    } else {
+      // Get the trigger menu information
+      //m_gtUtil->retrieveL1Setup(es);
+      // Find the number of algos defined
+      //m_numAlgs = static_cast<int>(m_gtUtil->decisionsInitial().size());
+      //edm::LogWarning("TriggerResultsView: number of L1 bits=") << m_numAlgs << std::endl;
+    }
 }
 
 
@@ -114,53 +119,72 @@ TriggerResultsView::fillSpecific(const edm::Event& iEvent,
   
   const std::vector< std::string >& names = trbn.triggerNames(); 
   
-  // this is for stage2 L1 trigger *************************************
-  
-  // auto initial = m_gtUtil->decisionsInitial();
-  
-  // Open uGT readout record
-  edm::Handle<GlobalAlgBlkBxCollection> uGtAlgs;
-  iEvent.getByToken(m_l1tStage2uGtToken, uGtAlgs);
-  
-  if (!uGtAlgs.isValid()) {
-    edm::LogWarning("TriggerResultsView") << "Cannot find uGT readout record.";
-    return;
-  }
-  
   std::map<std::string, std::vector<std::string> >::const_iterator it, itE;
   it = m_triggerClasses.begin();
   itE = m_triggerClasses.end();
   for(;it != itE; ++it) {
     
     if (it->first == "L1GTAlgo") {
-      const int bxInEvent = 0;
-      bool found = false;
-      for (int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-       	if (ibx==bxInEvent) {
-       	  if (!uGtAlgs->isEmpty(ibx)) {
-      	    found = true;
-      	    break;
-      	  }
-      	}
-      }
-      if (found) {
-	//for (int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-	auto itr = uGtAlgs->begin(bxInEvent);
-	//auto itr = uGtAlgs->begin(ibx);
-	for(int algoBit = 0; algoBit < m_numAlgs; ++algoBit) {
-	  //         prescaleFactorSet_->Fill(lumi, itr->getPreScColumn());
-	  if (algoBit<(int)itr->getAlgoDecisionInitial().size()) {	     
-	    addToIVec(it->first, itr->getAlgoDecisionInitial(algoBit)); // Algorithm bits before AlgoBX mask
-	  } else {
-	    addToIVec(it->first, 0);
+
+      if (m_useGlobalReadoutRecord) {
+	
+	edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRecord;
+	iEvent.getByToken(m_l1GlobalReadoutRecordToken, L1GTRecord);
+  
+	if (!L1GTRecord.isValid()) {
+	  edm::LogWarning("TriggerResultsView") << "Cannot find L1GlobalTriggerReadoutRecord readout record.";
+	  continue;
+	}
+	
+	const DecisionWord& decision = L1GTRecord->decisionWord(); 
+	unsigned int nBits = decision.size();
+	if (nBits==0) {
+	  edm::LogWarning("TriggerResultsView") << "L1GlobalTriggerReadoutRecord is empty.";	  
+	}
+	for (unsigned int algoBit = 0; algoBit < nBits; ++algoBit) {
+	  addToIVec(it->first, decision[algoBit]); // Algorithm bits before AlgoBX mask
+	}
+
+      } else {
+
+	// this is for stage2 L1 trigger *************************************
+	// Open uGT readout record
+	edm::Handle<GlobalAlgBlkBxCollection> uGtAlgs;
+	iEvent.getByToken(m_l1tStage2uGtToken, uGtAlgs);
+	
+	if (!uGtAlgs.isValid()) {
+	  edm::LogWarning("TriggerResultsView") << "Cannot find uGT readout record.";
+	  continue;
+	}
+	
+	const int bxInEvent = 0;
+	bool found = false;
+	for (int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
+	  if (ibx==bxInEvent) {
+	    if (!uGtAlgs->isEmpty(ibx)) {
+	      found = true;
+	      break;
+	    }
 	  }
 	}
-      } else {
-	for(int algoBit = 0; algoBit < m_numAlgs; ++algoBit) {	    
-	  addToIVec(it->first, 0);
+	if (found) {
+	  //for (int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
+	  auto itr = uGtAlgs->begin(bxInEvent);
+	  //auto itr = uGtAlgs->begin(ibx);
+	  const DecisionWord& decision = itr->getAlgoDecisionInitial();
+	  for (unsigned int algoBit = 0; algoBit < decision.size(); ++algoBit) {
+	    //         prescaleFactorSet_->Fill(lumi, itr->getPreScColumn());
+	    //if (algoBit<(int)itr->getAlgoDecisionInitial().size()) {	     
+	    addToIVec(it->first, decision[algoBit]); // Algorithm bits before AlgoBX mask
+	    //} else {
+	    //addToIVec(it->first, 0);
+	    //}
+	  }
+	} else {
+	  edm::LogWarning("TriggerResultsView") << "Did not find L1 trigger data for requested BX.";	
+	  continue;
 	}
       }
-      continue;
     }
     
     int accept = 0;
