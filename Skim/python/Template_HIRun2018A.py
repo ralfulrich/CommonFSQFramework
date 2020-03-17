@@ -1,4 +1,4 @@
-anaType="PbPbCommissioning2018"
+anaType="HIRun2018A"
 
 # root path needs proper XXX
 # some stuff needed for crab configuration, e.g. blacklisting
@@ -10,7 +10,7 @@ skimEfficiencyMethod="getSkimEff"
 '''
 
 # point towards your list of samples you want
-dsFile="CommonFSQFramework/Skim/python/ds_PbPbCommissioning2018.txt"
+dsFile="CommonFSQFramework/Skim/python/ds_HIRun2018A.txt"
 
 # define the util decorator. Functions marked with this wont turn into ds attribute
 def util(func):
@@ -39,7 +39,7 @@ def isData(ds):
 def json(ds):
     realData = isData(ds)
     if realData:
-        if "HIRun2018" in ds: return "CommonFSQFramework/Skim/lumi/PbPbCommissioning2018.json"
+        if "HIRun2018" in ds: return "CommonFSQFramework/Skim/lumi/Run326381_HI_PromptReco_Collisions18_JSON.txt"
     else:
         return ""
 
@@ -52,7 +52,8 @@ def crabJobs(ds):
 
 
 def numEvents(ds):
-     
+    
+    if "hvanhaev-HINPbPb2018-RECO-00003_103X_upgrade2018_realistic_HI_v9" in ds: return 7200
     
     # data
     
@@ -60,8 +61,9 @@ def numEvents(ds):
     return -1
 
 def GT(ds):
-    if isData(ds) and "HIRun2018-Express" in ds: return "103X_dataRun2_Express_v2"
-    if isData(ds) and "HIRun2018-Prompt" in ds: return "103X_dataRun2_Prompt_v3"
+    if isData(ds) and "HIRun2018A" in ds: return "103X_dataRun2_Prompt_v3"
+    
+    if "hvanhaev-HINPbPb2018-RECO-00003_103X_upgrade2018_realistic_HI_v9" in ds: return "103X_upgrade2018_realistic_HI_v9"
     
     return "MCRUN2_74_V8B"
     
@@ -85,6 +87,7 @@ def XS(ds):
     # Give all XS in pb
     s = {}
 
+    s["MinBias"] = 1
 
     dsName = name(ds)
     if dsName in s:
