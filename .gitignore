@@ -1,6 +1,13 @@
-**/*.pyc
+*.pyc
 **/__init__.py
 **/*~
-Skim/config/data/
-Skim/data/
-data/
+__init__.py
+Core/__init__.py
+Skim/__init__.py
+**/*.pdf
+**/*.log
+**/log*
+**/*.root
+**/*.d
+**/*.so
+**/*#
