@@ -8,3 +8,6 @@ Skim/__init__.py
 **/*.log
 **/log*
 **/*.root
+**/*.d
+**/*.so
+**/*#
