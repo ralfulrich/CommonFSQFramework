@@ -5,8 +5,6 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 
 from ROOT import *
-ROOT.gSystem.Load("libFWCoreFWLite.so")
-FWLiteEnabler.enable()
 
 from optparse import OptionParser
 import subprocess
@@ -19,15 +17,21 @@ import CommonFSQFramework.Core.Util
 def checkRootFile(fp):
     while "//" in fp:
        fp = fp.replace("//","/")
-    cmd = ["root", "-l", "-b", "-q", fp]
+    cmd = ["root", "-l", "-b", fp, "/tmp/macro.C"]
+    macro = open("/tmp/macro.C", "w")
+    macro.write('cd tesss\n')
+    macro.write('.q\n')
+    macro.close()
     #ret = subprocess.call(cmd)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while proc.poll() == None:
         time.sleep(1)
+    ret = proc.returncode 
 
     errInStdout = False
     outData =""
     for line in proc.stdout:
+        print line
         outData += line
         if "Error " in line:
             errInStdout = True
@@ -35,6 +39,7 @@ def checkRootFile(fp):
 
     outData += "stderr::\n"
     for line in proc.stderr:
+        print line
         outData += line
         if "Error " in line:
             errInStdout = True
@@ -44,12 +49,15 @@ def checkRootFile(fp):
         print ("\nProblem processing call: "+" ".join(cmd)+ "\n\noutdata:\n\n" + outData)
         sys.exit(1)
 
-    ret = proc.poll()
     return ret
     
 
 
 def checkDataIntegrity(remove = False, checkFilesWithRoot = False):
+
+    countFiles = 0
+    countBad = 0
+    countRM = 0
 
     sampleList=CommonFSQFramework.Core.Util.getAnaDefinition("sam")
     for s in sampleList:
@@ -73,12 +81,15 @@ def checkDataIntegrity(remove = False, checkFilesWithRoot = False):
                     if not f.endswith(".root"):
                         print "Non root file:", fp
                         continue
-                    spl = f.split("_")
-                    try:
-                        fileNum = int(spl[1])
-                    except:
-                        print "Error processing", fp,"- skipping"
-                        continue
+                    #spl = f.split("_")
+                    #try:
+                    #    fileNum = int(spl[-1])
+                    #except:
+                    #    print "Error processing", fp, f, str(spl), "- skipping"
+                    #    continue
+                    fileNum = f
+                    
+                    countFiles += 1
 
                     while "//" in fp:
                         fp = fp.replace("//","/")
@@ -86,15 +97,21 @@ def checkDataIntegrity(remove = False, checkFilesWithRoot = False):
                     if checkFilesWithRoot:
                         ret = checkRootFile(fp)
                         if ret != 0:
-                            print "Bad file:", fp
+                            print "Bad file (root):        " + fp + ", ret=" + str(ret)
+                            countBad += 1
+                            if remove:
+                                os.system("rm "+fp)
+                                countRM += 1
                             continue
 
                     # root -l -b -q
                     fsize = os.path.getsize(fp)
                     if fsize == 0:
-                        print "Empty file:", fp
+                        print "Bad file (empty):       " + fp
+                        countBad += 1
                         if remove:
                             os.system("rm "+fp)
+                            countRM += 1
                     else:
                         fileMap.setdefault(fileNum, []).append(fp)
                     #print f
@@ -106,9 +123,11 @@ def checkDataIntegrity(remove = False, checkFilesWithRoot = False):
                         #ret = 0
                         ret = checkRootFile(f)
                         if ret != 0:
-                            print "Bad file:", f
+                            print "Bad file (dupl., root): "+ f + ", ret=" + str(ret)
+                            countBad += 1
                             if remove:
                                 os.system("rm "+f)
+                                countRM += 1
                                 filemap[num].remove(f)
 
                     if len(fileMap[num]) > 1: # after root file check
@@ -124,10 +143,16 @@ def checkDataIntegrity(remove = False, checkFilesWithRoot = False):
                             if f == biggestFile:
                                 continue
                             else:
-                                print "Will remove", f
+                                print "Bad file (duplicate):   " + f
+                                countBad += 1
                                 if remove:
                                     os.system("rm "+f)
+                                    countRM += 1
                         
+    print ("Checked " + str(countFiles) + " files")
+    print ("Bad     " + str(countBad) + " files")
+    print ("Deleted " + str(countRM) + " files")
+
 
 def makeDir(d):
     if "eos/cms" in d:
@@ -157,8 +182,8 @@ def makeDir(d):
 def main():
     sampleList=CommonFSQFramework.Core.Util.getAnaDefinition("sam")
 
-    parser = OptionParser(usage="usage: %prog [options] filename",
-                            version="%prog 1.0")
+    parser = OptionParser(usage="usage: copyAnaData.py [options] filename",
+                            version="V2.0")
 
     parser.add_option("-p", "--doPat", action="store_true", dest="pat")
     parser.add_option("-t", "--doTrees", action="store_true",  dest="trees")
@@ -166,13 +191,16 @@ def main():
     parser.add_option("-d", "--deleteBadFiles", action="store_true",  dest="remove")
     parser.add_option("-r", "--rootCheck", action="store_true",  dest="checkFilesWithRoot")
     parser.add_option("-m", "--maxFilesMC", action="store",  type="int", dest="maxFilesMC")
+    parser.add_option("-s", "--samples", action="store",  type="string", dest="samples")
     (options, args) = parser.parse_args()
 
+    samples = []
+    if (options.samples):
+        samples = options.samples.split(',')
 
     maxFilesMC = -1
     if options.maxFilesMC:
         maxFilesMC = options.maxFilesMC
-
 
     if options.check:
         remove = False
@@ -195,12 +223,18 @@ def main():
         print "Nothing to do. Run me with '-t' option to copy trees from current skim"
         sys.exit()
         
-    #333
     cntSamples = 0
     cntCopySum = 0
     cntReadSum = 0
     myprocs = []
     for s in sampleList:
+
+        if (len(samples) != 0):
+            if (s not in samples):
+                continue
+
+        print ("copying sample: " + str(s))
+
         if "pathSE" not in sampleList[s]:
             print "No SE path found for sample", s            
         try:
@@ -257,10 +291,10 @@ def main():
             cntCopy += 1
 
             targetFile = targetDir + "/" + subdir + fname
-            cpCommand = ['gfal-copy', pathSE.rstrip('/') + '/' + srcFile, targetFile]            
-	    #cpCommand = ['lcg-ls', srcFile]
-
-	    #print "would be cpCommand: ", cpCommand
+            if "eos/cms" in targetDir:
+	        cpCommand = ['gfal-copy', pathSE.rstrip('/') + '/' + srcFile, "srm://srm-eoscms.cern.ch/"+targetFile]
+	    else:
+                cpCommand = ['gfal-copy', pathSE.rstrip('/') + '/' + srcFile, targetFile]
             
 	    if "eos/cms" not in targetDir and os.path.isfile(targetFile):
                 print "Allready present", typeString, subdir+fname, " #"+str(cntCopy), "from", s
